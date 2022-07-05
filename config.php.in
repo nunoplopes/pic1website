@@ -1,0 +1,6 @@
+<?php
+
+// Copy this file to config.php and specify the configs below.
+
+// github token
+define('GH_TOKEN', 'username:token');
