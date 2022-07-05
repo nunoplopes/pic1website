@@ -6,7 +6,6 @@
 // API doc: https://fenixedu.org/dev/api/
 
 require 'config.php';
-ini_set('user_agent', USERAGENT);
 
 function get($path, $year = null) {
   $url = "https://fenix.tecnico.ulisboa.pt/api/fenix/v1/$path";

@@ -1,0 +1,7 @@
+RewriteEngine on
+RewriteRule ^s/(.)$ /index.php?page=$1
+
+<Files *.php>
+  Order Deny,Allow
+  Deny from all
+</Files>

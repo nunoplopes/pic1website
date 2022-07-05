@@ -1,7 +1,7 @@
 Data Model
 ==========
 
-## Users
+## Students
  - username (fenix) [PK]
  - display name †
  - github username
@@ -9,9 +9,24 @@ Data Model
 ## Groups
  - group id [PK]
  - year
- - users
+ - students
  - code provider (github, gitlab, etc)
  - project's provider id
+ - project name
+ - project description
+ - project website
+ - CLA required?
+ - Major users
+ - lines of code
+ - coding style (URL)
+ - bugs for beginners (URL)
+ - project ideas (URL)
+ - getting started manual (URL)
+ - developer's manual (URL)
+ - testing manual (URL)
+ - mailing list (URL)
+ - patch submission (URL)
+ - comments
 
 ## Patches
  - patch id [PK]
