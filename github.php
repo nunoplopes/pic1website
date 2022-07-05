@@ -3,6 +3,8 @@
 // Copyright (c) 2022-present Universidade de Lisboa.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+// API doc: https://docs.github.com/en/rest
+
 require 'config.php';
 
 function parse_date($date) {
@@ -12,7 +14,7 @@ function parse_date($date) {
 function get($path, $etag_in = null) {
   $curl = curl_init("https://api.github.com/$path");
   curl_setopt($curl, CURLOPT_USERPWD, GH_TOKEN);
-  curl_setopt($curl, CURLOPT_USERAGENT, 'ULisbon PIC1 Bot (experimental)');
+  curl_setopt($curl, CURLOPT_USERAGENT, USERAGENT);
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($curl, CURLOPT_HEADER, true);
   if ($etag_in)
@@ -25,7 +27,7 @@ function get($path, $etag_in = null) {
   $data    = explode("\r\n\r\n", $data, 2);
   $headers = $data[0];
   $json    = $data[1];
-  
+
   if (preg_match('/etag: "([^"]*)"/S', $headers, $etag))
     $etag = $etag[1];
 
@@ -33,15 +35,16 @@ function get($path, $etag_in = null) {
 }
 
 function pr_status($repo, $number) {
-  [$pr, $etag] = get("repos/$repo/pulls/$number");
-  return ['closed'    => $pr->state == 'closed',
-          'merged'    => $pr->merged,
-          'merged_by' => $pr->merged ? $pr->merged_by->login : null,
-          'merged_at' => parse_date($pr->merged_at),
-          'added'     => $pr->additions,
-          'deleted'   => $pr->deletions,
-          'numMfiles' => $pr->changed_files,
-         ];
+  $pr = get("repos/$repo/pulls/$number")[0];
+  return [
+    'closed'    => $pr->state == 'closed',
+    'merged'    => $pr->merged,
+    'merged_by' => $pr->merged ? $pr->merged_by->login : null,
+    'merged_at' => parse_date($pr->merged_at),
+    'added'     => $pr->additions,
+    'deleted'   => $pr->deletions,
+    'numMfiles' => $pr->changed_files,
+  ];
 }
 
 // returns (opened PRs, opened issues, etag)
@@ -63,4 +66,18 @@ function process_user_events($username, $etag = null) {
     }
   }
   return [$opened_prs, $opened_issues, $new_etag];
+}
+
+function get_repo_weekly_commits($repo) {
+  return get("repos/$repo/stats/participation")[0]->all;
+}
+
+function get_repo_stats($repo) {
+  $data = get("repos/$repo")[0];
+  return [
+    'language' => $data->language,
+    'license'  => $data->license->spdx_id,
+    'stars'    => $data->stargazers_count,
+    'topics'   => $data->topics,
+  ];
 }

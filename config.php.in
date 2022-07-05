@@ -2,5 +2,15 @@
 
 // Copy this file to config.php and specify the configs below.
 
+// user agent for external requests
+define('USERAGENT', 'bot');
+
 // github token
 define('GH_TOKEN', 'username:token');
+
+// degrees & courses that we care about
+define('FENIX_DEGREES', ['LEIC-A', 'LEIC-T', 'LERC']);
+define('FENIX_COURSES', ['PLic2']);
+
+// When does the new academic year starts? (integer)
+define('MONTH_NEW_YEAR', 9);
