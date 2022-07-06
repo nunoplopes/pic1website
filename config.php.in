@@ -2,6 +2,8 @@
 
 // Copy this file to config.php and specify the configs below.
 
+define('IN_PRODUCTION', true);
+
 // user agent for external requests
 define('USERAGENT', 'bot');
 
@@ -14,3 +16,7 @@ define('FENIX_COURSES', ['PLic2']);
 
 // When does the new academic year starts? (integer)
 define('MONTH_NEW_YEAR', 9);
+
+define('PDO_DSN', 'sqlite:db.sqlite');
+define('PDO_USER', null);
+define('PDO_PWD', null);

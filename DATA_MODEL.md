@@ -3,8 +3,10 @@ Data Model
 
 ## Students
  - username (fenix) [PK]
- - display name †
+ - display name
  - github username
+ - github event etag
+ - gitlab username
 
 ## Groups
  - group id [PK]
