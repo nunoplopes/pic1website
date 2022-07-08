@@ -7,8 +7,8 @@ require 'db.php';
 
 $db->exec(<<<EOF
 CREATE TABLE IF NOT EXISTS students (
-  username TEXT PRIMARY KEY,
-  displayname TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
   github_username TEXT,
   github_etag TEXT
 ) WITHOUT ROWID

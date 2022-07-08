@@ -8,4 +8,9 @@ if (IN_PRODUCTION) {
   error_reporting(0);
 } else {
   error_reporting(E_ALL);
+  ini_set('display_errors', true);
 }
+
+setlocale(LC_ALL, 'C');
+ini_set('default_charset', 'UTF-8');
+ini_set('user_agent', USERAGENT);

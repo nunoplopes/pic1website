@@ -7,11 +7,7 @@ require 'templates.php';
 require 'db.php';
 require 'auth.php';
 
-setlocale(LC_ALL, 'C');
-ini_set('default_charset', 'UTF-8');
-ini_set('user_agent', USERAGENT);
-
-$page = @$_REQUEST['page'];
+$page = $_REQUEST['page'] ?? '';
 $file = "pages/$page.php";
 
 try {
@@ -24,7 +20,7 @@ try {
   if (IN_PRODUCTION) {
     echo "<p>Error while accessing the DB</p>";
   } else {
-    print_r($e);
+    echo "<pre>", htmlspecialchars(print_r($e, true)), "</pre>";
   }
 }
 

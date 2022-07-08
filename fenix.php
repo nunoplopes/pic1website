@@ -45,7 +45,7 @@ function get_groups($course) {
     return [];
   foreach ($data[0]->associatedGroups as $group) {
     foreach ($group->members as $m) {
-      $groups[$group->groupNumber][] = $m->username;
+      $groups[$group->groupNumber][$m->username] = $m->name;
     }
   }
   return $groups;

@@ -4,6 +4,8 @@
 
 define('IN_PRODUCTION', true);
 
+define('SUDO_HASH', '');
+
 // user agent for external requests
 define('USERAGENT', 'bot');
 

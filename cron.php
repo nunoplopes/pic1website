@@ -11,7 +11,14 @@ require 'github.php';
 $year = get_current_year();
 foreach (get_course_ids(get_term()) as $course) {
   foreach (get_groups($course) as $number => $students) {
-    db_update_group($number, $year, implode(',', $students));
+    if (!$students)
+      continue;
+    $ids = [];
+    foreach ($students as $id => $name) {
+      $ids[] = $id;
+      db_insert_student($id, $name);
+    }
+    db_update_group($number, $year, $ids);
   }
 }
 
