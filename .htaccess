@@ -1,7 +1,14 @@
-RewriteEngine on
-RewriteRule ^s/(.)$ /index.php?page=$1
-
 <Files *.php>
   Order Deny,Allow
   Deny from all
+</Files>
+
+<Files index.php>
+  Order Allow,Deny
+  Allow from all
+</Files>
+
+<Files logout.php>
+  Order Allow,Deny
+  Allow from all
 </Files>

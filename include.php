@@ -3,6 +3,7 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require 'config.php';
+require 'vendor/autoload.php';
 
 if (IN_PRODUCTION) {
   error_reporting(0);

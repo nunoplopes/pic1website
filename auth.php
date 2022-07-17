@@ -13,9 +13,12 @@ if (isset($_GET['key']) &&
 }
 
 if (empty($_SESSION['role'])) {
-  // TODO: contact fenix
+  phpCAS::client(CAS_VERSION_3_0, CAS_HOSTNAME, CAS_PORT, CAS_URI);
+  phpCAS::setCasServerCACert(CAS_CA_CERT);
+  phpCAS::forceAuthentication();
+  var_dump(phpCAS::getAttributes());
   $_SESSION['role'] = 'Prof';
-  $_SESSION['username'] = 'ist11111';
+  $_SESSION['username'] = phpCAS::getUser();
   $_SESSION['name'] = 'Maria Manuel';
 }
 

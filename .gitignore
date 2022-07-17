@@ -1,3 +1,5 @@
 config.php
 *.sqlite
 *-journal
+composer.phar
+vendor
