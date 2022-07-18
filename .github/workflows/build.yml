@@ -1,0 +1,35 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.os }} ${{ matrix.phpversion }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os:         [ubuntu-20.04]
+        phpversion: ["7.4", "8.0", "8.1"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          wget https://getcomposer.org/installer -O composer-setup.php
+          php${{ matrix.phpversion }} -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; exit(1); } echo PHP_EOL;"
+          php${{ matrix.phpversion }} composer-setup.php
+          rm composer-setup.php
+          php${{ matrix.phpversion }} composer.phar update
+          cp config.php.in config.php
+
+      - name: Syntax checker
+        run: ./.github/scripts/syntax-check.sh
+
+      - name: Run Install script
+        run: php${{ matrix.phpversion }} install.php
+
+    env:
+      PHP_VERSION: ${{ matrix.phpversion }}
