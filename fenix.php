@@ -7,7 +7,7 @@
 require_once 'include.php';
 
 function get_auth_redirect_url() {
-  return $_SERVER['SCRIPT_URI'] . '?fenixlogin';
+  return 'https://' . $_SERVER['HTTP_HOST'] . '/?fenixlogin';
 }
 
 function fenix_get_auth_url() {
@@ -39,6 +39,8 @@ function fenix_get_auth_token($code) {
     'grant_type'    => 'authorization_code',
   ];
   $auth = fenix_do_post($url, $data);
+  if (!$auth || isset($auth['error']))
+    return null;
 
   if (isset($auth['expires_in']))
     $auth['expires_in'] = time() + (int)$auth['expires_in'];
@@ -57,6 +59,8 @@ function fenix_reauth_if_needed($auth) {
     'grant_type'    => 'refresh_token',
   ];
   $auth = fenix_do_post($url, $data);
+  if (!$auth || isset($auth['error']))
+    return null;
 
   if (isset($auth['expires_in']))
     $auth['expires_in'] = time() + (int)$auth['expires_in'];
