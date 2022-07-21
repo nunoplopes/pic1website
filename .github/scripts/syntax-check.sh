@@ -2,6 +2,6 @@
 
 set -e
 
-for f in `find -name '*.php'` ; do
+for f in `find -name '*.php' -not -path './vendor/*'` ; do
   php$PHP_VERSION -l $f
 done
