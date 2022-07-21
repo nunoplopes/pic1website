@@ -47,14 +47,14 @@ function fenix_get_auth_token($code) {
 }
 
 function fenix_reauth_if_needed($auth) {
-  if (time() < $auth['expires_in'])
+  if (time() < $auth->expires_in)
     return;
 
   $url = 'https://fenix.tecnico.ulisboa.pt/oauth/refresh_token';
   $data = [
     'client_id'     => FENIX_APP_ID,
     'client_secret' => FENIX_CLIENT_SECRET,
-    'refresh_token' => $auth['refresh_token'],
+    'refresh_token' => $auth->refresh_token,
     'grant_type'    => 'refresh_token',
   ];
   $auth = fenix_do_post($url, $data);
@@ -70,7 +70,7 @@ function get_fnx($path, $year = null, $auth = null) {
   if ($year)
     $data['academicTerm'] = $year;
   if ($auth)
-    $data['access_token'] = $auth['access_token'];
+    $data['access_token'] = $auth->access_token;
 
   $data = http_build_query($data, '', '&', PHP_QUERY_RFC3986);
   $url = "https://fenix.tecnico.ulisboa.pt/api/fenix/v1/$path?$data";
@@ -91,9 +91,9 @@ function get_term() {
 function fenix_get_personal_data($auth) {
   $data = get_fnx('person', null, $auth);
   return [
-    'name'     => $data['name'],
-    'username' => $data['username'],
-    'email'    => $data['email'],
+    'name'     => $data->name,
+    'username' => $data->username,
+    'email'    => $data->email,
   ];
 }
 
