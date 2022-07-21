@@ -2,23 +2,43 @@
 // Copyright (c) 2022-present Universidade de Lisboa.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-$db = new PDO(PDO_DSN, PDO_USER, PDO_PWD);
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+require_once 'include.php';
 
-$stmt_cache = [];
+use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\EntityManager;
 
-function db_prepare($stmt) {
-  global $db, $stmt_cache;
-  if (empty($stmt_cache[$stmt]))
-    $stmt_cache[$stmt] = $db->prepare($stmt);
-  return $stmt_cache[$stmt];
+$config = Setup::createAnnotationMetadataConfiguration([__DIR__ . '/entities'],
+                                                       !IN_PRODUCTION);
+
+$conn = [
+  'driver' => 'pdo_sqlite',
+  'path'   => __DIR__ . '/db.sqlite',
+];
+
+$entityManager = EntityManager::create($conn, $config);
+
+function db_fetch_user($username) {
+  global $entityManager;
+  return $entityManager->find('User', $username);
 }
 
-function db_insert_student($id, $name) {
-  db_prepare('INSERT OR IGNORE INTO students(id, name) VALUES (?,?)')
-    ->execute([$id, $name]);
+function db_fetch_or_add_user($username, $name) {
+  $user = db_fetch_user($username);
+  if ($user)
+    return $user;
+
+  global $entityManager;
+  $user = new User;
+  $user->id   = $username;
+  $user->name = $name;
+  $user->role = 2;
+  $entityManager->persist($user);
+  $entityManager->flush();
+  return $user;
 }
 
+
+/*
 function db_update_group($id, $year, $students) {
   $students = implode(',', $students);
 
@@ -44,3 +64,4 @@ function db_fetch_groups($year) {
   }
   return $data;
 }
+*/
