@@ -39,11 +39,10 @@ function fenix_get_auth_token($code) {
     'grant_type'    => 'authorization_code',
   ];
   $auth = fenix_do_post($url, $data);
-  if (!$auth || isset($auth['error']))
+  if (isset($auth->error))
     return null;
 
-  if (isset($auth['expires_in']))
-    $auth['expires_in'] = time() + (int)$auth['expires_in'];
+  $auth->expires_in = time() + (int)$auth->expires_in;
   return $auth;
 }
 
@@ -59,11 +58,10 @@ function fenix_reauth_if_needed($auth) {
     'grant_type'    => 'refresh_token',
   ];
   $auth = fenix_do_post($url, $data);
-  if (!$auth || isset($auth['error']))
+  if (isset($auth->error))
     return null;
 
-  if (isset($auth['expires_in']))
-    $auth['expires_in'] = time() + (int)$auth['expires_in'];
+  $auth->expires_in = time() + (int)$auth->expires_in;
   return $auth;
 }
 
