@@ -1,5 +1,4 @@
 {
   "require": {
-    "jasig/phpcas": "1.5.*"
   }
 }

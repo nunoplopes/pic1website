@@ -3,6 +3,8 @@
 // Copyright (c) 2022-present Universidade de Lisboa.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+require_once 'fenix.php';
+
 session_start();
 
 if (isset($_GET['key']) &&
@@ -12,14 +14,33 @@ if (isset($_GET['key']) &&
   $_SESSION['name'] = 'Sudo';
 }
 
+if (isset($_GET['fenixlogin'])) {
+  if (isset($_GET['code'])) {
+    $data = fenix_get_auth_token($_GET['code']);
+    if (!$data)
+      die("Failed to authenticate Fenix's token");
+
+    $_SESSION['fenix_data'] = $data;
+    $person = fenix_get_personal_data($data);
+
+    // TODO
+    //db_add_or_update_user($person['username'], $person['name']);
+
+    // TODO: get this from DB
+    $_SESSION['role']     = 'student';
+    $_SESSION['username'] = $person['username'];
+    $_SESSION['name']     = $person['name'];
+  } else if ($_GET['error']) {
+    die("Fenix returned an error: " .
+        htmlspecialchars($_GET['error_description']));
+  } else {
+    die("Couldn't understand Fenix's reply\n");
+  }
+}
+
 if (empty($_SESSION['role'])) {
-  phpCAS::client(CAS_VERSION_3_0, CAS_HOSTNAME, CAS_PORT, CAS_URI);
-  phpCAS::setCasServerCACert(CAS_CA_CERT);
-  phpCAS::forceAuthentication();
-  var_dump(phpCAS::getAttributes());
-  $_SESSION['role'] = 'Prof';
-  $_SESSION['username'] = phpCAS::getUser();
-  $_SESSION['name'] = 'Maria Manuel';
+  header('Location: ' . fenix_get_auth_url());
+  exit;
 }
 
 function has_group_permissions($group) {

@@ -23,7 +23,5 @@ define('PDO_DSN', 'sqlite:db.sqlite');
 define('PDO_USER', null);
 define('PDO_PWD', null);
 
-define('CAS_HOSTNAME', 'id.tecnico.ulisboa.pt');
-define('CAS_PORT', 443);
-define('CAS_URI', '/cas');
-define('CAS_CA_CERT', 'cas.pem');
+define('FENIX_APP_ID', '');
+define('FENIX_CLIENT_SECRET', '');
