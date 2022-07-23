@@ -1,10 +1,15 @@
 {
   "require": {
-    "doctrine/orm": "2.*",
+    "doctrine/orm": "*",
     "doctrine/annotations": "*",
     "doctrine/cache": "1.*"
   },
   "autoload": {
     "psr-0": {"": "entities/"}
+  },
+  "config": {
+    "platform": {
+      "php": "7.3"
+    }
   }
 }
