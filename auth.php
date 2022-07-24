@@ -23,17 +23,27 @@ if (isset($_GET['key']) &&
 
 if (isset($_GET['fenixlogin'])) {
   if (isset($_GET['code'])) {
-    $data = fenix_get_auth_token($_GET['code']);
-    if (!$data)
-      die("Failed to authenticate Fenix's token");
+    // prevent reauthentication through browser refresh
+    if (empty($_SESSION['fenix_code']) ||
+        $_SESSION['fenix_code'] !== $_GET['code']) {
+      $data = fenix_get_auth_token($_GET['code']);
+      if (!$data)
+        die("Failed to authenticate Fenix's token");
 
-    $_SESSION['fenix_data'] = $data;
-    $person = fenix_get_personal_data($data);
+      $_SESSION['fenix_code'] = $_GET['code'];
+      $_SESSION['fenix_data'] = $data;
+      $person = fenix_get_personal_data($data);
 
-    $user = db_fetch_or_add_user($person['username'], $person['name'],
-                                 ROLE_STUDENT);
-    $_SESSION['username'] = $user->id;
+      $user = db_fetch_or_add_user($person['username'], $person['name'],
+                                   ROLE_STUDENT);
+      $_SESSION['username'] = $user->id;
 
+      // Let's cleanup the URL and remove those fenix codes
+      $cleanurl = 'https://' . $_SERVER['HTTP_HOST'] .
+                  '/index.php?page=' . $_GET['page'];
+      header("Location: $cleanurl");
+      exit;
+    }
   } else if ($_GET['error']) {
     die("Fenix returned an error: " .
         htmlspecialchars($_GET['error_description']));
