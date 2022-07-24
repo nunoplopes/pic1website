@@ -7,13 +7,18 @@ require_once 'fenix.php';
 
 session_start();
 
+define('ROLE_SUDO', 0);
+define('ROLE_PROF', 1);
+define('ROLE_TA', 2);
+define('ROLE_STUDENT', 3);
+
 if (isset($_GET['key']) &&
     password_verify('4X6EM' . $_GET['key'] . 'fgOGi', SUDO_HASH)) {
   $_SESSION['username'] = 'ist00000';
   $user = new User;
   $user->id   = 'ist00000';
   $user->name = 'Sudo';
-  $user->role = 0;
+  $user->role = ROLE_SUDO;
 }
 
 if (isset($_GET['fenixlogin'])) {
@@ -25,8 +30,9 @@ if (isset($_GET['fenixlogin'])) {
     $_SESSION['fenix_data'] = $data;
     $person = fenix_get_personal_data($data);
 
-    $user = db_fetch_or_add_user($person['username'], $person['name']);
-    $_SESSION['username'] = $person['username'];
+    $user = db_fetch_or_add_user($person['username'], $person['name'],
+                                 ROLE_STUDENT);
+    $_SESSION['username'] = $user->id;
 
   } else if ($_GET['error']) {
     die("Fenix returned an error: " .
@@ -45,12 +51,20 @@ if (empty($user)) {
   }
 }
 
+function auth_at_least($role) {
+  global $user;
+  return $user->role <= $role;
+}
+
 function has_group_permissions($group) {
-  switch ($_SESSION['role']) {
-    case 'superuser': return true;
-    case 'TA':
+  global $user;
+  switch ($user->role) {
+    case ROLE_SUDO:
+    case ROLE_PROF:
+      return true;
+    case ROLE_TA:
       return false; // TODO
-    case 'student':
-      return in_array($_SESSION['username'], $group['students']);
+    case ROLE_STUDENT:
+      return in_array($group->id, $user->groups);
   }
 }

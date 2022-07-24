@@ -1,4 +1,6 @@
 <?php
+// Copyright (c) 2022-present Universidade de Lisboa.
+// Distributed under the MIT license that can be found in the LICENSE file.
 
 /** @Entity */
 class User
@@ -11,9 +13,6 @@ class User
 
   /** @Column(type="integer") */
   // TODO: switch to enum with PHP 8
-  // 0 - Superuser
-  // 1 - TA
-  // 2 - Student
   public $role;
 
   /** @ManyToMany(targetEntity="Group", mappedBy="students") */

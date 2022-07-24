@@ -11,8 +11,11 @@ $config = Setup::createAnnotationMetadataConfiguration([__DIR__ . '/entities'],
                                                        !IN_PRODUCTION);
 
 $conn = [
-  'driver' => 'pdo_sqlite',
-  'path'   => __DIR__ . '/db.sqlite',
+  'driver'   => DB_DRIVER,
+  'path'     => DB_PATH,
+  'dbname'   => DB_NAME,
+  'user'     => DB_USER,
+  'password' => DB_PWD
 ];
 
 $entityManager = EntityManager::create($conn, $config);
@@ -22,7 +25,7 @@ function db_fetch_user($username) {
   return $entityManager->find('User', $username);
 }
 
-function db_fetch_or_add_user($username, $name) {
+function db_fetch_or_add_user($username, $name, $role) : User {
   $user = db_fetch_user($username);
   if ($user)
     return $user;
@@ -31,7 +34,7 @@ function db_fetch_or_add_user($username, $name) {
   $user = new User;
   $user->id   = $username;
   $user->name = $name;
-  $user->role = 2;
+  $user->role = $role;
   $entityManager->persist($user);
   $entityManager->flush();
   return $user;
