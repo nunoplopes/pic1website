@@ -12,10 +12,21 @@ define('ROLE_PROF', 1);
 define('ROLE_TA', 2);
 define('ROLE_STUDENT', 3);
 
+$auth_user__ = null;
+function get_user() : User {
+  return $GLOBALS['auth_user__'];
+}
+
+function auth_set_user($user) {
+  $GLOBALS['auth_user__'] = $user;
+  $_SESSION['username'] = $user->id;
+}
+
+
 if (isset($_GET['key']) &&
     password_verify('4X6EM' . $_GET['key'] . 'fgOGi', SUDO_HASH)) {
   $_SESSION['username'] = 'ist00000';
-  $user = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO);
+  $auth_user__ = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO);
 }
 
 if (isset($_GET['fenixlogin'])) {
@@ -31,9 +42,9 @@ if (isset($_GET['fenixlogin'])) {
       $_SESSION['fenix_data'] = $data;
       $person = fenix_get_personal_data($data);
 
-      $user = db_fetch_or_add_user($person['username'], $person['name'],
-                                   ROLE_STUDENT);
-      $_SESSION['username'] = $user->id;
+      $auth_user__ = db_fetch_or_add_user($person['username'], $person['name'],
+                                          ROLE_STUDENT);
+      $_SESSION['username'] = get_user()->id;
 
       // Let's cleanup the URL and remove those fenix codes
       $cleanurl = 'https://' . $_SERVER['HTTP_HOST'] .
@@ -49,22 +60,30 @@ if (isset($_GET['fenixlogin'])) {
   }
 }
 
-if (empty($user)) {
+if ($auth_user__ === null) {
   if (isset($_SESSION['username'])) {
-    $user = db_fetch_user($_SESSION['username']);
+    $auth_user__ = db_fetch_user($_SESSION['username']);
   } else {
     header('Location: ' . fenix_get_auth_url());
     exit;
   }
 }
 
+function validate_role($role) {
+  return is_int($role) && $role >= ROLE_SUDO && $role <= ROLE_STUDENT;
+}
+
 function auth_at_least($role) {
-  global $user;
-  return $user->role <= $role;
+  return get_user()->role <= $role;
+}
+
+function auth_require_at_least($role) {
+  if (!auth_at_least($role))
+    die('Unauthorized access');
 }
 
 function has_group_permissions($group) {
-  global $user;
+  $user = get_user();
   switch ($user->role) {
     case ROLE_SUDO:
     case ROLE_PROF:
@@ -76,12 +95,17 @@ function has_group_permissions($group) {
   }
 }
 
+function get_all_roles($include_sudo) {
+  $roles = [
+    ROLE_PROF    => 'Professor',
+    ROLE_TA      => 'TA',
+    ROLE_STUDENT => 'Student'
+  ];
+  if ($include_sudo)
+    $roles[ROLE_SUDO] = 'Sudo';
+  return $roles;
+}
+
 function get_role_string() {
-  global $user;
-  switch ($user->role) {
-    case ROLE_SUDO:    return 'Sudo';
-    case ROLE_PROF:    return 'Professor';
-    case ROLE_TA:      return 'TA';
-    case ROLE_STUDENT: return 'student';
-  }
+  return get_all_roles(true)[get_user()->role];
 }

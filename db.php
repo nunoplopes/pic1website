@@ -12,6 +12,11 @@ $config = Setup::createAnnotationMetadataConfiguration([__DIR__ . '/entities'],
 
 $entityManager = EntityManager::create(['url' => DB_DSN], $config);
 
+function db_flush() {
+  global $entityManager;
+  $entityManager->flush();
+}
+
 function db_fetch_user($username) {
   global $entityManager;
   return $entityManager->find('User', $username);

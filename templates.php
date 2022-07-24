@@ -3,7 +3,7 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 function html_header($title) {
-  global $user;
+  $user = get_user();
   $role = get_role_string();
 
 echo <<< EOF
@@ -26,6 +26,7 @@ EOF;
 function html_footer() {
   $pages = [
     ['listprojects', 'Display projects', ROLE_STUDENT],
+    ['changerole', 'Change Role', ROLE_PROF],
     ['impersonate', 'Impersonate', ROLE_SUDO],
     ['phpinfo', 'PHP Info', ROLE_PROF],
   ];
