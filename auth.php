@@ -15,10 +15,7 @@ define('ROLE_STUDENT', 3);
 if (isset($_GET['key']) &&
     password_verify('4X6EM' . $_GET['key'] . 'fgOGi', SUDO_HASH)) {
   $_SESSION['username'] = 'ist00000';
-  $user = new User;
-  $user->id   = 'ist00000';
-  $user->name = 'Sudo';
-  $user->role = ROLE_SUDO;
+  $user = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO);
 }
 
 if (isset($_GET['fenixlogin'])) {
@@ -76,5 +73,15 @@ function has_group_permissions($group) {
       return false; // TODO
     case ROLE_STUDENT:
       return in_array($group->id, $user->groups);
+  }
+}
+
+function get_role_string() {
+  global $user;
+  switch ($user->role) {
+    case ROLE_SUDO:    return 'Sudo';
+    case ROLE_PROF:    return 'Professor';
+    case ROLE_TA:      return 'TA';
+    case ROLE_STUDENT: return 'student';
   }
 }

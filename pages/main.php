@@ -3,7 +3,3 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 html_header('Welcome');
-
-?>
-
-<p><?php dolink('listprojects', 'Display projects'); ?></p>

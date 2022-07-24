@@ -3,9 +3,8 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 function html_header($title) {
-  $user = $_SESSION['username'];
-  $name = $_SESSION['name'];
-  $role = $_SESSION['role'];
+  global $user;
+  $role = get_role_string();
 
 echo <<< EOF
 <!DOCTYPE html>
@@ -19,21 +18,33 @@ table, th, td {
 <title>PIC1: $title</title>
 </head>
 <body>
-<p>User: $name ($user)<br>
+<p>User: $user->name ($user->id)<br>
 Role: $role</p>
-<p><a href="logout.php">Logout</a></p>
 EOF;
 }
 
 function html_footer() {
+  $pages = [
+    ['listprojects', 'Display projects', ROLE_STUDENT],
+    ['impersonate', 'Impersonate', ROLE_SUDO],
+    ['phpinfo', 'PHP Info', ROLE_PROF],
+  ];
+  echo '<p>';
+  foreach ($pages as $page) {
+    if (auth_at_least($page[2]))
+      echo dolink($page[0], $page[1]), ' | ';
+  }
   echo <<< EOF
+<a href="logout.php">Logout</a></p>
 </body>
 </html>
 EOF;
 }
 
-function dolink($page, $txt) {
-  echo "<a href=\"index.php?page=$page\">$txt</a>";
+function dolink($page, $txt, $args = []) {
+  $args['page'] = $page;
+  $q = http_build_query($args, '', '&amp;');
+  echo "<a href=\"index.php?$q\">$txt</a>";
 }
 
 function print_table($table) {

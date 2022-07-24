@@ -32,6 +32,11 @@ function db_fetch_or_add_user($username, $name, $role) : User {
   return $user;
 }
 
+function db_get_all_users() {
+  global $entityManager;
+  return $entityManager->getRepository('User')->findBy([], ['id' => 'ASC']);
+}
+
 
 /*
 function db_update_group($id, $year, $students) {
