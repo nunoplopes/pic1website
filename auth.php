@@ -7,11 +7,6 @@ require_once 'fenix.php';
 
 session_start();
 
-define('ROLE_SUDO', 0);
-define('ROLE_PROF', 1);
-define('ROLE_TA', 2);
-define('ROLE_STUDENT', 3);
-
 $auth_user__ = null;
 function get_user() : User {
   return $GLOBALS['auth_user__'];
@@ -91,7 +86,7 @@ function has_group_permissions($group) {
     case ROLE_TA:
       return false; // TODO
     case ROLE_STUDENT:
-      return in_array($group->id, $user->groups);
+      return $user->groups->contains($group);
   }
 }
 

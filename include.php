@@ -15,3 +15,9 @@ if (IN_PRODUCTION) {
 setlocale(LC_ALL, 'C');
 ini_set('default_charset', 'UTF-8');
 ini_set('user_agent', USERAGENT);
+
+// TODO: migrate this to an enum with PHP 8
+define('ROLE_SUDO', 0);
+define('ROLE_PROF', 1);
+define('ROLE_TA', 2);
+define('ROLE_STUDENT', 3);

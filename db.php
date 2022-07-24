@@ -17,7 +17,7 @@ function db_flush() {
   $entityManager->flush();
 }
 
-function db_fetch_user($username) {
+function db_fetch_user($username) : ?User {
   global $entityManager;
   return $entityManager->find('User', $username);
 }
@@ -42,31 +42,36 @@ function db_get_all_users() {
   return $entityManager->getRepository('User')->findBy([], ['id' => 'ASC']);
 }
 
-
-/*
-function db_update_group($id, $year, $students) {
-  $students = implode(',', $students);
-
-  // doesn't update row if it exists already
-  db_prepare('INSERT OR IGNORE INTO groups(id, year, students) VALUES (?,?,?)')
-    ->execute([$id, $year, $students]);
-  db_prepare('UPDATE groups SET students=? WHERE id=? AND year=?')
-    ->execute([$students, $id, $year]);
-}
-
 function db_get_group_years() {
-  global $db;
-  return $db->query('SELECT DISTINCT year FROM groups ORDER BY year DESC')
-            ->fetchAll(PDO::FETCH_COLUMN, 0);
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('ProjGroup', 'g')
+                       ->select('g.year')->distinct()
+                       ->orderBy('g.year', 'DESC')
+                       ->getQuery()
+                       ->getArrayResult();
 }
 
 function db_fetch_groups($year) {
-  $stmt = db_prepare('SELECT * FROM groups WHERE YEAR=?');
-  $stmt->execute([$year]);
-  $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  foreach ($data as &$row) {
-    $row['students'] = explode(',', $row['students']);
-  }
-  return $data;
+  global $entityManager;
+  return $entityManager->getRepository('ProjGroup')
+                       ->findByYear($year, ['group_number' => 'ASC']);
 }
-*/
+
+function db_fetch_group($year, $number) : ProjGroup {
+  global $entityManager;
+  $group = $entityManager->getRepository('ProjGroup')
+                         ->findBy(['year' => $year, 'group_number' => $number]);
+  if ($group)
+    return $group[0];
+
+  $group               = new ProjGroup;
+  $group->group_number = $number;
+  $group->year         = $year;
+  return $group;
+}
+
+function db_fetch_group_id($id) : ?ProjGroup {
+  global $entityManager;
+  return $entityManager->getRepository('ProjGroup')->find($id);
+}

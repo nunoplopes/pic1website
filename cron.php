@@ -13,14 +13,15 @@ foreach (get_course_ids(get_term()) as $course) {
   foreach (get_groups($course) as $number => $students) {
     if (!$students)
       continue;
-    $ids = [];
+
+    $group = db_fetch_group($year, $number);
+    $group->resetStudents();
     foreach ($students as $id => $name) {
-      $ids[] = $id;
-      db_insert_student($id, $name);
+      $group->addStudent(db_fetch_or_add_user($id, $name, ROLE_STUDENT));
     }
-    db_update_group($number, $year, $ids);
   }
 }
+db_flush();
 
 // Check student's github activity
 

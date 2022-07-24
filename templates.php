@@ -45,7 +45,7 @@ EOF;
 function dolink($page, $txt, $args = []) {
   $args['page'] = $page;
   $q = http_build_query($args, '', '&amp;');
-  echo "<a href=\"index.php?$q\">$txt</a>";
+  return "<a href=\"index.php?$q\">$txt</a>";
 }
 
 function print_table($table) {
@@ -61,7 +61,7 @@ function print_table($table) {
     echo "<tr>\n";
     foreach ($row as $val) {
       if (is_array($val))
-        $val = implode(',', $val);
+        $val = implode('<br>', $val);
       echo "<td>$val</td>\n";
     }
     echo "</tr>\n";

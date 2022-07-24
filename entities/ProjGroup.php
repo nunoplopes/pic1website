@@ -2,8 +2,10 @@
 // Copyright (c) 2022-present Universidade de Lisboa.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+define('PROVIDER_GITHUB', 0);
+
 /** @Entity */
-class Group
+class ProjGroup
 {
   /** @Id @Column(type="integer") @GeneratedValue */
   public $id;
@@ -14,7 +16,7 @@ class Group
   /** @Column(type="integer") */
   public $year;
 
-  /** @ManyToMany(targetEntity="User", inversedBy="groups") */
+  /** @ManyToMany(targetEntity="User", inversedBy="groups", cascade={"persist"}) */
   public $students;
 
   /** @Column(type="integer") */
@@ -32,4 +34,22 @@ class Group
 
   /** @Column(nullable=true) */
   public $coding_style;
+
+  public function __construct() {
+    $this->students = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->provider = PROVIDER_GITHUB;
+  }
+
+  public function resetStudents() {
+    foreach ($this->students as $student) {
+      $student->groups->removeElement($this);
+    }
+    $this->students->clear();
+  }
+
+  public function addStudent($student) {
+    assert(!$this->students->contains($student));
+    $this->students->add($student);
+    $student->groups->add($this);
+  }
 }
