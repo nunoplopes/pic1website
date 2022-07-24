@@ -10,15 +10,8 @@ use Doctrine\ORM\EntityManager;
 $config = Setup::createAnnotationMetadataConfiguration([__DIR__ . '/entities'],
                                                        !IN_PRODUCTION);
 
-$conn = [
-  'driver'   => DB_DRIVER,
-  'path'     => DB_PATH,
-  'dbname'   => DB_NAME,
-  'user'     => DB_USER,
-  'password' => DB_PWD
-];
-
-$entityManager = EntityManager::create($conn, $config);
+                                                       echo DB_DSN;
+$entityManager = EntityManager::create(['url' => DB_DSN], $config);
 
 function db_fetch_user($username) {
   global $entityManager;
