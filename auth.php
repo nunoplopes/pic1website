@@ -84,7 +84,7 @@ function has_group_permissions($group) {
     case ROLE_PROF:
       return true;
     case ROLE_TA:
-      return false; // TODO
+      return $group->shift->prof == $user;
     case ROLE_STUDENT:
       return $user->groups->contains($group);
   }

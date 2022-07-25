@@ -97,6 +97,10 @@ function fenix_get_personal_data($auth) {
   ];
 }
 
+function get_photo($user) {
+  return "https://fenix.tecnico.ulisboa.pt/user/photo/$user->id";
+}
+
 function get_course_ids($year) {
   $ids = [];
   foreach (get_fnx("degrees", $year) as $degree) {
@@ -111,15 +115,18 @@ function get_course_ids($year) {
   return array_unique($ids);
 }
 
+// returns array of [shift-name, [username => name]*]
 function get_groups($course) {
   $groups = [];
   $data = get_fnx("courses/$course/groups");
   if (!$data)
     return [];
   foreach ($data[0]->associatedGroups as $group) {
+    $students = [];
     foreach ($group->members as $m) {
-      $groups[$group->groupNumber][$m->username] = $m->name;
+      $students[$m->username] = $m->name;
     }
+    $groups[$group->groupNumber] = [trim($group->shift), $students];
   }
   return $groups;
 }

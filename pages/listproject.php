@@ -11,4 +11,14 @@ $group = db_fetch_group_id($_GET['id']);
 if (!$group || !has_group_permissions($group))
   die('Permission error');
 
-// TODO
+echo '<table style="text-align:center"><tr>';
+foreach ($group->students as $s) {
+  echo '<td><img src="', get_photo($s), '"><br>';
+  echo $s->getShortName(), " ($s->id)</td>";
+}
+echo "</tr></table>\n";
+
+echo "<p>&nbsp;</p>\n";
+handle_form($group,
+            /* hidden= */['id', 'students'],
+            /* readonly= */['group_number', 'year', 'students', 'shift']);

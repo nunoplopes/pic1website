@@ -22,16 +22,18 @@ function db_fetch_user($username) : ?User {
   return $entityManager->find('User', $username);
 }
 
-function db_fetch_or_add_user($username, $name, $role) : User {
+function db_fetch_or_add_user($username, $name, $role, $email = '') : User {
   $user = db_fetch_user($username);
-  if ($user)
+  if ($user) {
+    if ($email && $user->email != $email) {
+      $user->email = $email;
+      $GLOBALS['entityManager']->flush();
+    }
     return $user;
+  }
 
   global $entityManager;
-  $user = new User;
-  $user->id   = $username;
-  $user->name = $name;
-  $user->role = $role;
+  $user = new User($username, $name, $email, $role);
   $entityManager->persist($user);
   $entityManager->flush();
   return $user;
@@ -58,20 +60,38 @@ function db_fetch_groups($year) {
                        ->findByYear($year, ['group_number' => 'ASC']);
 }
 
-function db_fetch_group($year, $number) : ProjGroup {
+function db_fetch_group($year, $number, $shift) : ProjGroup {
   global $entityManager;
   $group = $entityManager->getRepository('ProjGroup')
-                         ->findBy(['year' => $year, 'group_number' => $number]);
+                         ->findOneBy(['year'=>$year, 'group_number'=>$number]);
   if ($group)
-    return $group[0];
-
-  $group               = new ProjGroup;
-  $group->group_number = $number;
-  $group->year         = $year;
+    return $group;
+  $group = new ProjGroup($number, $year, $shift);
+  $entityManager->persist($group);
   return $group;
+}
+
+function db_fetch_shift($year, $name) : Shift{
+  global $entityManager;
+  $shift = $entityManager->getRepository('Shift')
+                         ->findOneBy(['year' => $year, 'name' => $name]);
+  if ($shift)
+    return $shift;
+  $shift = new Shift($name, $year);
+  $entityManager->persist($shift);
+  return $shift;
 }
 
 function db_fetch_group_id($id) : ?ProjGroup {
   global $entityManager;
   return $entityManager->getRepository('ProjGroup')->find($id);
+}
+
+function db_update_license($id, $name) {
+  global $entityManager;
+  $license = $entityManager->getRepository('License')->find($id);
+  if ($license)
+    $license->name = $name;
+  else
+    $entityManager->persist(new License($id, $name));
 }
