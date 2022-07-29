@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 /** @Entity */
@@ -14,6 +14,9 @@ class User
   /** @Column */
   public $email;
 
+  /** @Column(type="text") */
+  public $photo;
+
   /** @Column(type="integer") */
   // TODO: switch to enum with PHP 8
   public $role;
@@ -27,26 +30,21 @@ class User
   /** @Column */
   public $github_etag = '';
 
-  public function __construct($username, $name, $email, $role) {
+  public function __construct($username, $name, $email, $photo, $role) {
     $this->id     = $username;
     $this->name   = $name;
     $this->email  = $email;
+    $this->photo  = $photo;
     $this->role   = $role;
     $this->groups = new \Doctrine\Common\Collections\ArrayCollection();
   }
 
-  public function __toString() {
-    return $this->id;
+  public function getPhoto() {
+    return $this->photo ? $this->photo
+             : "https://fenix.tecnico.ulisboa.pt/user/photo/$this->id";
   }
 
-  public function getShortName() {
-    $names = explode(' ', $this->name);
-    $first = $names[0];
-    if ($first == 'Maria' && sizeof($names) > 2) {
-      $first .= " $names[1]";
-      if ($names[1] == 'de' && sizeof($names) > 3)
-        $first .= " $names[2]";
-    }
-    return $first . ' ' . end($names);
+  public function __toString() {
+    return $this->id;
   }
 }

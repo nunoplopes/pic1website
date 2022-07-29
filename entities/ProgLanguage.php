@@ -3,24 +3,20 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 /** @Entity */
-class License
+class ProgLanguage
 {
-  /** @Id @Column(length=32) */
+  /** @Id @Column(length=16) */
   public $id;
 
-  /** @Column */
-  public $name;
-
-  public function __construct($id, $name) {
-    $this->id   = $id;
-    $this->name = $name;
+  public function __construct($name) {
+    $this->id = $name;
   }
 
   public function __toString() {
-    return $this->name;
+    return $this->id;
   }
 
   static function orderBy() {
-    return 'name';
+    return 'id';
   }
 }

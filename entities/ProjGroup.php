@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 use Doctrine\ORM\Mapping\Column;
@@ -31,7 +31,7 @@ class ProjGroup
   public $project_description = '';
 
   /** @Column */
-  public $project_website = '';
+  public $project_website = 'https://...';
 
   // FIXME: repo data
 
@@ -53,8 +53,8 @@ class ProjGroup
   /** @Column(type="integer") */
   public $lines_of_code = 0;
 
-  /** @Column */
-  public $main_language = '';
+  /** @Column(nullable="yes") @ManyToOne(targetEntity="ProgLanguage") */
+  public $main_language;
 
   /** @Column */
   public $coding_style = 'https://...';
@@ -104,8 +104,34 @@ class ProjGroup
     $student->groups->add($this);
   }
 
-  public function set_provider($provider) {
-//FIXME
-    $this->provider = $provider;
+  public function set_project_name($name) { $this->project_name = $name; }
+  public function set_project_description($description) { $this->project_description = $description; }
+  public function set_project_website($url) { $this->project_website = check_url($url); }
+  public function set_major_users($users) { $this->major_users = $users; }
+  public function set_number_of_commits_last_7_days($number) { $this->number_of_commits_last_7_days = (int)$number; }
+  public function set_number_of_authors_of_those_commits($number) { $this->number_of_authors_of_those_commits = (int)$number; }
+  public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
+  public function set_coding_style($url) { $this->coding_style = check_url($url); }
+  public function set_bugs_for_beginners($url) { $this->bugs_for_beginners = check_url($url); }
+  public function set_project_ideas($url) { $this->project_ideas = check_url($url); }
+  public function set_student_programs($programs) { $this->student_programs = $programs; }
+  public function set_getting_started_manual($url) { $this->getting_started_manual = check_url($url); }
+  public function set_developers_manual($url) { $this->developers_manual = check_url($url); }
+  public function set_testing_manual($url) { $this->testing_manual = check_url($url); }
+  public function set_developers_mailing_list($url) { $this->developers_mailing_list = check_url($url); }
+  public function set_patch_submission($url) { $this->patch_submission = check_url($url); }
+
+  public function set_license($license) {
+    $license = db_fetch_license($license);
+    if (!$license)
+      throw new Exception('Unknown license');
+    $this->license = $license;
+  }
+
+  public function set_main_language($language) {
+    $language = db_fetch_prog_language($language);
+    if (!$language)
+      throw new Exception('Unknown programming language');
+    $this->main_language = $language;
   }
 }

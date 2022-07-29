@@ -1,6 +1,5 @@
 <?php
-
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require_once 'fenix.php';
@@ -38,7 +37,8 @@ if (isset($_GET['fenixlogin'])) {
       $person = fenix_get_personal_data($data);
 
       $auth_user__ = db_fetch_or_add_user($person['username'], $person['name'],
-                                          ROLE_STUDENT);
+                                          ROLE_STUDENT, $person['email'],
+                                          $person['photo']);
       $_SESSION['username'] = get_user()->id;
 
       // Let's cleanup the URL and remove those fenix codes

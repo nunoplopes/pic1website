@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 html_header('Project Detail');
@@ -13,8 +13,8 @@ if (!$group || !has_group_permissions($group))
 
 echo '<table style="text-align:center"><tr>';
 foreach ($group->students as $s) {
-  echo '<td><img src="', get_photo($s), '"><br>';
-  echo $s->getShortName(), " ($s->id)</td>";
+  echo '<td><img src="', $s->getPhoto(), '"><br>';
+  echo "$s->name ($s->id)</td>";
 }
 echo "</tr></table>\n";
 

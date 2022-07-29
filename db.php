@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require_once 'include.php';
@@ -17,23 +17,36 @@ function db_flush() {
   $entityManager->flush();
 }
 
+function db_fetch_entity($name, $orderby) {
+  global $entityManager;
+  return $entityManager->getRepository($name)->findBy([], [$orderby => 'ASC']);
+}
+
 function db_fetch_user($username) : ?User {
   global $entityManager;
   return $entityManager->find('User', $username);
 }
 
-function db_fetch_or_add_user($username, $name, $role, $email = '') : User {
+function db_fetch_or_add_user($username, $name, $role, $email = '',
+                              $photo = '') : User {
   $user = db_fetch_user($username);
   if ($user) {
+    $changed = false;
     if ($email && $user->email != $email) {
       $user->email = $email;
-      $GLOBALS['entityManager']->flush();
+      $changed = true;
     }
+    if ($photo && $user->photo != $photo) {
+      $user->photo = $photo;
+      $changed = true;
+    }
+    if ($changed)
+      $GLOBALS['entityManager']->flush();
     return $user;
   }
 
   global $entityManager;
-  $user = new User($username, $name, $email, $role);
+  $user = new User($username, $name, $email, $photo, $role);
   $entityManager->persist($user);
   $entityManager->flush();
   return $user;
@@ -87,6 +100,11 @@ function db_fetch_group_id($id) : ?ProjGroup {
   return $entityManager->getRepository('ProjGroup')->find($id);
 }
 
+function db_fetch_license($id) : ?License {
+  global $entityManager;
+  return $entityManager->getRepository('License')->find($id);
+}
+
 function db_update_license($id, $name) {
   global $entityManager;
   $license = $entityManager->getRepository('License')->find($id);
@@ -94,4 +112,15 @@ function db_update_license($id, $name) {
     $license->name = $name;
   else
     $entityManager->persist(new License($id, $name));
+}
+
+function db_fetch_prog_language($id) : ?ProgLanguage {
+  global $entityManager;
+  return $entityManager->getRepository('ProgLanguage')->find($id);
+}
+
+function db_insert_prog_language($name) {
+  global $entityManager;
+  if (!db_fetch_prog_language($name))
+    $entityManager->persist(new ProgLanguage($name));
 }

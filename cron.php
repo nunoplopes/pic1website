@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require_once 'include.php';
@@ -34,7 +34,24 @@ $year = get_current_year();
 $url = 'https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json';
 $data = json_decode(file_get_contents($url));
 foreach ($data->licenses as $license) {
-  db_update_license($license->licenseId, $license->name);
+  if (!$license->isDeprecatedLicenseId)
+    db_update_license($license->licenseId, $license->name);
+}
+
+// List of programming languages
+$languages = [
+  'C',
+  'C++',
+  'C#',
+  'Java',
+  'JavaScript',
+  'PHP',
+  'Ruby',
+  'Rust',
+];
+
+foreach ($languages as $l) {
+  db_insert_prog_language($l);
 }
 
 db_flush();

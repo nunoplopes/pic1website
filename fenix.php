@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 // API doc: https://fenixedu.org/dev/api/
@@ -91,14 +91,11 @@ function get_term() {
 function fenix_get_personal_data($auth) {
   $data = get_fnx('person', null, $auth);
   return [
-    'name'     => $data->name,
+    'name'     => $data->displayName,
     'username' => $data->username,
     'email'    => $data->email,
+    'photo'    => "data:{$data->photo->type};base64,{$data->photo->data}",
   ];
-}
-
-function get_photo($user) {
-  return "https://fenix.tecnico.ulisboa.pt/user/photo/$user->id";
 }
 
 function get_course_ids($year) {

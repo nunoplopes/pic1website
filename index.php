@@ -1,11 +1,12 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require 'include.php';
 require 'templates.php';
 require 'db.php';
 require 'auth.php';
+require 'validation.php';
 
 $page = $_REQUEST['page'] ?? '';
 $file = "pages/$page.php";

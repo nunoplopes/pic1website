@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2022-present Universidade de Lisboa.
+// Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -92,26 +92,44 @@ function handle_form(&$obj, $hide_fields, $readonly) {
   $class = new ReflectionClass($obj);
   $docReader = new AnnotationReader();
 
-  foreach (get_object_vars($obj) as $name => $val) {
+  foreach (get_object_vars($obj) as $name => $orig_value) {
     if (in_array($name, $hide_fields))
       continue;
 
     $types = $docReader->getPropertyAnnotations($class->getProperty($name));
 
     $print_name = strtr($name, '_', ' ');
-    $val = htmlspecialchars((string)$val);
+    $val = htmlspecialchars((string)$orig_value);
     $freeze = '';
     if (in_array($name, $readonly))
       $freeze = ' readonly';
 
-    echo "<tr><td><label for=\"$name\">$print_name:</label></td>\n";
-    var_dump($types[0]->type);
-    if ($types[0]->type == "boolean")
-      echo "foo\n";
-    else
-      echo "<td><input type=\"text\" id=\"$name\" name=\"$name\" ",
-           "value=\"$val\" size=\"60\"$freeze></td></tr>";
+    echo "<tr><td><label for=\"$name\">$print_name:</label></td><td>\n";
+    if ($types[0]->type == "boolean") {
+      $checked = '';
+      if ($val)
+        $checked = ' checked';
+      echo "<input type=\"checkbox\" id=\"$name\" name=\"$name\" ",
+           "value=\"true\"$checked>";
+    }
+    else if (isset($types[1]->targetEntity)) {
+      $orderby = $types[1]->targetEntity::orderBy();
+      echo "<select name=\"$name\" id=\"$name\">\n";
 
+      foreach (db_fetch_entity($types[1]->targetEntity, $orderby) as $entity) {
+        $selected = '';
+        if ($entity == $orig_value)
+          $selected = ' selected';
+        echo "<option value=\"", htmlspecialchars($entity->id), "\"$selected>",
+             htmlspecialchars((string)$entity), "</option>\n";
+      }
+      echo "</select>";
+    }
+    else {
+      echo "<input type=\"text\" id=\"$name\" name=\"$name\" ",
+           "value=\"$val\" size=\"60\"$freeze>";
+    }
+    echo "</td></tr>\n";
   }
   echo "</table><p><input type=\"submit\"></p></form>\n";
 }
