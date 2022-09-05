@@ -8,7 +8,7 @@ html_header("Change Users' Role");
 
 if (isset($_POST['username']) && isset($_POST['newrole'])) {
   $role = (int)$_POST['newrole'];
-  if (!validate_role($role))
+  if (!validate_role($role, auth_at_least(ROLE_SUDO)))
     die('Unknown role');
 
   $user = db_fetch_user($_POST['username']);
@@ -26,7 +26,7 @@ echo <<<EOF
 <label for="newrole">New role:</label>
 <select id="newrole" name="newrole">
 EOF;
-foreach (get_all_roles(false) as $id => $name) {
+foreach (get_all_roles(auth_at_least(ROLE_SUDO)) as $id => $name) {
   echo "<option value=\"$id\">$name</option>\n";
 }
 echo <<<EOF

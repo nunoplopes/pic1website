@@ -64,8 +64,10 @@ if ($auth_user__ === null) {
   }
 }
 
-function validate_role($role) {
-  return is_int($role) && $role >= ROLE_SUDO && $role <= ROLE_STUDENT;
+function validate_role($role, $allow_sudo) {
+  return is_int($role) &&
+         $role >= ($allow_sudo ? ROLE_SUDO : ROLE_PROF) &&
+         $role <= ROLE_STUDENT;
 }
 
 function auth_at_least($role) {
