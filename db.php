@@ -65,6 +65,27 @@ function db_get_all_profs() {
   return $entityManager->getRepository('User')->findByRole(ROLE_PROF);
 }
 
+function db_save_session($session) {
+  global $entityManager;
+  $entityManager->persist($session);
+  db_flush();
+}
+
+function db_fetch_session($id) {
+  global $entityManager;
+  return $entityManager->find('Session', $id);
+}
+
+function db_get_all_sessions() {
+  global $entityManager;
+  return $entityManager->getRepository('Session')->findAll();
+}
+
+function db_delete_session($session) {
+  global $entityManager;
+  return $entityManager->remove($session);
+}
+
 function db_get_group_years() {
   global $entityManager;
   return $entityManager->createQueryBuilder()

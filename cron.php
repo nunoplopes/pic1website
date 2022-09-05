@@ -26,6 +26,7 @@ foreach ($courses as $course) {
   }
 }
 
+
 // Update list of Profs
 // First remove permissions from all current profs
 // We don't model roles per year (they are global)
@@ -40,6 +41,13 @@ foreach ($courses as $course) {
     if (is_higher_role($prof[2], $user->role))
       $role = $prof[2];
   }
+}
+
+
+// Delete old sessions
+foreach (db_get_all_sessions() as $session) {
+  if (!$session->isFresh())
+    db_delete_session($session);
 }
 
 

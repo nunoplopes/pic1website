@@ -4,50 +4,52 @@
 
 require_once 'fenix.php';
 
-session_start();
-
-$auth_user__ = null;
+$__session__ = null;
 function get_user() : User {
-  return $GLOBALS['auth_user__'];
+  return $GLOBALS['__session__']->user;
 }
 
 function auth_set_user($user) {
-  $GLOBALS['auth_user__'] = $user;
-  $_SESSION['username'] = $user->id;
+  global $__session__;
+  $__session__->user = $user;
+  db_flush();
+}
+
+function create_session($user) {
+  $session = new Session($user);
+  db_save_session($session);
+
+  $time = $session->expires->getTimestamp();
+  setcookie('sessid', $session->id, $time, '/', '', IN_PRODUCTION, true);
+
+  // Let's cleanup the URL to remove any auth keys there
+  $cleanurl = (IN_PRODUCTION ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] .
+              '/index.php?page=' . @$_GET['page'];
+  header("Location: $cleanurl");
+  exit;
 }
 
 
 if (isset($_GET['key']) &&
     password_verify('4X6EM' . $_GET['key'] . 'fgOGi', SUDO_HASH)) {
-  $_SESSION['username'] = 'ist00000';
-  $auth_user__ = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO);
+  $user = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO);
+  create_session($user);
 }
 
 if (isset($_GET['fenixlogin'])) {
   if (isset($_GET['code'])) {
-    // prevent reauthentication through browser refresh
-    if (empty($_SESSION['fenix_code']) ||
-        $_SESSION['fenix_code'] !== $_GET['code']) {
-      $data = fenix_get_auth_token($_GET['code']);
-      if (!$data)
-        die("Failed to authenticate Fenix's token");
+    $token = fenix_get_auth_token($_GET['code']);
+    if (!$token)
+      die("Failed to authenticate Fenix's token");
 
-      $_SESSION['fenix_code'] = $_GET['code'];
-      $_SESSION['fenix_data'] = $data;
-      $person = fenix_get_personal_data($data);
+    $person = fenix_get_personal_data($token);
 
-      $auth_user__ = db_fetch_or_add_user($person['username'], $person['name'],
-                                          ROLE_STUDENT, $person['email'],
-                                          $person['photo']);
-      $_SESSION['username'] = get_user()->id;
+    $user = db_fetch_or_add_user($person['username'], $person['name'],
+                                 ROLE_STUDENT, $person['email'],
+                                 $person['photo']);
+    create_session($user);
 
-      // Let's cleanup the URL and remove those fenix codes
-      $cleanurl = 'https://' . $_SERVER['HTTP_HOST'] .
-                  '/index.php?page=' . $_GET['page'];
-      header("Location: $cleanurl");
-      exit;
-    }
-  } else if ($_GET['error']) {
+  } else if (isset($_GET['error_description'])) {
     die("Fenix returned an error: " .
         htmlspecialchars($_GET['error_description']));
   } else {
@@ -55,9 +57,11 @@ if (isset($_GET['fenixlogin'])) {
   }
 }
 
-if ($auth_user__ === null) {
-  if (isset($_SESSION['username'])) {
-    $auth_user__ = db_fetch_user($_SESSION['username']);
+if ($__session__ === null) {
+  if (isset($_COOKIE['sessid']) &&
+      ($__session__ = db_fetch_session($_COOKIE['sessid'])) &&
+      $__session__->isFresh()) {
+    // authenticated
   } else {
     header('Location: ' . fenix_get_auth_url());
     exit;

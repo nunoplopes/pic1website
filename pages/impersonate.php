@@ -6,7 +6,7 @@ auth_require_at_least(ROLE_SUDO);
 
 if (isset($_GET['newrole'])) {
   $role = (int)$_GET['newrole'];
-  if (!validate_role($role))
+  if (!validate_role($role, true))
     die('Unknown role');
 
   $_SESSION['username'] = "ist0000$role";

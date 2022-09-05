@@ -3,8 +3,16 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require 'include.php';
+require 'db.php';
 
-session_start();
-session_destroy();
+if (isset($_COOKIE['sessid'])) {
+  $session = db_fetch_session($_COOKIE['sessid']);
+  if ($session) {
+    db_delete_session($session);
+    db_flush();
+  }
+}
+
+setcookie('sessid', '', 1);
 
 echo "<p>Logged out!</p>\n";
