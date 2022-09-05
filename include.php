@@ -30,3 +30,7 @@ define('ROLE_SUDO', 0);
 define('ROLE_PROF', 1);
 define('ROLE_TA', 2);
 define('ROLE_STUDENT', 3);
+
+function is_higher_role($a, $b) {
+  return $a < $b;
+}

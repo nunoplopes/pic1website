@@ -23,6 +23,7 @@ table, th, td {
 <body>
 <p><img src="{$user->getPhoto()}" alt="Photo"></p>
 <p>User: $name ($user->id)<br>
+Email: <a href="mailto:$user->email">$user->email</a><br>
 Role: $role</p>
 EOF;
 }

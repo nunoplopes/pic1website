@@ -7,10 +7,11 @@ require 'db.php';
 require 'fenix.php';
 require 'github.php';
 
-// Update student's group information
 $year = get_current_year();
-//foreach (get_course_ids(get_term()) as $course) {
-  foreach ([846035542880731] as $course) {
+$courses = get_course_ids(get_term());
+
+// Update student's group information
+foreach ($courses as $course) {
   foreach (get_groups($course) as $number => $data) {
     [$shift, $students] = $data;
     if (!$students)
@@ -24,6 +25,23 @@ $year = get_current_year();
     }
   }
 }
+
+// Update list of Profs
+// First remove permissions from all current profs
+// We don't model roles per year (they are global)
+// So we keep the current year's role only.
+foreach (db_get_all_profs() as $user) {
+  $user->role = ROLE_STUDENT;
+}
+
+foreach ($courses as $course) {
+  foreach (get_course_teachers($course) as $prof) {
+    $user = db_fetch_or_add_user($prof[0], $prof[1], $prof[2]);
+    if (is_higher_role($prof[2], $user->role))
+      $role = $prof[2];
+  }
+}
+
 
 // Check student's github activity
 
@@ -43,11 +61,17 @@ $languages = [
   'C',
   'C++',
   'C#',
+  'Go',
   'Java',
   'JavaScript',
+  'Perl',
   'PHP',
+  'Python',
   'Ruby',
   'Rust',
+  'Scala',
+  'Swift',
+  'TypeScript',
 ];
 
 foreach ($languages as $l) {

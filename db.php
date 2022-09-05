@@ -32,6 +32,10 @@ function db_fetch_or_add_user($username, $name, $role, $email = '',
   $user = db_fetch_user($username);
   if ($user) {
     $changed = false;
+    if ($user->name != $name) {
+      $user->name = $name;
+      $changed = true;
+    }
     if ($email && $user->email != $email) {
       $user->email = $email;
       $changed = true;
@@ -53,8 +57,12 @@ function db_fetch_or_add_user($username, $name, $role, $email = '',
 }
 
 function db_get_all_users() {
+  return db_fetch_entity('User', 'id');
+}
+
+function db_get_all_profs() {
   global $entityManager;
-  return $entityManager->getRepository('User')->findBy([], ['id' => 'ASC']);
+  return $entityManager->getRepository('User')->findByRole(ROLE_PROF);
 }
 
 function db_get_group_years() {

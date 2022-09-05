@@ -127,3 +127,16 @@ function get_groups($course) {
   }
   return $groups;
 }
+
+// returns array of [id, name, role]
+function get_course_teachers($course) {
+  $profs = [];
+  $data = get_fnx("courses/$course");
+  if (!$data)
+    return [];
+  foreach ($data->teachers as $prof) {
+    // TODO: the API doesn't allow us to distinguish between PROF & TA
+    $profs[] = [$prof->istId, $prof->name, ROLE_PROF];
+  }
+  return $profs;
+}
