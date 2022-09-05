@@ -5,10 +5,12 @@
 require 'config.php';
 require 'vendor/autoload.php';
 
+error_reporting(E_ALL);
 if (IN_PRODUCTION) {
-  error_reporting(0);
+  ini_set('display_errors', false);
+  ini_set('log_errors', true);
+  ini_set('error_log', 'error.log');
 } else {
-  error_reporting(E_ALL);
   ini_set('display_errors', true);
 }
 
