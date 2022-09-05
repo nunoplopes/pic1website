@@ -7,6 +7,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 function html_header($title) {
   $user = get_user();
   $role = get_role_string();
+  $name = htmlspecialchars($user->name);
 
 echo <<< EOF
 <!DOCTYPE html>
@@ -20,7 +21,8 @@ table, th, td {
 <title>PIC1: $title</title>
 </head>
 <body>
-<p>User: $user->name ($user->id)<br>
+<p><img src="{$user->getPhoto()}" alt="Photo"></p>
+<p>User: $name ($user->id)<br>
 Role: $role</p>
 EOF;
 }

@@ -13,4 +13,3 @@ function check_url($url) {
     throw new ValidationException('Malformed URL');
   return $url;
 }
-  
