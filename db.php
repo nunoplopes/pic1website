@@ -8,7 +8,8 @@ use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 
 $config = Setup::createAnnotationMetadataConfiguration([__DIR__ . '/entities'],
-                                                       !IN_PRODUCTION);
+                                                       !IN_PRODUCTION,
+                                                       '.proxies');
 
 $entityManager = EntityManager::create(['url' => DB_DSN], $config);
 

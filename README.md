@@ -15,11 +15,16 @@ php composer.phar update
 php doctrine.php orm:schema-tool:create
 ```
 
-3) Setup cronjob (cron.php)
+3) Generate Proxies (this step must be repeated on update)
+```shell
+php doctrine.php orm:generate-proxies
+```
+
+4) Setup cronjob (cron.php)
 
 
 ## Management
 Delete DB:
 ```shell
-php doctrine.php orm:schema-tool:drop --force
+php doctrine.php orm:schema-tool:drop --force --full-database
 ```
