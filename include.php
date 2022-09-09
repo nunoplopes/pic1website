@@ -27,3 +27,9 @@ define('ROLE_STUDENT', 3);
 function is_higher_role($a, $b) {
   return $a < $b;
 }
+
+if (PHP_MAJOR_VERSION < 8) {
+  function str_starts_with($haystack, $needle) {
+    return substr_compare($haystack, $needle, 0) == 0;
+  }
+}

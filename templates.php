@@ -75,12 +75,26 @@ function print_table($table) {
 }
 
 function handle_form(&$obj, $hide_fields, $readonly) {
+  $class = new ReflectionClass($obj);
+  $docReader = new AnnotationReader();
+
   if (!empty($_POST['submit'])) {
     foreach (get_object_vars($obj) as $name => $val) {
       if (in_array($name, $hide_fields) ||
-          in_array($name, $readonly) ||
-          !isset($_POST[$name]))
+          in_array($name, $readonly))
         continue;
+
+      $types = $docReader->getPropertyAnnotations($class->getProperty($name));
+      $set = "set_$name";
+
+      if ($types[0]->type == "boolean") {
+        $obj->$set(isset($_POST[$name]));
+        continue;
+      }
+
+      if (!isset($_POST[$name]))
+        continue;
+
       $set = "set_$name";
       $obj->$set(trim($_POST[$name]));
     }
@@ -92,9 +106,6 @@ function handle_form(&$obj, $hide_fields, $readonly) {
   echo '<input type="hidden" name="submit" value="1">';
   echo "<table>\n";
 
-  $class = new ReflectionClass($obj);
-  $docReader = new AnnotationReader();
-
   foreach (get_object_vars($obj) as $name => $orig_value) {
     if (in_array($name, $hide_fields))
       continue;
@@ -103,6 +114,10 @@ function handle_form(&$obj, $hide_fields, $readonly) {
 
     $print_name = strtr($name, '_', ' ');
     $val = htmlspecialchars((string)$orig_value);
+
+    if (str_starts_with($val, 'https://'))
+      $print_name = "<a href=\"$val\">$print_name</a>";
+
     $freeze = '';
     if (in_array($name, $readonly))
       $freeze = ' readonly';
@@ -129,8 +144,13 @@ function handle_form(&$obj, $hide_fields, $readonly) {
       echo "</select>";
     }
     else {
-      echo "<input type=\"text\" id=\"$name\" name=\"$name\" ",
-           "value=\"$val\" size=\"60\"$freeze>";
+      if ($types[0]->length > 200) {
+        echo "<textarea id=\"$name\" name=\"$name\" rows=\"5\" cols=\"60\"",
+             "$freeze>$val</textarea>";
+      } else {
+        echo "<input type=\"text\" id=\"$name\" name=\"$name\" ",
+             "value=\"$val\" size=\"60\"$freeze>";
+      }
     }
     echo "</td></tr>\n";
   }

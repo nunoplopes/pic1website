@@ -5,7 +5,7 @@
 html_header('Project List');
 
 $years = db_get_group_years();
-$selected_year = $_GET['year'] ?? $years[0]['year'];
+$selected_year = $_GET['year'] ?? ($years[0]['year'] ?? '');
 
 echo <<<EOF
 <form action="index.php?page=listprojects" method="post">

@@ -27,7 +27,7 @@ class ProjGroup
   /** @Column */
   public $project_name = '';
 
-  /** @Column */
+  /** @Column(length=2000) */
   public $project_description = '';
 
   /** @Column */
@@ -65,7 +65,7 @@ class ProjGroup
   /** @Column */
   public $project_ideas = 'https://...';
 
-  /** @Column */
+  /** @Column(length=1000) */
   public $student_programs = '';
 
   /** @Column */
@@ -108,6 +108,7 @@ class ProjGroup
   public function set_project_description($description) { $this->project_description = $description; }
   public function set_project_website($url) { $this->project_website = check_url($url); }
   public function set_major_users($users) { $this->major_users = $users; }
+  public function set_cla($cla) { $this->cla = $cla; }
   public function set_number_of_commits_last_7_days($number) { $this->number_of_commits_last_7_days = (int)$number; }
   public function set_number_of_authors_of_those_commits($number) { $this->number_of_authors_of_those_commits = (int)$number; }
   public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
