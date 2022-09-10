@@ -31,5 +31,8 @@ jobs:
       - name: Run Install script
         run: php${{ matrix.phpversion }} doctrine.php orm:schema-tool:create
 
+      - name: Generate proxies
+        run: php${{ matrix.phpversion }} doctrine.php orm:generate-proxies
+
     env:
       PHP_VERSION: ${{ matrix.phpversion }}
