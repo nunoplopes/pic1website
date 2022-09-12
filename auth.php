@@ -87,6 +87,23 @@ function auth_require_at_least($role) {
     die('Unauthorized access');
 }
 
+function has_shift_permissions(Shift $shift) {
+  $user = get_user();
+  switch ($user->role) {
+    case ROLE_SUDO:
+    case ROLE_PROF:
+      return true;
+    case ROLE_TA:
+      return $shift->prof == $user;
+    case ROLE_STUDENT:
+      foreach ($user->groups as $group) {
+        if ($group->shift == $shift)
+          return true;
+      }
+      return false;
+  }
+}
+
 function has_group_permissions(ProjGroup $group, $read_only) {
   $user = get_user();
   switch ($user->role) {

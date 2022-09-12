@@ -108,7 +108,7 @@ function db_fetch_groups($year) {
                        ->findByYear($year, ['group_number' => 'ASC']);
 }
 
-function db_fetch_group($year, $number, $shift) : ProjGroup {
+function db_fetch_group($year, $number, Shift $shift) : ProjGroup {
   global $entityManager;
   $group = $entityManager->getRepository('ProjGroup')
                          ->findOneBy(['year'=>$year, 'group_number'=>$number]);
@@ -128,6 +128,11 @@ function db_fetch_shift($year, $name) : Shift {
   $shift = new Shift($name, $year);
   $entityManager->persist($shift);
   return $shift;
+}
+
+function db_fetch_shift_id($id) : ?Shift {
+  global $entityManager;
+  return $entityManager->find('Shift', $id);
 }
 
 function db_fetch_shifts($year) {

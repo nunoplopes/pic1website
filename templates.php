@@ -68,7 +68,7 @@ function print_table($table) {
     echo "<tr>\n";
     foreach ($row as $val) {
       if (is_array($val))
-        $val = implode('<br>', $val);
+        $val = implode("<br>\n", $val);
       echo "<td>$val</td>\n";
     }
     echo "</tr>\n";
@@ -123,9 +123,16 @@ function handle_form(&$obj, $hide_fields, $readonly) {
         break;
       }
     }
+    if ($column) {
+      $type   = $column->type;
+      $length = $column->length;
+    } else {
+      $type   = 'string';
+      $length = 0;
+    }
 
     $print_name = strtr($name, '_', ' ');
-    if ($column->type == "datetime") {
+    if ($type == "datetime") {
       $val = $orig_value->format('Y-m-d\TH:i:s');
     } else {
       $val = htmlspecialchars((string)$orig_value);
@@ -139,14 +146,14 @@ function handle_form(&$obj, $hide_fields, $readonly) {
       $freeze = ' readonly';
 
     echo "<tr><td><label for=\"$name\">$print_name:</label></td><td>\n";
-    if ($column->type == "boolean") {
+    if ($type == "boolean") {
       $checked = '';
       if ($val)
         $checked = ' checked';
       echo "<input type=\"checkbox\" id=\"$name\" name=\"$name\" ",
            "value=\"true\"$checked>";
     }
-    else if ($column->type == "datetime") {
+    else if ($type == "datetime") {
       echo "<input type=\"datetime-local\" id=\"$name\" name=\"$name\"",
            " value=\"$val\">";
     }
@@ -165,7 +172,7 @@ function handle_form(&$obj, $hide_fields, $readonly) {
       echo "</select>";
     }
     else {
-      if ($column->length > 200) {
+      if ($length > 200) {
         echo "<textarea id=\"$name\" name=\"$name\" rows=\"5\" cols=\"60\"",
              "$freeze>$val</textarea>";
       } else {

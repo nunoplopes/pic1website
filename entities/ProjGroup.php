@@ -18,7 +18,7 @@ class ProjGroup
   /** @Column(type="integer") */
   public $year;
 
-  /** @Column */
+  /** @ManyToOne(targetEntity="Shift") */
   public $shift;
 
   /** @ManyToMany(targetEntity="User", inversedBy="groups", cascade={"persist"}) */
@@ -83,7 +83,7 @@ class ProjGroup
   /** @Column */
   public $patch_submission = 'https://...';
 
-  public function __construct($number, $year, $shift) {
+  public function __construct($number, $year, Shift $shift) {
     $this->group_number = $number;
     $this->year         = $year;
     $this->shift        = $shift;
