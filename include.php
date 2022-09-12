@@ -17,6 +17,7 @@ if (IN_PRODUCTION) {
 setlocale(LC_ALL, 'C');
 ini_set('default_charset', 'UTF-8');
 ini_set('user_agent', USERAGENT);
+date_default_timezone_set(TIMEZONE);
 
 // TODO: migrate this to an enum with PHP 8
 define('ROLE_SUDO', 0);

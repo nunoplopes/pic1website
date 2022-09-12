@@ -27,7 +27,7 @@ EOF;
 echo "<p>Groups:</p>\n";
 $table = [];
 foreach (db_fetch_groups($selected_year) as $group) {
-  if (!has_group_permissions($group))
+  if (!has_group_permissions($group, true))
     continue;
 
   $students = [];

@@ -127,17 +127,17 @@ function db_fetch_shift($year, $name) : Shift{
 
 function db_fetch_group_id($id) : ?ProjGroup {
   global $entityManager;
-  return $entityManager->getRepository('ProjGroup')->find($id);
+  return $entityManager->find('ProjGroup', $id);
 }
 
 function db_fetch_license($id) : ?License {
   global $entityManager;
-  return $entityManager->getRepository('License')->find($id);
+  return $entityManager->find('License', $id);
 }
 
 function db_update_license($id, $name) {
   global $entityManager;
-  $license = $entityManager->getRepository('License')->find($id);
+  $license = $entityManager->find('License', $id);
   if ($license)
     $license->name = $name;
   else
@@ -146,11 +146,22 @@ function db_update_license($id, $name) {
 
 function db_fetch_prog_language($id) : ?ProgLanguage {
   global $entityManager;
-  return $entityManager->getRepository('ProgLanguage')->find($id);
+  return $entityManager->find('ProgLanguage', $id);
 }
 
 function db_insert_prog_language($name) {
   global $entityManager;
   if (!db_fetch_prog_language($name))
     $entityManager->persist(new ProgLanguage($name));
+}
+
+function db_fetch_deadline($year) : Deadline {
+  global $entityManager;
+  $deadline = $entityManager->find('Deadline', $year);
+  if (!$deadline) {
+    $deadline = new Deadline($year);
+    $entityManager->persist($deadline);
+    db_flush();
+  }
+  return $deadline;
 }

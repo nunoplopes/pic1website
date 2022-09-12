@@ -31,6 +31,7 @@ EOF;
 function html_footer() {
   $pages = [
     ['listprojects', 'Display projects', ROLE_STUDENT],
+    ['deadlines', 'Deadlines', ROLE_PROF],
     ['changerole', 'Change Role', ROLE_PROF],
     ['impersonate', 'Impersonate', ROLE_SUDO],
     ['phpinfo', 'PHP Info', ROLE_PROF],
@@ -84,10 +85,11 @@ function handle_form(&$obj, $hide_fields, $readonly) {
           in_array($name, $readonly))
         continue;
 
-      $types = $docReader->getPropertyAnnotations($class->getProperty($name));
+      $annotations
+        = $docReader->getPropertyAnnotations($class->getProperty($name));
       $set = "set_$name";
 
-      if ($types[0]->type == "boolean") {
+      if ($annotations[0]->type == "boolean") {
         $obj->$set(isset($_POST[$name]));
         continue;
       }
@@ -110,10 +112,23 @@ function handle_form(&$obj, $hide_fields, $readonly) {
     if (in_array($name, $hide_fields))
       continue;
 
-    $types = $docReader->getPropertyAnnotations($class->getProperty($name));
+    $annotations
+      = $docReader->getPropertyAnnotations($class->getProperty($name));
+
+    $column = null;
+    foreach ($annotations as $t) {
+      if (get_class($t) === 'Doctrine\ORM\Mapping\Column') {
+        $column = $t;
+        break;
+      }
+    }
 
     $print_name = strtr($name, '_', ' ');
-    $val = htmlspecialchars((string)$orig_value);
+    if ($column->type == "datetime") {
+      $val = $orig_value->format('Y-m-d\TH:i:s');
+    } else {
+      $val = htmlspecialchars((string)$orig_value);
+    }
 
     if (str_starts_with($val, 'https://'))
       $print_name = "<a href=\"$val\">$print_name</a>";
@@ -123,18 +138,23 @@ function handle_form(&$obj, $hide_fields, $readonly) {
       $freeze = ' readonly';
 
     echo "<tr><td><label for=\"$name\">$print_name:</label></td><td>\n";
-    if ($types[0]->type == "boolean") {
+    if ($column->type == "boolean") {
       $checked = '';
       if ($val)
         $checked = ' checked';
       echo "<input type=\"checkbox\" id=\"$name\" name=\"$name\" ",
            "value=\"true\"$checked>";
     }
-    else if (isset($types[1]->targetEntity)) {
-      $orderby = $types[1]->targetEntity::orderBy();
+    else if ($column->type == "datetime") {
+      echo "<input type=\"datetime-local\" id=\"$name\" name=\"$name\"",
+           " value=\"$val\">";
+    }
+    else if (isset($annotations[1]->targetEntity)) {
+      $orderby = $annotations[1]->targetEntity::orderBy();
       echo "<select name=\"$name\" id=\"$name\">\n";
 
-      foreach (db_fetch_entity($types[1]->targetEntity, $orderby) as $entity) {
+      $entities = db_fetch_entity($annotations[1]->targetEntity, $orderby);
+      foreach ($entities as $entity) {
         $selected = '';
         if ($entity == $orig_value)
           $selected = ' selected';
@@ -144,7 +164,7 @@ function handle_form(&$obj, $hide_fields, $readonly) {
       echo "</select>";
     }
     else {
-      if ($types[0]->length > 200) {
+      if ($column->length > 200) {
         echo "<textarea id=\"$name\" name=\"$name\" rows=\"5\" cols=\"60\"",
              "$freeze>$val</textarea>";
       } else {

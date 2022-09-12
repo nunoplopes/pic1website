@@ -83,7 +83,7 @@ function auth_require_at_least($role) {
     die('Unauthorized access');
 }
 
-function has_group_permissions($group) {
+function has_group_permissions($group, $read_only) {
   $user = get_user();
   switch ($user->role) {
     case ROLE_SUDO:
@@ -92,7 +92,11 @@ function has_group_permissions($group) {
     case ROLE_TA:
       return $group->shift->prof == $user;
     case ROLE_STUDENT:
-      return $user->groups->contains($group);
+      if (!$user->groups->contains($group))
+        return false;
+      if ($read_only)
+        return true;
+      return db_fetch_deadline(get_current_year())->isProjProposalActive();
   }
 }
 
