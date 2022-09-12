@@ -74,8 +74,12 @@ function validate_role($role, $allow_sudo) {
          $role <= ROLE_STUDENT;
 }
 
+function auth_user_at_least(User $user, $role) {
+  return $user->role <= $role;
+}
+
 function auth_at_least($role) {
-  return get_user()->role <= $role;
+  return auth_user_at_least(get_user(), $role);
 }
 
 function auth_require_at_least($role) {
@@ -83,7 +87,7 @@ function auth_require_at_least($role) {
     die('Unauthorized access');
 }
 
-function has_group_permissions($group, $read_only) {
+function has_group_permissions(ProjGroup $group, $read_only) {
   $user = get_user();
   switch ($user->role) {
     case ROLE_SUDO:

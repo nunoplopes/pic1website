@@ -39,6 +39,15 @@ class User
     $this->groups = new \Doctrine\Common\Collections\ArrayCollection();
   }
 
+  public function shortName() {
+    $names = explode(' ', $this->name);
+    return $names[0] . ' ' . end($names);
+  }
+
+  public function roleAtLeast($role) {
+    return auth_user_at_least($this, $role);
+  }
+
   public function getPhoto() {
     return $this->photo ? $this->photo
              : "https://fenix.tecnico.ulisboa.pt/user/photo/$this->id";

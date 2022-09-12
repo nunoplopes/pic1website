@@ -10,6 +10,8 @@ use Doctrine\ORM\EntityManager;
 $config = Setup::createAnnotationMetadataConfiguration([__DIR__ . '/entities'],
                                                        !IN_PRODUCTION,
                                                        '.proxies');
+$config->setAutoGenerateProxyClasses(
+  Doctrine\Common\Proxy\AbstractProxyFactory::AUTOGENERATE_NEVER);
 
 $entityManager = EntityManager::create(['url' => DB_DSN], $config);
 
@@ -61,9 +63,12 @@ function db_get_all_users() {
   return db_fetch_entity('User', 'id');
 }
 
-function db_get_all_profs() {
+function db_get_all_profs($include_tas = false) {
   global $entityManager;
-  return $entityManager->getRepository('User')->findByRole(ROLE_PROF);
+  $repo = $entityManager->getRepository('User');
+  if ($include_tas)
+    return $repo->findBy(['role' => [ROLE_PROF, ROLE_TA]], ['name' => 'ASC']);
+  return $repo->findByRole(ROLE_PROF, ['name' => 'ASC']);
 }
 
 function db_save_session($session) {
@@ -114,7 +119,7 @@ function db_fetch_group($year, $number, $shift) : ProjGroup {
   return $group;
 }
 
-function db_fetch_shift($year, $name) : Shift{
+function db_fetch_shift($year, $name) : Shift {
   global $entityManager;
   $shift = $entityManager->getRepository('Shift')
                          ->findOneBy(['year' => $year, 'name' => $name]);
@@ -123,6 +128,12 @@ function db_fetch_shift($year, $name) : Shift{
   $shift = new Shift($name, $year);
   $entityManager->persist($shift);
   return $shift;
+}
+
+function db_fetch_shifts($year) {
+  global $entityManager;
+  return $entityManager->getRepository('Shift')
+                       ->findByYear($year, ['name' => 'ASC']);
 }
 
 function db_fetch_group_id($id) : ?ProjGroup {

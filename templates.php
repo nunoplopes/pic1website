@@ -31,6 +31,7 @@ EOF;
 function html_footer() {
   $pages = [
     ['listprojects', 'Display projects', ROLE_STUDENT],
+    ['shifts', 'Shifts', ROLE_PROF],
     ['deadlines', 'Deadlines', ROLE_PROF],
     ['changerole', 'Change Role', ROLE_PROF],
     ['impersonate', 'Impersonate', ROLE_SUDO],
