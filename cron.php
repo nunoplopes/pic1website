@@ -7,8 +7,24 @@ require 'db.php';
 require 'fenix.php';
 require 'github.php';
 
+for ($i = 1; $i < sizeof($argv); ++$i) {
+  $arg = $argv[$i];
+  if ($arg == '-h' || $arg == '--help') {
+    echo <<< EOF
+Usage: php crop.php <options>
+--course-id <id>
+
+EOF;
+    exit;
+  }
+  if ($arg == '--course-id') {
+    $courses = [$argv[++$i]];
+  }
+}
+
 $year = get_current_year();
-$courses = get_course_ids(get_term());
+if (!isset($courses))
+  $courses = get_course_ids(get_term());
 
 // Update student's group information
 foreach ($courses as $course) {
