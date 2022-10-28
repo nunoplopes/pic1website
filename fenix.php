@@ -102,8 +102,8 @@ function get_course_ids($year) {
   $ids = [];
   foreach (get_fnx("degrees", $year) as $degree) {
     if (array_search($degree->acronym, FENIX_DEGREES) !== false) {
-      foreach (get_fnx("degrees/".$degree->id."/courses") as $course) {
-        if (array_search($course->acronym, FENIX_COURSES)  !== false) {
+      foreach (get_fnx("degrees/".$degree->id."/courses", $year) as $course) {
+        if (array_search($course->acronym, FENIX_COURSES) !== false) {
           $ids[] = $course->id;
         }
       }

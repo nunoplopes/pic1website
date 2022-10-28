@@ -47,7 +47,7 @@ foreach ($courses as $course) {
 // First remove permissions from all current profs
 // We don't model roles per year (they are global)
 // So we keep the current year's role only.
-foreach (db_get_all_profs() as $user) {
+foreach (db_get_all_profs(true) as $user) {
   $user->role = ROLE_STUDENT;
 }
 
