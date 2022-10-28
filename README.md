@@ -1,7 +1,7 @@
 # PIC1 website
 
 ## Setup
-0) Copy config.php.in to config.php and modify apropriately
+0) Copy config.php.in to config.php and modify appropriately
 
 1) Install Composer: https://getcomposer.org/download/
 

@@ -30,6 +30,7 @@ EOF;
 
 function html_footer() {
   $pages = [
+    ['profile', 'Edit profile', ROLE_STUDENT],
     ['listprojects', 'Display projects', ROLE_STUDENT],
     ['shifts', 'Shifts', ROLE_PROF],
     ['deadlines', 'Deadlines', ROLE_PROF],
@@ -76,14 +77,16 @@ function print_table($table) {
   echo "</table>\n";
 }
 
-function handle_form(&$obj, $hide_fields, $readonly) {
+function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
   $class = new ReflectionClass($obj);
   $docReader = new AnnotationReader();
 
   if (!empty($_POST['submit'])) {
+    $errors = [];
     foreach (get_object_vars($obj) as $name => $val) {
       if (in_array($name, $hide_fields) ||
-          in_array($name, $readonly))
+          in_array($name, $readonly) ||
+          ($only_fields && !in_array($name, $only_fields)))
         continue;
 
       $annotations
@@ -99,9 +102,23 @@ function handle_form(&$obj, $hide_fields, $readonly) {
         continue;
 
       $set = "set_$name";
-      $obj->$set(trim($_POST[$name]));
+      try {
+        $obj->$set(trim($_POST[$name]));
+      } catch (ValidationException $ex) {
+        $errors[$name] = $ex;
+      }
     }
     db_flush();
+
+    if ($errors) {
+      echo "<span style=\"color: red\">\n",
+           "<p>Failed to validate all fields:</p><ul>\n";
+      foreach ($errors as $name => $error) {
+        $print_name = strtr($name, '_', ' ');
+        echo "<li>$print_name: ", $error->getMessage(), "</li>\n";
+      }
+      echo "</ul></span><p>&nbsp;</p>\n";
+    }
   }
 
   echo '<form action="',htmlspecialchars($_SERVER['REQUEST_URI']),
@@ -110,7 +127,8 @@ function handle_form(&$obj, $hide_fields, $readonly) {
   echo "<table>\n";
 
   foreach (get_object_vars($obj) as $name => $orig_value) {
-    if (in_array($name, $hide_fields))
+    if (in_array($name, $hide_fields) ||
+        ($only_fields && !in_array($name, $only_fields)))
       continue;
 
     $annotations

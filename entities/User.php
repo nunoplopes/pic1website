@@ -2,6 +2,8 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+use Doctrine\ORM\Mapping\Column;
+
 /** @Entity */
 class User
 {
@@ -56,4 +58,6 @@ class User
   public function __toString() {
     return $this->id;
   }
+
+  public function set_github_username($username) { $this->github_username = $username; }
 }

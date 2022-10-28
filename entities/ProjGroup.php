@@ -33,7 +33,8 @@ class ProjGroup
   /** @Column */
   public $project_website = 'https://...';
 
-  // FIXME: repo data
+  /** @Column */
+  public $repository_url = 'https://...';
 
   /** @Column(nullable="yes") @ManyToOne(targetEntity="License") */
   public $license;
@@ -107,6 +108,7 @@ class ProjGroup
   public function set_project_name($name) { $this->project_name = $name; }
   public function set_project_description($description) { $this->project_description = $description; }
   public function set_project_website($url) { $this->project_website = check_url($url); }
+  public function set_repository_url($url) { $this->repository_url = check_repo_url($url); }
   public function set_major_users($users) { $this->major_users = $users; }
   public function set_cla($cla) { $this->cla = $cla; }
   public function set_number_of_commits_last_7_days($number) { $this->number_of_commits_last_7_days = (int)$number; }
@@ -125,14 +127,14 @@ class ProjGroup
   public function set_license($license) {
     $license = db_fetch_license($license);
     if (!$license)
-      throw new Exception('Unknown license');
+      throw new ValidationException('Unknown license');
     $this->license = $license;
   }
 
   public function set_main_language($language) {
     $language = db_fetch_prog_language($language);
     if (!$language)
-      throw new Exception('Unknown programming language');
+      throw new ValidationException('Unknown programming language');
     $this->main_language = $language;
   }
 }

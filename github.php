@@ -4,13 +4,15 @@
 
 // API doc: https://docs.github.com/en/rest
 
+namespace GitHub;
+
 require_once 'include.php';
 
 function parse_date($date) {
   return DateTimeImmutable::createFromFormat(DateTimeImmutable::ISO8601, $date);
 }
 
-function get_gh($path, $etag_in = null) {
+function get($path, $etag_in = null) {
   $curl = curl_init("https://api.github.com/$path");
   curl_setopt($curl, CURLOPT_USERPWD, GH_TOKEN);
   curl_setopt($curl, CURLOPT_USERAGENT, USERAGENT);
@@ -34,7 +36,7 @@ function get_gh($path, $etag_in = null) {
 }
 
 function pr_status($repo, $number) {
-  $pr = get_gh("repos/$repo/pulls/$number")[0];
+  $pr = get("repos/$repo/pulls/$number")[0];
   return [
     'closed'    => $pr->state == 'closed',
     'merged'    => $pr->merged,
@@ -48,7 +50,7 @@ function pr_status($repo, $number) {
 
 // returns (opened PRs, opened issues, etag)
 function process_user_events($username, $etag = null) {
-  [$events, $new_etag] = get_gh("users/$username/events?per_page=100", $etag);
+  [$events, $new_etag] = get("users/$username/events?per_page=100", $etag);
 
   $opened_prs = [];
   $opened_issues = [];
@@ -68,15 +70,21 @@ function process_user_events($username, $etag = null) {
 }
 
 function get_repo_weekly_commits($repo) {
-  return get_gh("repos/$repo/stats/participation")[0]->all;
+  return get("repos/$repo/stats/participation")[0]->all;
 }
 
 function get_repo_stats($repo) {
-  $data = get_gh("repos/$repo")[0];
+  $data = get("repos/$repo")[0];
   return [
     'language' => $data->language,
     'license'  => $data->license->spdx_id,
     'stars'    => $data->stargazers_count,
     'topics'   => $data->topics,
   ];
+}
+
+function parse_repo_url($url) {
+  if (preg_match('@^https://github.com/([^/]+/[^/]+)/$@', $url, $m))
+    return $m[1];
+  return null;
 }
