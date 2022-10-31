@@ -20,5 +20,5 @@ function check_repo_url($url) {
   $url = check_url($url);
   if (GitHub\parse_repo_url($url))
     return $url;
-  throw new ValidationException('Malformed URL');
+  throw new ValidationException('Unsupported repository URL');
 }

@@ -17,7 +17,7 @@ function auth_set_user($user) {
 
 function create_session($user) {
   $session = new Session($user);
-  db_save_session($session);
+  db_save($session);
 
   $time = $session->expires->getTimestamp();
   setcookie('sessid', $session->id, $time, '/', '', IN_PRODUCTION, true);

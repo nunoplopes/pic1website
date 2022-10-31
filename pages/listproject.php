@@ -18,12 +18,12 @@ foreach ($group->students as $s) {
 }
 echo "</tr></table>\n";
 
-$readonly = ['group_number', 'year', 'students', 'shift'];
+$readonly = ['group_number', 'year', 'shift'];
 if (!db_fetch_deadline(get_current_year())->isProjProposalActive()) {
   $readonly = array_keys(get_object_vars($group));
 }
 
 echo "<p>&nbsp;</p>\n";
 handle_form($group,
-            /* hidden= */['id', 'students'],
+            /* hidden= */['id', 'students', 'patches'],
             $readonly);

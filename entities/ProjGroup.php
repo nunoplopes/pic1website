@@ -5,6 +5,7 @@
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 
 /** @Entity */
 class ProjGroup
@@ -23,6 +24,9 @@ class ProjGroup
 
   /** @ManyToMany(targetEntity="User", inversedBy="groups", cascade={"persist"}) */
   public $students;
+
+  /** @OneToMany(targetEntity="Patch", mappedBy="group") */
+  public $patches;
 
   /** @Column */
   public $project_name = '';
@@ -88,6 +92,7 @@ class ProjGroup
     $this->group_number = $number;
     $this->year         = $year;
     $this->shift        = $shift;
+    $this->patches      = new \Doctrine\Common\Collections\ArrayCollection();
     $this->students     = new \Doctrine\Common\Collections\ArrayCollection();
     $shift->addGroup($this);
   }

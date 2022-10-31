@@ -54,6 +54,14 @@ class User
     return auth_user_at_least($this, $role);
   }
 
+  public function getGroup() : ?ProjGroup {
+    foreach ($this->groups as $group) {
+      if ($group->year == get_current_year())
+        return $group;
+    }
+    return null;
+  }
+
   public function getPhoto() {
     return $this->photo ? $this->photo
              : "https://fenix.tecnico.ulisboa.pt/user/photo/$this->id";

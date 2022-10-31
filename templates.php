@@ -17,6 +17,9 @@ echo <<< EOF
 table, th, td {
   border: 1px solid
 }
+th, td {
+  padding: 3px
+}
 </style>
 <title>PIC1: $title</title>
 </head>
@@ -31,7 +34,7 @@ EOF;
 function html_footer() {
   $pages = [
     ['profile', 'Edit profile', ROLE_STUDENT],
-    ['listprojects', 'Display projects', ROLE_STUDENT],
+    ['listprojects', 'Projects', ROLE_STUDENT],
     ['patches', 'Patches', ROLE_STUDENT],
     ['shifts', 'Shifts', ROLE_PROF],
     ['deadlines', 'Deadlines', ROLE_PROF],

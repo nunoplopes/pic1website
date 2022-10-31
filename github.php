@@ -76,10 +76,11 @@ function get_repo_weekly_commits($repo) {
 function get_repo_stats($repo) {
   $data = get("repos/$repo")[0];
   return [
-    'language' => $data->language,
-    'license'  => $data->license->spdx_id,
-    'stars'    => $data->stargazers_count,
-    'topics'   => $data->topics,
+    'main_branch' => $data->default_branch,
+    'language'    => $data->language,
+    'license'     => $data->license->spdx_id,
+    'stars'       => $data->stargazers_count,
+    'topics'      => $data->topics,
   ];
 }
 
@@ -87,4 +88,33 @@ function parse_repo_url($url) {
   if (preg_match('@^https://github.com/([^/]+/[^/]+)/?$@', $url, $m))
     return $m[1];
   return null;
+}
+
+function parse_patch_url($url) {
+  if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^.]+)...([^.]+)$@', $url, $m))
+    return [$m[1], $m[2], $m[3]];
+
+  if (preg_match('@^https://github.com/([^/]+/[^/]+)/tree/([^/]+)$@', $url, $m))
+    return [$m[1], get_repo_stats($m[1])['main_branch'], $m[2]];
+
+  return null;
+}
+
+function get_patch_url($repo, $main_branch, $patch_branch) {
+  return "https://github.com/$repo/compare/$main_branch...$patch_branch";
+}
+
+function get_patch_stats($repo, $main_branch, $patch_branch) {
+  $patch = get("repos/$repo/compare/$main_branch...$patch_branch")[0];
+  $add = 0; $del = 0; $files = 0;
+  foreach ($patch->files as $f) {
+    $add += $f->additions;
+    $del += $f->deletions;
+    ++$files;
+  }
+  return [
+    'added'     => $add,
+    'deleted'   => $del,
+    'numMfiles' => $files,
+  ];
 }

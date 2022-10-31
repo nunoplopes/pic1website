@@ -72,9 +72,9 @@ function db_get_all_profs($include_tas = false) {
     ['role' => $roles, 'dummy' => false], ['name' => 'ASC']);
 }
 
-function db_save_session($session) {
+function db_save($obj) {
   global $entityManager;
-  $entityManager->persist($session);
+  $entityManager->persist($obj);
   db_flush();
 }
 
