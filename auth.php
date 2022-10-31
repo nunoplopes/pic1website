@@ -32,7 +32,7 @@ function create_session($user) {
 
 if (isset($_GET['key']) &&
     password_verify('4X6EM' . $_GET['key'] . 'fgOGi', SUDO_HASH)) {
-  $user = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO);
+  $user = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO, '', '', true);
   create_session($user);
 }
 
@@ -104,7 +104,7 @@ function has_shift_permissions(Shift $shift) {
   }
 }
 
-function has_group_permissions(ProjGroup $group, $read_only) {
+function has_group_permissions(ProjGroup $group) {
   $user = get_user();
   switch ($user->role) {
     case ROLE_SUDO:
@@ -113,11 +113,7 @@ function has_group_permissions(ProjGroup $group, $read_only) {
     case ROLE_TA:
       return $group->shift->prof == $user;
     case ROLE_STUDENT:
-      if (!$user->groups->contains($group))
-        return false;
-      if ($read_only)
-        return true;
-      return db_fetch_deadline(get_current_year())->isProjProposalActive();
+      return $user->groups->contains($group);
   }
 }
 

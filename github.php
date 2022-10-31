@@ -84,7 +84,7 @@ function get_repo_stats($repo) {
 }
 
 function parse_repo_url($url) {
-  if (preg_match('@^https://github.com/([^/]+/[^/]+)/$@', $url, $m))
+  if (preg_match('@^https://github.com/([^/]+/[^/]+)/?$@', $url, $m))
     return $m[1];
   return null;
 }

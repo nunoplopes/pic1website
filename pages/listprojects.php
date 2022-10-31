@@ -58,7 +58,7 @@ EOF;
 echo "<p>Groups:</p>\n";
 $table = [];
 foreach (db_fetch_groups($selected_year) as $group) {
-  if (!has_group_permissions($group, true))
+  if (!has_group_permissions($group))
     continue;
 
   if ($selected_shift && $group->shift != $selected_shift)

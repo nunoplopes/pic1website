@@ -32,6 +32,7 @@ function html_footer() {
   $pages = [
     ['profile', 'Edit profile', ROLE_STUDENT],
     ['listprojects', 'Display projects', ROLE_STUDENT],
+    ['patches', 'Patches', ROLE_STUDENT],
     ['shifts', 'Shifts', ROLE_PROF],
     ['deadlines', 'Deadlines', ROLE_PROF],
     ['changerole', 'Change Role', ROLE_PROF],

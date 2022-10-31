@@ -23,6 +23,9 @@ class User
   // TODO: switch to enum with PHP 8
   public $role;
 
+  /** @Column(type="boolean") */
+  public $dummy;
+
   /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
   public $groups;
 
@@ -32,12 +35,13 @@ class User
   /** @Column */
   public $github_etag = '';
 
-  public function __construct($username, $name, $email, $photo, $role) {
+  public function __construct($username, $name, $email, $photo, $role, $dummy) {
     $this->id     = $username;
     $this->name   = $name;
     $this->email  = $email;
     $this->photo  = $photo;
     $this->role   = $role;
+    $this->dummy  = $dummy;
     $this->groups = new \Doctrine\Common\Collections\ArrayCollection();
   }
 

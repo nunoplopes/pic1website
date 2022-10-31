@@ -10,7 +10,8 @@ if (isset($_GET['newrole'])) {
     die('Unknown role');
 
   $_SESSION['username'] = "ist0000$role";
-  auth_set_user(db_fetch_or_add_user("ist0000$role", "Dummy $role", $role));
+  auth_set_user(
+    db_fetch_or_add_user("ist0000$role", "Dummy $role", $role, '', '', true));
   html_header('Impersonate');
 }
 else if (isset($_GET['username'])) {

@@ -31,7 +31,7 @@ function db_fetch_user($username) : ?User {
 }
 
 function db_fetch_or_add_user($username, $name, $role, $email = '',
-                              $photo = '') : User {
+                              $photo = '', $dummy = false) : User {
   $user = db_fetch_user($username);
   if ($user) {
     $changed = false;
@@ -53,7 +53,7 @@ function db_fetch_or_add_user($username, $name, $role, $email = '',
   }
 
   global $entityManager;
-  $user = new User($username, $name, $email, $photo, $role);
+  $user = new User($username, $name, $email, $photo, $role, $dummy);
   $entityManager->persist($user);
   $entityManager->flush();
   return $user;
@@ -65,10 +65,11 @@ function db_get_all_users() {
 
 function db_get_all_profs($include_tas = false) {
   global $entityManager;
-  $repo = $entityManager->getRepository('User');
+  $roles = [ROLE_SUDO, ROLE_PROF];
   if ($include_tas)
-    return $repo->findBy(['role' => [ROLE_PROF, ROLE_TA]], ['name' => 'ASC']);
-  return $repo->findByRole(ROLE_PROF, ['name' => 'ASC']);
+    $roles[] = ROLE_TA;
+  return $entityManager->getRepository('User')->findBy(
+    ['role' => $roles, 'dummy' => false], ['name' => 'ASC']);
 }
 
 function db_save_session($session) {
