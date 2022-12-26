@@ -40,6 +40,7 @@ function html_footer() {
     ['deadlines', 'Deadlines', ROLE_PROF],
     ['changerole', 'Change Role', ROLE_PROF],
     ['impersonate', 'Impersonate', ROLE_SUDO],
+    ['cron', 'Cron', ROLE_PROF],
     ['phpinfo', 'PHP Info', ROLE_PROF],
   ];
   echo '<p>';

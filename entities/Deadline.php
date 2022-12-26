@@ -3,6 +3,7 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 
 /** @Entity */

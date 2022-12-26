@@ -4,12 +4,11 @@
 
 require_once 'include.php';
 
-use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\EntityManager;
 
-$config = Setup::createAnnotationMetadataConfiguration([__DIR__ . '/entities'],
-                                                       !IN_PRODUCTION,
-                                                       '.proxies');
+$config = ORMSetup::createAnnotationMetadataConfiguration(
+  [__DIR__ . '/entities'], isDevMode: !IN_PRODUCTION, proxyDir: '.proxies');
 $config->setAutoGenerateProxyClasses(
   Doctrine\Common\Proxy\AbstractProxyFactory::AUTOGENERATE_NEVER);
 
@@ -68,8 +67,9 @@ function db_get_all_profs($include_tas = false) {
   $roles = [ROLE_SUDO, ROLE_PROF];
   if ($include_tas)
     $roles[] = ROLE_TA;
-  return $entityManager->getRepository('User')->findBy(
-    ['role' => $roles, 'dummy' => false], ['name' => 'ASC']);
+  $users = $entityManager->getRepository('User')->findByRole($roles,
+                                                             ['name' => 'ASC']);
+  return array_filter($users, function($u) { return !$u->isDummy(); });
 }
 
 function db_save($obj) {

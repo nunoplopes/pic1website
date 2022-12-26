@@ -23,6 +23,12 @@ php doctrine.php orm:generate-proxies
 4) Setup cronjob (cron.php)
 
 
+## Development
+Spawn a web server:
+```shell
+php -S localhost:8080 &
+```
+
 ## Management
 Delete DB:
 ```shell

@@ -3,6 +3,9 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\ManyToMany;
 
 /** @Entity */
 class User
@@ -23,9 +26,6 @@ class User
   // TODO: switch to enum with PHP 8
   public $role;
 
-  /** @Column(type="boolean") */
-  public $dummy;
-
   /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
   public $groups;
 
@@ -41,8 +41,8 @@ class User
     $this->email  = $email;
     $this->photo  = $photo;
     $this->role   = $role;
-    $this->dummy  = $dummy;
     $this->groups = new \Doctrine\Common\Collections\ArrayCollection();
+    assert($this->isDummy() == $dummy);
   }
 
   public function shortName() {
@@ -65,6 +65,10 @@ class User
   public function getPhoto() {
     return $this->photo ? $this->photo
              : "https://fenix.tecnico.ulisboa.pt/user/photo/$this->id";
+  }
+
+  public function isDummy() {
+    return str_starts_with($this->id, 'ist0000');
   }
 
   public function __toString() {

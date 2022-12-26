@@ -3,9 +3,18 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require_once 'include.php';
-require 'db.php';
-require 'fenix.php';
-require 'github.php';
+require_once 'db.php';
+require_once 'fenix.php';
+require_once 'github.php';
+
+$tasks = [
+  'groups'      => "Update student's group information from fenix",
+  'professors'  => 'Update list of professors/TAs from fenix',
+  'gc_sessions' => 'Prune old sessions',
+  'github'      => 'Update github information',
+  'licenses'    => 'Update list of licenses',
+  'prog_langs'  => 'Update list of programming languages',
+];
 
 for ($i = 1; $i < sizeof($argv); ++$i) {
   $arg = $argv[$i];
@@ -13,93 +22,131 @@ for ($i = 1; $i < sizeof($argv); ++$i) {
     echo <<< EOF
 Usage: php crop.php <options>
 --course-id <id>
+--run <tasks>
+
+Available tasks:
 
 EOF;
+    foreach ($tasks as $name => $desc) {
+      echo " - $name:\t$desc\n";
+    }
     exit;
   }
   if ($arg == '--course-id') {
     $courses = [$argv[++$i]];
+  } elseif ($arg == '--run') {
+    $run_tasks = [$argv[++$i]];
   }
 }
 
 $year = get_current_year();
-if (!isset($courses))
-  $courses = get_course_ids(get_term());
+
+function get_courses() {
+  global $courses;
+  if (!isset($courses))
+    $courses = get_course_ids(get_term());
+  return $courses;
+}
+
 
 // Update student's group information
-foreach ($courses as $course) {
-  foreach (get_groups($course) as $number => $data) {
-    [$shift, $students] = $data;
-    if (!$students)
-      continue;
+function run_groups() {
+  global $year;
+  foreach (get_courses() as $course) {
+    foreach (get_groups($course) as $number => $data) {
+      [$shift, $students] = $data;
+      if (!$students)
+        continue;
 
-    $shift = db_fetch_shift($year, $shift);
-    $group = db_fetch_group($year, $number, $shift);
-    $group->resetStudents();
-    foreach ($students as $id => $name) {
-      $group->addStudent(db_fetch_or_add_user($id, $name, ROLE_STUDENT));
+      $shift = db_fetch_shift($year, $shift);
+      $group = db_fetch_group($year, $number, $shift);
+      $group->resetStudents();
+      foreach ($students as $id => $name) {
+        $group->addStudent(db_fetch_or_add_user($id, $name, ROLE_STUDENT));
+      }
     }
   }
 }
 
 
 // Update list of Profs
-// First remove permissions from all current profs
-// We don't model roles per year (they are global)
-// So we keep the current year's role only.
-foreach (db_get_all_profs(true) as $user) {
-  $user->role = ROLE_STUDENT;
-}
+function run_professors() {
+  // First remove permissions from all current profs
+  // We don't model roles per year (they are global)
+  // So we keep the current year's role only.
+  foreach (db_get_all_profs(true) as $user) {
+    if ($user->role != ROLE_SUDO)
+      $user->role = ROLE_STUDENT;
+  }
 
-foreach ($courses as $course) {
-  foreach (get_course_teachers($course) as $prof) {
-    $user = db_fetch_or_add_user($prof[0], $prof[1], $prof[2]);
-    if (is_higher_role($prof[2], $user->role))
-      $role = $prof[2];
+  foreach (get_courses() as $course) {
+    foreach (get_course_teachers($course) as $prof) {
+      $user = db_fetch_or_add_user($prof[0], $prof[1], $prof[2]);
+      if (is_higher_role($prof[2], $user->role))
+        $user->role = $prof[2];
+    }
   }
 }
 
 
 // Delete old sessions
-foreach (db_get_all_sessions() as $session) {
-  if (!$session->isFresh())
-    db_delete_session($session);
+function run_gc_sessions() {
+  foreach (db_get_all_sessions() as $session) {
+    if (!$session->isFresh())
+      db_delete_session($session);
+  }
 }
 
 
 // Check student's github activity
-
-// TODO
+function run_github() {
+  // TODO
+}
 
 
 // Load licenses from SPDX
-$url = 'https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json';
-$data = json_decode(file_get_contents($url));
-foreach ($data->licenses as $license) {
-  if (!$license->isDeprecatedLicenseId)
-    db_update_license($license->licenseId, $license->name);
+function run_licenses() {
+  $url = 'https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json';
+  $data = json_decode(file_get_contents($url));
+  foreach ($data->licenses as $license) {
+    if (!$license->isDeprecatedLicenseId)
+      db_update_license($license->licenseId, $license->name);
+  }
 }
 
-// List of programming languages
-$languages = [
-  'C',
-  'C++',
-  'C#',
-  'Go',
-  'Java',
-  'JavaScript',
-  'Perl',
-  'PHP',
-  'Python',
-  'Ruby',
-  'Rust',
-  'Scala',
-  'Swift',
-  'TypeScript',
-];
+function run_prog_langs() {
+  // List of programming languages
+  $languages = [
+    'C',
+    'C++',
+    'C#',
+    'Go',
+    'Java',
+    'JavaScript',
+    'Perl',
+    'PHP',
+    'Python',
+    'Ruby',
+    'Rust',
+    'Scala',
+    'Swift',
+    'TypeScript',
+  ];
 
-foreach ($languages as $l) {
-  db_insert_prog_language($l);
+  foreach ($languages as $l) {
+    db_insert_prog_language($l);
+  }
+}
+
+
+if (!isset($run_tasks))
+  $run_tasks = array_keys($tasks);
+
+foreach ($run_tasks as $task) {
+  echo "Running $task...\n";
+  if (empty($tasks[$task]))
+    die("No such task: $task\n");
+  "run_$task"();
 }
 
 db_flush();

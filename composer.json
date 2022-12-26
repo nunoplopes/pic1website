@@ -2,7 +2,7 @@
   "require": {
     "doctrine/orm": "*",
     "doctrine/annotations": "*",
-    "doctrine/cache": "1.*"
+    "symfony/cache": "*"
   },
   "autoload": {
     "psr-0": {"": "entities/"}
