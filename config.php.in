@@ -25,5 +25,6 @@ define('FENIX_APP_ID', '');
 define('FENIX_CLIENT_SECRET', '');
 
 define('MAILER_DSN', '');
+define('DEBUG_EMAIL_DST', '');
 
 define('TIMEZONE', 'Europe/Lisbon');

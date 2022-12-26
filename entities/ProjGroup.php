@@ -119,6 +119,10 @@ class ProjGroup
     $student->groups->add($this);
   }
 
+  public function __toString() {
+    return $this->id;
+  }
+
   public function set_project_name($name) { $this->project_name = $name; }
   public function set_project_description($description) { $this->project_description = $description; }
   public function set_project_website($url) { $this->project_website = check_url($url); }

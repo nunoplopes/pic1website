@@ -188,3 +188,8 @@ function db_get_all_patches($group) {
   return $entityManager->getRepository('Patch')
                        ->findByGroup($group);
 }
+
+function db_fetch_patch_id($id) : ?Patch {
+  global $entityManager;
+  return $entityManager->find('Patch', $id);
+}

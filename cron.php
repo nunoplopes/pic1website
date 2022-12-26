@@ -4,6 +4,7 @@
 
 require_once 'include.php';
 require_once 'db.php';
+require_once 'email.php';
 require_once 'fenix.php';
 require_once 'github.php';
 
@@ -35,7 +36,7 @@ EOF;
   if ($arg == '--course-id') {
     $courses = [$argv[++$i]];
   } elseif ($arg == '--run') {
-    $run_tasks = [$argv[++$i]];
+    $run_tasks = explode(',', $argv[++$i]);
   }
 }
 
@@ -109,7 +110,11 @@ function run_github() {
           $patch->updateStats();
         echo "Done patch: $patch->id\n";
       } catch (ValidationException $ex) {
-        echo "Patch $patch->id is broken\n";
+        email_ta($group, "Patch $patch->id is broken", <<< EOF
+Cron job failed to process patch $patch->id
+Group: $group->id
+Error: $ex
+EOF);
       }
     }
   }
@@ -158,7 +163,12 @@ foreach ($run_tasks as $task) {
   echo "Running $task...\n";
   if (empty($tasks[$task]))
     die("No such task: $task\n");
-  "run_$task"();
+  try {
+    "run_$task"();
+  } catch (Throwable $ex) {
+    email_profs("PIC1: Cron job failed",
+                "Cron had an exception when running $task:\n$ex");
+  }
 }
 
 db_flush();

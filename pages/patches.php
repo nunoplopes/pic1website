@@ -35,20 +35,44 @@ if (isset($_GET['group'])) {
   $groups = db_fetch_groups(get_current_year());
 }
 
+$only_needs_review = $_POST['needs_review'] ?? false;
+
+if (auth_at_least(ROLE_TA)) {
+  $checked = $only_needs_review ? ' checked' : '';
+  echo <<<HTML
+<form action="index.php?page=patches" method="post">
+<label for="needs_review">Show patches that need review</label>
+<input type="checkbox" id="needs_review" name="needs_review" value="1"
+onchange='this.form.submit()'$checked>
+</form>
+<br>
+HTML;
+}
+
 $table = [];
 foreach ($groups as $group) {
   if (!has_group_permissions($group))
     continue;
 
   foreach ($group->patches as $patch) {
+    if ($only_needs_review && $patch->status != PATCH_WAITING_REVIEW)
+      continue;
+
+    $authors = [];
+    foreach ($patch->students as $author) {
+      $authors[] = $author->shortName();
+    }
+
     $table[] = [
-      'id'     => dolink('editpatch', $patch->id, ['id' => $patch->id]),
-      'Group'  => $group->group_number,
-      'Status' => $patch->getStatus(),
-      'URL'    => '<a href="'. $patch->getPatchURL() . '">link</a>',
-      '+'      => $patch->lines_added,
-      '-'      => $patch->lines_deleted,
-      'Files'  => $patch->num_files,
+      'id'      => dolink('editpatch', $patch->id, ['id' => $patch->id]),
+      'Group'   => $group->group_number,
+      'Status'  => $patch->getStatus(),
+      'Type'    => $patch->getType(),
+      'URL'     => '<a href="'. $patch->getPatchURL() . '">link</a>',
+      '+'       => $patch->lines_added,
+      '-'       => $patch->lines_deleted,
+      'Files'   => $patch->num_files,
+      'Authors' => implode(', ', $authors),
     ];
   }
 }

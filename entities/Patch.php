@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 
 define('PATCH_WAITING_REVIEW', 0);
@@ -36,6 +37,9 @@ class Patch
   /** @Column */
   public $url;
 
+  /** @ManyToMany(targetEntity="User") */
+  public $students;
+
   /** @Column(length=1000) */
   public $description;
 
@@ -56,6 +60,7 @@ class Patch
     $this->url          = check_url($url);
     $this->type         = (int)$type;
     $this->description  = $description;
+    $this->students     = new \Doctrine\Common\Collections\ArrayCollection();
 
     $this->updateStats();
 
@@ -69,6 +74,18 @@ class Patch
       $this->lines_added   = $stats['added'];
       $this->lines_deleted = $stats['deleted'];
       $this->num_files     = $stats['numMfiles'];
+
+      $this->students->clear();
+      foreach ($stats['authors'] as $author) {
+        foreach ($this->group->students as $student) {
+          if ($author == $student->github_username) {
+            $this->students->add($student);
+            break;
+          }
+        }
+      }
+      if ($this->students->isEmpty())
+        throw new ValidationException("Patch has no recognized authors");
 
       if ($gh[0] !== $this->group->getRepo())
         throw new ValidationException("Patch is not for Project's repository");
@@ -85,6 +102,14 @@ class Patch
       case PATCH_PR_OPEN:        return 'PR open';
       case PATCH_MERGED:         return 'merged';
       default: die('Internal error: getStatus');
+    }
+  }
+
+  public function getType() {
+    switch ($this->status) {
+      case PATCH_BUGFIX:  return 'bug fix';
+      case PATCH_FEATURE: return 'feature';
+      default: die('Internal error: getType');
     }
   }
 

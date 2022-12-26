@@ -157,6 +157,11 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
     $print_name = strtr($name, '_', ' ');
     if ($type == "datetime") {
       $val = $orig_value->format('Y-m-d\TH:i:s');
+    } elseif (is_object($orig_value) &&
+              get_class($orig_value) === 'Doctrine\ORM\PersistentCollection') {
+      $val = array_map(function($e) { return (string)$e; },
+                       $orig_value->toArray());
+      $val = implode(', ', $val);
     } else {
       $val = htmlspecialchars((string)$orig_value);
     }

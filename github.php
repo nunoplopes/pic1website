@@ -118,9 +118,16 @@ function get_patch_stats($repo, $main_branch, $patch_repo, $patch_branch) {
     $del += $f->deletions;
     ++$files;
   }
+
+  $authors = [];
+  foreach ($patch->commits as $commit) {
+    $authors[$commit->author->login] = true;
+  }
+
   return [
     'added'     => $add,
     'deleted'   => $del,
     'numMfiles' => $files,
+    'authors'    => array_keys($authors),
   ];
 }
