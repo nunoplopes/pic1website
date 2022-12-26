@@ -100,6 +100,12 @@ class ProjGroup
     $shift->addGroup($this);
   }
 
+  function getRepo() {
+    if ($repo = GitHub\parse_repo_url($this->repository_url))
+      return $repo;
+    return null;
+  }
+
   public function resetStudents() {
     foreach ($this->students as $student) {
       $student->groups->removeElement($this);

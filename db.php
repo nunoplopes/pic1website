@@ -182,3 +182,9 @@ function db_fetch_deadline($year) : Deadline {
   }
   return $deadline;
 }
+
+function db_get_all_patches($group) {
+  global $entityManager;
+  return $entityManager->getRepository('Patch')
+                       ->findByGroup($group);
+}

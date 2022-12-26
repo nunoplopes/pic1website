@@ -2,7 +2,9 @@
   "require": {
     "doctrine/orm": "*",
     "doctrine/annotations": "*",
-    "symfony/cache": "*"
+    "symfony/cache": "*",
+    "symfony/http-client": "*",
+    "symfony/mailgun-mailer": "*"
   },
   "autoload": {
     "psr-0": {"": "entities/"}

@@ -24,4 +24,6 @@ define('DB_DSN', 'sqlite://file://' . __DIR__ . '/db.sqlite');
 define('FENIX_APP_ID', '');
 define('FENIX_CLIENT_SECRET', '');
 
+define('MAILER_DSN', '');
+
 define('TIMEZONE', 'Europe/Lisbon');

@@ -100,7 +100,19 @@ function run_gc_sessions() {
 
 // Check student's github activity
 function run_github() {
-  // TODO
+  global $year;
+  $groups = db_fetch_groups($year);
+  foreach ($groups as $group) {
+    foreach (db_get_all_patches($group) as $patch) {
+      try {
+        if ($patch->isStillOpen())
+          $patch->updateStats();
+        echo "Done patch: $patch->id\n";
+      } catch (ValidationException $ex) {
+        echo "Patch $patch->id is broken\n";
+      }
+    }
+  }
 }
 
 
