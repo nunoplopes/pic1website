@@ -45,10 +45,17 @@ function email_profs($subject, $msg) {
 }
 
 function email_ta($group, $subject, $msg) {
-  $ta = $group->shift->prof;
-  if ($ta) {
+  if ($ta = $group->shift->prof) {
     send_email($ta->email, $subject, $msg);
   } else {
     email_profs($subject, $msg);
   }
+}
+
+function email_group($group, $subject, $msg) {
+  $emails = [$group->shift->prof];
+  foreach ($group->students as $user) {
+    $emails[] = $user->email;
+  }
+  send_email($emails, $subject, $msg);
 }

@@ -120,7 +120,7 @@ class ProjGroup
   }
 
   public function __toString() {
-    return $this->id;
+    return $this->group_number;
   }
 
   public function set_project_name($name) { $this->project_name = $name; }

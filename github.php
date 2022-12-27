@@ -9,7 +9,9 @@ namespace GitHub;
 require_once 'include.php';
 
 function parse_date($date) {
-  return DateTimeImmutable::createFromFormat(DateTimeImmutable::ISO8601, $date);
+  return $date
+    ? \DateTimeImmutable::createFromFormat(\DateTimeImmutable::ISO8601, $date)
+    : null;
 }
 
 function get($path, $etag_in = null) {
@@ -32,12 +34,13 @@ function get($path, $etag_in = null) {
   if (preg_match('/etag: "([^"]*)"/S', $headers, $etag))
     $etag = $etag[1];
 
-  return [json_decode($json), $etag];
+  return [$json ? json_decode($json) : [], $etag];
 }
 
 function pr_status($repo, $number) {
   $pr = get("repos/$repo/pulls/$number")[0];
   return [
+    'origin'    => $pr->head->repo->full_name . ':' . $pr->head->ref,
     'closed'    => $pr->state == 'closed',
     'merged'    => $pr->merged,
     'merged_by' => $pr->merged ? $pr->merged_by->login : null,

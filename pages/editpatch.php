@@ -11,7 +11,8 @@ $patch = db_fetch_patch_id($_GET['id']);
 if (!$patch || !has_group_permissions($patch->group))
   die('Permission error');
 
-$readonly = ['group', 'lines_added', 'lines_deleted', 'num_files', 'students'];
+$readonly = ['group', 'lines_added', 'lines_deleted', 'num_files', 'students',
+             'patch_url', 'pr_number'];
 if (get_user()->role == ROLE_STUDENT)
   $readonly[] = 'review';
 

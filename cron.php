@@ -12,6 +12,7 @@ $tasks = [
   'groups'      => "Update student's group information from fenix",
   'professors'  => 'Update list of professors/TAs from fenix',
   'gc_sessions' => 'Prune old sessions',
+  'patch_stats' => 'Update patch statistics',
   'github'      => 'Update github information',
   'licenses'    => 'Update list of licenses',
   'prog_langs'  => 'Update list of programming languages',
@@ -41,6 +42,27 @@ EOF;
 }
 
 $year = get_current_year();
+
+function error_profs($subject, $msg) {
+  if (IN_PRODUCTION)
+    email_profs($subject, $msg);
+  else
+    echo "ERROR: $subject\n$msg\n";
+}
+
+function error_ta($group, $subject, $msg) {
+  if (IN_PRODUCTION)
+    email_ta($group, $subject, $msg);
+  else
+    echo "ERROR: $subject (group $group)\n$msg\n";
+}
+
+function error_group($group, $subject, $msg) {
+  if (IN_PRODUCTION)
+    email_group($group, $subject, $msg);
+  else
+    echo "ERROR: $subject (group $group)\n$msg\n";
+}
 
 function get_courses() {
   global $courses;
@@ -98,24 +120,79 @@ function run_gc_sessions() {
   }
 }
 
-
-// Check student's github activity
-function run_github() {
+// Update patch statistics
+function run_patch_stats() {
   global $year;
-  $groups = db_fetch_groups($year);
-  foreach ($groups as $group) {
+
+  foreach (db_fetch_groups($year) as $group) {
     foreach (db_get_all_patches($group) as $patch) {
       try {
         if ($patch->isStillOpen())
           $patch->updateStats();
         echo "Done patch: $patch->id\n";
       } catch (ValidationException $ex) {
-        email_ta($group, "Patch $patch->id is broken", <<< EOF
+        error_ta($group, "Patch $patch->id is broken", <<< EOF
 Cron job failed to process patch $patch->id
 Group: $group->id
 Error: $ex
 EOF);
       }
+    }
+  }
+}
+
+// Check student's github activity (new PRs)
+function run_github() {
+  global $year;
+
+  foreach (db_fetch_groups($year) as $group) {
+    $group_repo = GitHub\parse_repo_url($group->repository_url);
+    if (!$group_repo)
+      continue;
+
+    foreach ($group->students as $user) {
+      if (!$user->github_username)
+        continue;
+
+      [$opened_prs, $opened_issues, $new_etag]
+        = GitHub\process_user_events($user->github_username, $user->github_etag);
+
+      foreach ($opened_prs as $pr) {
+        if ($pr[0] !== $group_repo)
+          continue;
+        echo "Processing new PR $group_repo/$pr[1] of group $group\n";
+        $data = GitHub\pr_status($group_repo, $pr[1]);
+
+        $processed = false;
+        foreach ($group->patches as $patch) {
+          if ($patch->getPatchSource() !== $data['origin'])
+            continue;
+
+          $patch->pr_number = (int)$pr[1];
+
+          // Note that github may serve us the same event multiple times
+          if ($patch->status == PATCH_APPROVED) {
+            $patch->status = PATCH_PR_OPEN;
+          } else if ($patch->status == PATCH_WAITING_REVIEW ||
+                     $pr->status == PATCH_REVIEWED) {
+            $patch->status = PATCH_PR_OPEN_ILLEGAL;
+            error_group($group,
+                        "PIC1: PR opened without approval",
+                        "PR $group_repo/$pr[1] of group $group was opened ".
+                        "without prior approval.");
+          }
+          $processed = true;
+          break;
+        }
+
+        if (!$processed) {
+          error_group($group,
+                      "PIC1: PR opened without a corresponding patch entry",
+                      "PR $group_repo/$pr[1] of group $group was opened ".
+                       "without a corresponding patch entry on the website.");
+        }
+      }
+      $user->github_etag = $new_etag;
     }
   }
 }
@@ -166,7 +243,7 @@ foreach ($run_tasks as $task) {
   try {
     "run_$task"();
   } catch (Throwable $ex) {
-    email_profs("PIC1: Cron job failed",
+    error_profs("PIC1: Cron job failed",
                 "Cron had an exception when running $task:\n$ex");
   }
 }
