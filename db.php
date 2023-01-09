@@ -8,7 +8,7 @@ use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\EntityManager;
 
 $config = ORMSetup::createAnnotationMetadataConfiguration(
-  [__DIR__ . '/entities'], isDevMode: !IN_PRODUCTION, proxyDir: '.proxies');
+  [__DIR__ . '/entities'], /*isDevMode:*/ !IN_PRODUCTION, /*proxyDir:*/ '.proxies');
 $config->setAutoGenerateProxyClasses(
   Doctrine\Common\Proxy\AbstractProxyFactory::AUTOGENERATE_NEVER);
 
