@@ -241,7 +241,8 @@ foreach ($run_tasks as $task) {
   if (empty($tasks[$task]))
     die("No such task: $task\n");
   try {
-    "run_$task"();
+    $task = "run_$task";
+    $task();
   } catch (Throwable $ex) {
     error_profs("PIC1: Cron job failed",
                 "Cron had an exception when running $task:\n$ex");
