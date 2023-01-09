@@ -34,3 +34,8 @@ Delete DB:
 ```shell
 php doctrine.php orm:schema-tool:drop --force --full-database
 ```
+
+Update DB schema:
+```shell
+php doctrine.php orm:schema-tool:update --complete --force --dump-sql
+```
