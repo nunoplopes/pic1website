@@ -38,7 +38,7 @@ onchange='this.form.submit()'$own_shifts_checked>
 <option value="all">All</option>
 EOF;
 
-foreach (db_fetch_shifts($year) as $shift) {
+foreach (db_fetch_shifts($selected_year) as $shift) {
   if (!has_shift_permissions($shift))
     continue;
   if ($own_shifts_only &&
