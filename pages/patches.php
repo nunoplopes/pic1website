@@ -35,15 +35,21 @@ if (isset($_GET['group'])) {
   $groups = db_fetch_groups(get_current_year());
 }
 
-$only_needs_review = $_POST['needs_review'] ?? false;
+$only_needs_review = !empty($_POST['needs_review']);
+$own_shifts_only   = !empty($_POST['own_shifts']);
 
 if (auth_at_least(ROLE_TA)) {
-  $checked = $only_needs_review ? ' checked' : '';
+  $only_review_checked = $only_needs_review ? ' checked' : '';
+  $own_shifts_checked   = $own_shifts_only ? ' checked' : '';
   echo <<<HTML
 <form action="index.php?page=patches" method="post">
-<label for="needs_review">Show patches that need review</label>
+<label for="needs_review">Show only patches that need review</label>
 <input type="checkbox" id="needs_review" name="needs_review" value="1"
-onchange='this.form.submit()'$checked>
+onchange='this.form.submit()'$only_review_checked>
+<br>
+<label for="own_shifts">Show only own shifts</label>
+<input type="checkbox" id="own_shifts" name="own_shifts" value="1"
+onchange='this.form.submit()'$own_shifts_checked>
 </form>
 <br>
 HTML;
@@ -52,6 +58,9 @@ HTML;
 $table = [];
 foreach ($groups as $group) {
   if (!has_group_permissions($group))
+    continue;
+
+  if ($own_shifts_only && $group->shift->prof != get_user())
     continue;
 
   foreach ($group->patches as $patch) {

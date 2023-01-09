@@ -34,11 +34,17 @@ function get($path, $etag_in = null) {
   if (preg_match('/etag: "([^"]*)"/S', $headers, $etag))
     $etag = $etag[1];
 
-  return [$json ? json_decode($json) : [], $etag];
+  $json = $json ? json_decode($json) : [];
+  // message is set on error
+  if (!empty($json->message))
+    $json = [];
+  return [$json, $etag];
 }
 
 function pr_status($repo, $number) {
   $pr = get("repos/$repo/pulls/$number")[0];
+  if (!$pr)
+    return null;
   return [
     'origin'    => $pr->head->repo->full_name . ':' . $pr->head->ref,
     'closed'    => $pr->state == 'closed',
@@ -78,11 +84,13 @@ function get_repo_weekly_commits($repo) {
 
 function get_repo_stats($repo) {
   $data = get("repos/$repo")[0];
+  if (!$data)
+    return null;
   return [
     'main_branch' => $data->default_branch,
-    'parent'      => $data->parent ? $data->parent->full_name : $repo,
+    'parent'      => empty($data->parent) ? $repo : $data->parent->full_name,
     'language'    => $data->language,
-    'license'     => $data->license->spdx_id,
+    'license'     => db_fetch_license($data->license->spdx_id),
     'stars'       => $data->stargazers_count,
     'topics'      => $data->topics,
   ];
@@ -100,8 +108,8 @@ function parse_patch_url($url) {
     return [$m[1], $m[2], $m[3], $m[4]];
 
   if (preg_match('@^https://github.com/([^/]+/[^/]+)/tree/([^/]+)$@', $url, $m)) {
-    $stats = get_repo_stats($m[1]);
-    return [$stats['parent'], $stats['main_branch'], $m[1], $m[2]];
+    if ($stats = get_repo_stats($m[1]))
+      return [$stats['parent'], $stats['main_branch'], $m[1], $m[2]];
   }
 
   return null;

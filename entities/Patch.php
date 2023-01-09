@@ -138,17 +138,15 @@ class Patch
   public function getPatchURL() {
     if ($gh = GitHub\parse_patch_url($this->patch_url)) {
       return GitHub\get_patch_url($gh[0], $gh[1], $gh[2], $gh[3]);
-    } else {
-      die('Internal error: getPatchURL');
     }
+    return 'broken patch';
   }
 
   public function getPatchSource() {
     if ($gh = GitHub\parse_patch_url($this->patch_url)) {
       return "$gh[2]:$gh[3]";
-    } else {
-      die('Internal error: getPatchURL');
     }
+    return 'broken patch';
   }
 
   public function isStillOpen() {

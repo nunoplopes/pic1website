@@ -106,6 +106,12 @@ class ProjGroup
     return null;
   }
 
+  function getRepoStats() {
+    if ($repo = GitHub\parse_repo_url($this->repository_url))
+      return GitHub\get_repo_stats($repo);
+    return null;
+  }
+
   public function resetStudents() {
     foreach ($this->students as $student) {
       $student->groups->removeElement($this);

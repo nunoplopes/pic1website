@@ -24,6 +24,23 @@ if (!db_fetch_deadline(get_current_year())->isProjProposalActive()) {
 }
 
 echo "<p>&nbsp;</p>\n";
+echo '<div style="display: inline-block"><div style="float: left">';
 handle_form($group,
             /* hidden= */['id', 'students', 'patches'],
             $readonly);
+echo '</div>';
+
+$stats = $group->getRepoStats();
+if ($stats) {
+  echo '<div style="float: right; width: 300px; padding: 10px; margin: 10px; ',
+       'background: blue; color: white">';
+  echo "<p>Repository data:</p><ul>";
+  echo "<li><b>Main language:</b> ", htmlspecialchars($stats['language']),
+       "</li>\n";
+  echo "<li><b>Stars:</b> ", $stats['stars'], "</li>\n";
+  echo "<li><b>License:</b> ", $stats['license'], "</li>\n";
+  $topics = array_map('htmlspecialchars', $stats['topics']);
+  echo "<li><b>Topics:</b> ", implode(', ', $topics), "</li>\n";
+  echo '</ul></div>';
+}
+echo "</div>\n";

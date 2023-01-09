@@ -43,13 +43,13 @@ function html_footer() {
     ['cron', 'Cron', ROLE_PROF],
     ['phpinfo', 'PHP Info', ROLE_PROF],
   ];
-  echo '<p>';
+  echo '<footer>';
   foreach ($pages as $page) {
     if (auth_at_least($page[2]))
       echo dolink($page[0], $page[1]), ' | ';
   }
   echo <<< EOF
-<a href="logout.php">Logout</a></p>
+<a href="logout.php">Logout</a></footer>
 </body>
 </html>
 EOF;
