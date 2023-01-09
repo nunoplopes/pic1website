@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping\Id;
 /** @Entity */
 class License
 {
-  /** @Id @Column(length=32) */
+  /** @Id @Column(length=48) */
   public $id;
 
   /** @Column */
