@@ -23,7 +23,7 @@ class GitHubRepository extends Repository
     // check if repo exists
     try {
       $r->defaultBranch();
-    } catch (Exception) {
+    } catch (Exception $ex) {
       return null;
     }
     db_save($r);
