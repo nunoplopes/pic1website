@@ -6,6 +6,7 @@ require 'include.php';
 require 'templates.php';
 require 'db.php';
 require 'auth.php';
+require 'github.php';
 require 'validation.php';
 
 $page = $_REQUEST['page'] ?? '';

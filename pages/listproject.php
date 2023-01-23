@@ -14,7 +14,10 @@ if (!$group || !has_group_permissions($group))
 echo '<table style="text-align:center"><tr>';
 foreach ($group->students as $s) {
   echo '<td><img src="', $s->getPhoto(), '"><br>';
-  echo "$s->name ($s->id)</td>";
+  echo "$s->name ($s->id)";
+  if ($repo = (string)$s->repository_user)
+    echo "<br>\n$repo";
+  echo "</td>";
 }
 echo "</tr></table>\n";
 

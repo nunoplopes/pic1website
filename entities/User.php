@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\OneToOne;
 
 /** @Entity */
 class User
@@ -29,11 +30,8 @@ class User
   /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
   public $groups;
 
-  /** @Column */
-  public $github_username = '';
-
-  /** @Column */
-  public $github_etag = '';
+  /** @Column(nullable="yes") @OneToOne(targetEntity="RepositoryUser") */
+  public $repository_user;
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
     $this->id     = $username;
@@ -74,6 +72,4 @@ class User
   public function __toString() {
     return $this->id;
   }
-
-  public function set_github_username($username) { $this->github_username = $username; }
 }
