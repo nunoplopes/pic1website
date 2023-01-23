@@ -185,7 +185,8 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
       echo "<input type=\"datetime-local\" id=\"$name\" name=\"$name\"",
            " value=\"$val\">";
     }
-    else if (isset($annotations[1]->targetEntity)) {
+    else if (isset($annotations[1]->targetEntity) &&
+             !$annotations[1]->targetEntity::userCanCreate()) {
       $orderby = $annotations[1]->targetEntity::orderBy();
       echo "<select name=\"$name\" id=\"$name\">\n";
 

@@ -172,6 +172,11 @@ function db_insert_prog_language($name) {
     $entityManager->persist(new ProgLanguage($name));
 }
 
+function db_fetch_github($id) : ?GitHubRepository {
+  global $entityManager;
+  return $entityManager->find('GitHubRepository', $id);
+}
+
 function db_fetch_deadline($year) : Deadline {
   global $entityManager;
   $deadline = $entityManager->find('Deadline', $year);

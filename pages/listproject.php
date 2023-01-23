@@ -30,16 +30,17 @@ handle_form($group,
             $readonly);
 echo '</div>';
 
-$stats = $group->getRepoStats();
-if ($stats) {
+if ($repo = $group->repository) {
   echo '<div style="float: right; width: 300px; padding: 10px; margin: 10px; ',
        'background: blue; color: white">';
   echo "<p>Repository data:</p><ul>";
-  echo "<li><b>Main language:</b> ", htmlspecialchars($stats['language']),
+  echo "<li><b>Main language:</b> ",        htmlspecialchars($repo->language()),
        "</li>\n";
-  echo "<li><b>Stars:</b> ", $stats['stars'], "</li>\n";
-  echo "<li><b>License:</b> ", $stats['license'], "</li>\n";
-  $topics = array_map('htmlspecialchars', $stats['topics']);
+  echo "<li><b>Num of commits in the past month:</b> ",
+       number_format($repo->commitsLastMonth()), "</li>\n";
+  echo "<li><b>Stars:</b> ", number_format($repo->stars()), "</li>\n";
+  echo "<li><b>License:</b> ", ($repo->license() ?? 'Unknown'), "</li>\n";
+  $topics = array_map('htmlspecialchars', $repo->topics());
   echo "<li><b>Topics:</b> ", implode(', ', $topics), "</li>\n";
   echo '</ul></div>';
 }

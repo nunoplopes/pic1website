@@ -40,11 +40,8 @@ class ProjGroup
   /** @Column */
   public $project_website = 'https://...';
 
-  /** @Column */
-  public $repository_url = 'https://...';
-
-  /** @Column(nullable="yes") @ManyToOne(targetEntity="License") */
-  public $license;
+  /** @Column(nullable="yes") @ManyToOne(targetEntity="Repository") */
+  public $repository;
 
   /** @Column(type="boolean") */
   public $cla = false;
@@ -53,16 +50,7 @@ class ProjGroup
   public $major_users = '';
 
   /** @Column(type="integer") */
-  public $number_of_commits_last_7_days = 0;
-
-  /** @Column(type="integer") */
-  public $number_of_authors_of_those_commits = 0;
-
-  /** @Column(type="integer") */
   public $lines_of_code = 0;
-
-  /** @Column(nullable="yes") @ManyToOne(targetEntity="ProgLanguage") */
-  public $main_language;
 
   /** @Column */
   public $coding_style = 'https://...';
@@ -100,18 +88,6 @@ class ProjGroup
     $shift->addGroup($this);
   }
 
-  function getRepo() {
-    if ($repo = GitHub\parse_repo_url($this->repository_url))
-      return $repo;
-    return null;
-  }
-
-  function getRepoStats() {
-    if ($repo = GitHub\parse_repo_url($this->repository_url))
-      return GitHub\get_repo_stats($repo);
-    return null;
-  }
-
   public function resetStudents() {
     foreach ($this->students as $student) {
       $student->groups->removeElement($this);
@@ -132,11 +108,8 @@ class ProjGroup
   public function set_project_name($name) { $this->project_name = $name; }
   public function set_project_description($description) { $this->project_description = $description; }
   public function set_project_website($url) { $this->project_website = check_url($url); }
-  public function set_repository_url($url) { $this->repository_url = check_repo_url($url); }
   public function set_major_users($users) { $this->major_users = $users; }
   public function set_cla($cla) { $this->cla = $cla; }
-  public function set_number_of_commits_last_7_days($number) { $this->number_of_commits_last_7_days = (int)$number; }
-  public function set_number_of_authors_of_those_commits($number) { $this->number_of_authors_of_those_commits = (int)$number; }
   public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
   public function set_coding_style($url) { $this->coding_style = check_url($url); }
   public function set_bugs_for_beginners($url) { $this->bugs_for_beginners = check_url($url); }
@@ -148,17 +121,9 @@ class ProjGroup
   public function set_developers_mailing_list($url) { $this->developers_mailing_list = check_url($url); }
   public function set_patch_submission($url) { $this->patch_submission = check_url($url); }
 
-  public function set_license($license) {
-    $license = db_fetch_license($license);
-    if (!$license)
-      throw new ValidationException('Unknown license');
-    $this->license = $license;
-  }
-
-  public function set_main_language($language) {
-    $language = db_fetch_prog_language($language);
-    if (!$language)
-      throw new ValidationException('Unknown programming language');
-    $this->main_language = $language;
+  public function set_repository($url) {
+    $this->repository = Repository::factory($url);
+    if (!$this->repository)
+      throw new ValidationException('Unknown project repository');
   }
 }

@@ -13,11 +13,19 @@ if (IN_PRODUCTION) {
 } else {
   ini_set('display_errors', true);
 }
+ini_get('zend.assertions') == 1 or die('zend.assertions != 1');
 
 setlocale(LC_ALL, 'C');
 ini_set('default_charset', 'UTF-8');
 ini_set('user_agent', USERAGENT);
 date_default_timezone_set(TIMEZONE);
+
+$github_client = new \Github\Client();
+$github_client->authenticate(GH_TOKEN, null, \Github\AuthMethod::CLIENT_ID);
+
+$github_client->addCache(
+  new Symfony\Component\Cache\Adapter\FilesystemAdapter('github', 3*3600,
+                                                        '.cache'));
 
 // TODO: migrate this to an enum with PHP 8
 define('ROLE_SUDO', 0);
