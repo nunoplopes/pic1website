@@ -9,7 +9,7 @@
     "symfony/mailgun-mailer": "*"
   },
   "autoload": {
-    "psr-0": {"": "entities/"}
+    "psr-4": {"": "entities"}
   },
   "config": {
     "platform": {

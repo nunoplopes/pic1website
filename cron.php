@@ -146,22 +146,23 @@ function run_github() {
   global $year;
 
   foreach (db_fetch_groups($year) as $group) {
-    $group_repo = GitHub\parse_repo_url($group->repository_url);
+    $group_repo = $group->repository;
     if (!$group_repo)
       continue;
 
     foreach ($group->students as $user) {
-      if (!$user->github_username)
+      if (!$user->repository_user)
         continue;
 
-      [$opened_prs, $opened_issues, $new_etag]
-        = GitHub\process_user_events($user->github_username, $user->github_etag);
+      $events = $user->repository_user->getUnprocessedEvents();
 
-      foreach ($opened_prs as $pr) {
+      foreach ($events as $event) {
+        if (!$event instanceof PROpenedEvent)
+          continue;
+        $pr = $event->pr;
         if ($pr[0] !== $group_repo)
           continue;
-        echo "Processing new PR $group_repo/$pr[1] of group $group\n";
-        $data = GitHub\pr_status($group_repo, $pr[1]);
+        echo "Processing new PR $pr of group $group\n";
 
         $processed = false;
         foreach ($group->patches as $patch) {
@@ -188,11 +189,10 @@ function run_github() {
         if (!$processed) {
           error_group($group,
                       "PIC1: PR opened without a corresponding patch entry",
-                      "PR $group_repo/$pr[1] of group $group was opened ".
+                      "PR $pr of group $group was opened ".
                        "without a corresponding patch entry on the website.");
         }
       }
-      $user->github_etag = $new_etag;
     }
   }
 }

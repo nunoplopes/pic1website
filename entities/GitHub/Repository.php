@@ -2,12 +2,14 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+namespace GitHub;
+
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 
 /** @Entity */
-class GitHubRepository extends Repository
+class Repository extends \Repository
 {
   /** @Id @Column(type="string", length=255) */
   public $name;
@@ -18,7 +20,7 @@ class GitHubRepository extends Repository
     if ($r = db_fetch_github($m[1]))
       return $r;
 
-    $r = new GitHubRepository();
+    $r = new Repository();
     $r->name = $m[1];
     // check if repo exists
     try {

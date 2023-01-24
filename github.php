@@ -16,3 +16,8 @@ function github_set_etag($etag) {
       'If-None-Match' => $etag,
     ]));
 }
+
+function github_parse_date($date) {
+  return $date ? \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sp', $date)
+               : null;
+}

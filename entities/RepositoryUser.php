@@ -6,6 +6,17 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 
+class PROpenedEvent {
+  public PullRequest $pr;
+  public \DateTimeImmutable $date;
+
+  public function __construct($pr, $date) {
+    $this->pr   = $pr;
+    $this->date = $date;
+  }
+}
+
+
 /** @Entity */
 abstract class RepositoryUser
 {
@@ -32,7 +43,8 @@ abstract class RepositoryUser
     ];
     $extra = '';
     foreach ($data as $k => $v) {
-      $extra .= " [$k: $v]";
+      if ($v)
+        $extra .= " [$k: $v]";
     }
     return $this->platform() . ": " . $this->username . $extra;
   }

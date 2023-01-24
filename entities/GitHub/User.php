@@ -2,20 +2,22 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+namespace GitHub;
+
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 
 /** @Entity */
-class GitHubUser extends RepositoryUser
+class User extends \RepositoryUser
 {
   /** @Column */
-  public $etag = '';
+  public string $etag = '';
 
   /** @Column(type="integer") */
-  public $last_processed_id = 0;
+  public int $last_processed_id = 0;
 
   static function construct($username) {
-    $r = new GitHubUser();
+    $r = new User();
     $r->username = $username;
     // check if user exists
     try {
@@ -51,19 +53,30 @@ class GitHubUser extends RepositoryUser
     return $this->stats()['location'];
   }
 
-  private function processEvents($events, $data) {
-    foreach ($data as $d) {
-      $date = parse_date($event->created_at);
-      if ($event->type == 'PullRequestEvent') {
-        if ($event->payload->action == 'opened')
-          $opened_prs[] = [$event->repo->name, $event->payload->number, $date];
-      } else if ($event->type == 'IssuesEvent') {
-        if ($event->payload->action == 'opened')
-          $opened_issues[] = [$event->repo->name, $event->payload->issue->number,
-                              $date];
+  private function processEvents(&$events, $data) {
+    foreach ($data as $event) {
+      $id = (int)$event['id'];
+      if ($id <= $this->last_processed_id)
+        return false;
+
+      $date = github_parse_date($event['created_at']);
+
+      if ($event['type'] == 'PullRequestEvent') {
+        if ($event['payload']['action'] == 'opened') {
+          $pr = new GitHubPullRequest($event['repo']['name'],
+                                      $event['payload']['number']);
+          $events[] = new PROpenedEvent($pr, $date);
+        }
+      } else if ($event['type'] == 'IssuesEvent') {
+        /*
+        if ($event['payload']['action'] == 'opened')
+          $events[] = new IssueOpenedEvent($event['repo']['name'],
+                                           $event['payload']['issue']['number'],
+                                           $date);
+        */
       }
     }
-    exit();
+    return true;
   }
 
   public function getUnprocessedEvents() : array {
@@ -74,7 +87,7 @@ class GitHubUser extends RepositoryUser
 
     $api       = $github_client->user('user');
     $paginator = new Github\ResultPager($github_client);
-    $result    = $paginator->fetch($api, 'events', [$this->username]);
+    $data      = $paginator->fetch($api, 'events', [$this->username]);
 
     $response = $github_client->getLastResponse();
     if ($response->getStatusCode() == 304) {
@@ -83,13 +96,14 @@ class GitHubUser extends RepositoryUser
     }
 
     $this->etag = $response->getHeader('etag')[0];
+    $last_id = $data ? (int)$data[0]['id'] : $this->last_processed_id;
 
     $events = [];
-    $this->processEvents($events, $result);
-
-    while ($paginator->hasNext()) {
-      $this->processEvents($events, $paginator->fetchNext());
+    while ($this->processEvents($events, $data) && $paginator->hasNext()) {
+      $data = $paginator->fetchNext();
     }
+
+    $this->last_processed_id = $last_id;
     return $events;
   }
 }
