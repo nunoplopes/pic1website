@@ -4,22 +4,17 @@
 
 namespace GitHub;
 
-class PullRequest extends \PullRequest
+class GitHubPullRequest extends \PullRequest
 {
-  private string $repo_name;
   private int $number;
 
-  public function __construct($repo_name, $number) {
-    $this->repo_name = $repo_name;
-    $this->number    = $number;
-  }
-
-  private function getRepo() {
-    return explode('/', $this->repo_name);
+  public function __construct(GitHubRepository $repository, $number) {
+    $this->repository = $repository;
+    $this->number     = $number;
   }
 
   private function stats() {
-    [$org, $repo] = $this->getRepo();
+    [$org, $repo] = $this->repository->getRepo();
     return $GLOBALS['github_client']->api('pr')
                                     ->show($org, $repo, $this->number);
   }
@@ -58,6 +53,6 @@ class PullRequest extends \PullRequest
   }
 
   public function __toString() {
-    return 'GitHub PR ' . $this->repo_name . '#' . $this->number;
+    return 'GitHub PR ' . $this->repository->name . '#' . $this->number;
   }
 }

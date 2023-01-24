@@ -13,7 +13,7 @@ $tasks = [
   'professors'  => 'Update list of professors/TAs from fenix',
   'gc_sessions' => 'Prune old sessions',
   'patch_stats' => 'Update patch statistics',
-  'github'      => 'Update github information',
+  'repository'  => 'Update repository information',
   'licenses'    => 'Update list of licenses',
   'prog_langs'  => 'Update list of programming languages',
 ];
@@ -128,7 +128,7 @@ function run_patch_stats() {
     foreach (db_get_all_patches($group) as $patch) {
       try {
         if ($patch->isStillOpen())
-          $patch->updateStats();
+          $patch->updateStatus();
         echo "Done patch: $patch->id\n";
       } catch (ValidationException $ex) {
         error_ta($group, "Patch $patch->id is broken", <<< EOF
@@ -141,45 +141,42 @@ EOF);
   }
 }
 
-// Check student's github activity (new PRs)
-function run_github() {
+// Check student's repository activity (new PRs)
+function run_repository() {
   global $year;
 
   foreach (db_fetch_groups($year) as $group) {
-    $group_repo = $group->repository;
-    if (!$group_repo)
+    if (!$group->repository)
       continue;
 
     foreach ($group->students as $user) {
       if (!$user->repository_user)
         continue;
 
-      $events = $user->repository_user->getUnprocessedEvents();
-
-      foreach ($events as $event) {
+      foreach ($user->repository_user->getUnprocessedEvents() as $event) {
         if (!$event instanceof PROpenedEvent)
           continue;
+
         $pr = $event->pr;
-        if ($pr[0] !== $group_repo)
+        if ($pr->repository != $group->repository)
           continue;
+
         echo "Processing new PR $pr of group $group\n";
 
         $processed = false;
         foreach ($group->patches as $patch) {
-          if ($patch->getPatchSource() !== $data['origin'])
+          if ($patch->origin() != $pr->origin())
             continue;
 
-          $patch->pr_number = (int)$pr[1];
+          $patch->setPR($pr);
 
-          // Note that github may serve us the same event multiple times
           if ($patch->status == PATCH_APPROVED) {
             $patch->status = PATCH_PR_OPEN;
-          } else if ($patch->status == PATCH_WAITING_REVIEW ||
-                     $pr->status == PATCH_REVIEWED) {
+          } else {
             $patch->status = PATCH_PR_OPEN_ILLEGAL;
             error_group($group,
                         "PIC1: PR opened without approval",
-                        "PR $group_repo/$pr[1] of group $group was opened ".
+                        "PR $pr of group $group was opened ".
                         "without prior approval.");
           }
           $processed = true;

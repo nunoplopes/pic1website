@@ -11,21 +11,21 @@ use Doctrine\ORM\Mapping\ManyToOne;
 class Session
 {
   /** @Id @Column(length=32) */
-  public $id;
+  public string $id;
 
   /** @ManyToOne(targetEntity="User") */
-  public $user;
+  public User $user;
 
-  /** @Column(type="datetime") */
-  public $expires;
+  /** @Column */
+  public DateTimeImmutable $expires;
 
   public function __construct($user) {
     $this->id      = substr(sha1(random_bytes(64)), 0, 32);
     $this->user    = $user;
-    $this->expires = (new DateTime())->add(new DateInterval("P90D"));
+    $this->expires = (new DateTimeImmutable())->add(new DateInterval("P90D"));
   }
 
   public function isFresh() {
-    return $this->expires >= new DateTime();
+    return $this->expires >= new DateTimeImmutable();
   }
 }

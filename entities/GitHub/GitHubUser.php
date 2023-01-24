@@ -8,21 +8,21 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 
 /** @Entity */
-class User extends \RepositoryUser
+class GitHubUser extends \RepositoryUser
 {
   /** @Column */
   public string $etag = '';
 
-  /** @Column(type="integer") */
+  /** @Column */
   public int $last_processed_id = 0;
 
   static function construct($username) {
-    $r = new User();
+    $r = new GitHubUser();
     $r->username = $username;
     // check if user exists
     try {
       $r->name();
-    } catch (Exception $ex) {
+    } catch (\Exception $ex) {
       return null;
     }
     db_save($r);
@@ -63,9 +63,10 @@ class User extends \RepositoryUser
 
       if ($event['type'] == 'PullRequestEvent') {
         if ($event['payload']['action'] == 'opened') {
-          $pr = new GitHubPullRequest($event['repo']['name'],
-                                      $event['payload']['number']);
-          $events[] = new PROpenedEvent($pr, $date);
+          if ($repo = db_fetch_pr('GitHub', $event['repo']['name'])) {
+            $pr = new GitHubPullRequest($repo, $event['payload']['number']);
+            $events[] = new \PROpenedEvent($pr, $date);
+          }
         }
       } else if ($event['type'] == 'IssuesEvent') {
         /*
@@ -86,7 +87,7 @@ class User extends \RepositoryUser
     github_set_etag($this->etag);
 
     $api       = $github_client->user('user');
-    $paginator = new Github\ResultPager($github_client);
+    $paginator = new \Github\ResultPager($github_client);
     $data      = $paginator->fetch($api, 'events', [$this->username]);
 
     $response = $github_client->getLastResponse();

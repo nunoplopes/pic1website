@@ -146,19 +146,13 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
         break;
       }
     }
-    if ($column) {
-      $type   = $column->type;
-      $length = $column->length;
-    } else {
-      $type   = 'string';
-      $length = 0;
-    }
+    $length = $column ? $column->length : 0;
 
     $print_name = strtr($name, '_', ' ');
-    if ($type == "datetime") {
+    if ($orig_value instanceof DateTimeInterface) {
       $val = $orig_value->format('Y-m-d\TH:i:s');
     } elseif (is_object($orig_value) &&
-              get_class($orig_value) === 'Doctrine\ORM\PersistentCollection') {
+              $orig_value instanceof \Doctrine\ORM\PersistentCollection) {
       $val = array_map(function($e) { return (string)$e; },
                        $orig_value->toArray());
       $val = implode(', ', $val);
@@ -174,14 +168,14 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
       $freeze = ' readonly';
 
     echo "<tr><td><label for=\"$name\">$print_name:</label></td><td>\n";
-    if ($type == "boolean") {
+    if (is_bool($orig_value)) {
       $checked = '';
       if ($val)
         $checked = ' checked';
       echo "<input type=\"checkbox\" id=\"$name\" name=\"$name\" ",
            "value=\"true\"$checked>";
     }
-    else if ($type == "datetime") {
+    else if ($orig_value instanceof DateTimeInterface) {
       echo "<input type=\"datetime-local\" id=\"$name\" name=\"$name\"",
            " value=\"$val\">";
     }

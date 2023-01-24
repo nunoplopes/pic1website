@@ -172,9 +172,14 @@ function db_insert_prog_language($name) {
     $entityManager->persist(new ProgLanguage($name));
 }
 
-function db_fetch_github($id) : ?GitHubRepository {
+function db_fetch_repo($ns, $id) : ?Repository {
   global $entityManager;
-  return $entityManager->find('GitHubRepository', $id);
+  return $entityManager->find("$ns\\Repository", $id);
+}
+
+function db_fetch_pr($ns, $id) : ?PullRequest {
+  global $entityManager;
+  return $entityManager->find("$ns\\PullRequest", $id);
 }
 
 function db_fetch_deadline($year) : Deadline {

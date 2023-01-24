@@ -13,17 +13,17 @@ use Doctrine\ORM\Mapping\OneToMany;
 /** @Entity */
 class ProjGroup
 {
-  /** @Id @Column(type="integer") @GeneratedValue */
-  public $id;
+  /** @Id @Column @GeneratedValue */
+  public int $id;
 
-  /** @Column(type="integer") */
-  public $group_number;
+  /** @Column */
+  public int $group_number;
 
-  /** @Column(type="integer") */
-  public $year;
+  /** @Column */
+  public int $year;
 
-  /** @ManyToOne(targetEntity="Shift") */
-  public $shift;
+  /** @ManyToOne */
+  public Shift $shift;
 
   /** @ManyToMany(targetEntity="User", inversedBy="groups", cascade={"persist"}) */
   public $students;
@@ -32,52 +32,52 @@ class ProjGroup
   public $patches;
 
   /** @Column */
-  public $project_name = '';
+  public string $project_name = '';
 
   /** @Column(length=2000) */
-  public $project_description = '';
+  public string $project_description = '';
 
   /** @Column */
-  public $project_website = 'https://...';
+  public string $project_website = 'https://...';
 
-  /** @Column(nullable="yes") @ManyToOne(targetEntity="Repository") */
-  public $repository;
-
-  /** @Column(type="boolean") */
-  public $cla = false;
+  /** @Column(nullable="yes") @ManyToOne */
+  public ?Repository $repository = null;
 
   /** @Column */
-  public $major_users = '';
-
-  /** @Column(type="integer") */
-  public $lines_of_code = 0;
+  public bool $cla = false;
 
   /** @Column */
-  public $coding_style = 'https://...';
+  public string $major_users = '';
 
   /** @Column */
-  public $bugs_for_beginners = 'https://...';
+  public int $lines_of_code = 0;
 
   /** @Column */
-  public $project_ideas = 'https://...';
+  public string $coding_style = 'https://...';
+
+  /** @Column */
+  public string $bugs_for_beginners = 'https://...';
+
+  /** @Column */
+  public string $project_ideas = 'https://...';
 
   /** @Column(length=1000) */
-  public $student_programs = '';
+  public string $student_programs = '';
 
   /** @Column */
-  public $getting_started_manual = 'https://...';
+  public string $getting_started_manual = 'https://...';
 
   /** @Column */
-  public $developers_manual = 'https://...';
+  public string $developers_manual = 'https://...';
 
   /** @Column */
-  public $testing_manual = 'https://...';
+  public string $testing_manual = 'https://...';
 
   /** @Column */
-  public $developers_mailing_list = 'https://...';
+  public string $developers_mailing_list = 'https://...';
 
   /** @Column */
-  public $patch_submission = 'https://...';
+  public string $patch_submission = 'https://...';
 
   public function __construct($number, $year, Shift $shift) {
     $this->group_number = $number;

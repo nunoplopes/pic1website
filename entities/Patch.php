@@ -6,8 +6,8 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToOne;
 
 define('PATCH_WAITING_REVIEW', 0);
 define('PATCH_REVIEWED', 1);
@@ -24,91 +24,76 @@ define('PATCH_FEATURE', 1);
 
 
 /** @Entity */
-class Patch
+abstract class Patch
 {
-  /** @Id @Column(type="integer") @GeneratedValue */
-  public $id;
+  /** @Id @Column @GeneratedValue */
+  public int $id;
 
-  /** @ManyToOne(targetEntity="ProjGroup") */
-  public $group;
-
-  /** @Column(type="integer") */
-  public $status = PATCH_WAITING_REVIEW;
-
-  /** @Column(type="integer") */
-  public $type;
+  /** @ManyToOne */
+  public ProjGroup $group;
 
   /** @Column */
-  public $patch_url;
+  public int $status = PATCH_WAITING_REVIEW;
 
-  /** @Column(type="integer") */
-  public $pr_number = 0;
-
-  /** @ManyToMany(targetEntity="User") */
-  public $students;
+  /** @Column */
+  public int $type;
 
   /** @Column(length=1000) */
-  public $description;
-
-  /** @Column(type="integer") */
-  public $lines_added;
-
-  /** @Column(type="integer") */
-  public $lines_deleted;
-
-  /** @Column(type="integer") */
-  public $num_files;
+  public string $description;
 
   /** @Column(length=1000) */
-  public $review = '';
+  public string $review = '';
 
-  public function __construct($group, $patch_url, $type, $description) {
-    $this->group        = $group;
-    $this->patch_url    = check_url($patch_url);
-    $this->type         = (int)$type;
-    $this->description  = $description;
-    $this->students     = new \Doctrine\Common\Collections\ArrayCollection();
+  static function factory($group, $url, $type, $description) : ?Patch {
+    if (!$group)
+      throw new ValidationException('Group has no repository yet');
 
-    $this->updateStats();
+    $p = GitHub\Patch::construct($url, $group);
+    if (!$p)
+      return null;
 
-    if ($this->type < PATCH_BUGFIX || $this->type > PATCH_FEATURE)
+    $p->group       = $group;
+    $p->type        = (int)$type;
+    $p->description = $description;
+
+    if (empty($p->students()))
+      throw new ValidationException("Patch has no recognized authors");
+
+    if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
       throw new ValidationException('Unknown patch type');
+
+    return $p;
   }
 
-  public function updateStats() {
-    if ($gh = GitHub\parse_patch_url($this->patch_url)) {
-      $stats = GitHub\get_patch_stats($gh[0], $gh[1], $gh[2], $gh[3]);
-      $this->lines_added   = $stats['added'];
-      $this->lines_deleted = $stats['deleted'];
-      $this->num_files     = $stats['numMfiles'];
+  abstract public function authors() : array;
+  abstract public function linesAdded() : int;
+  abstract public function linesRemoved() : int;
+  abstract public function filesModified() : int;
+  abstract public function getURL() : string;
+  abstract public function setPR(PullRequest $pr);
+  abstract public function getPR() : ?PullRequest;
 
-      $this->students->clear();
-      foreach ($stats['authors'] as $author) {
-        foreach ($this->group->students as $student) {
-          if ($author == $student->github_username) {
-            $this->students->add($student);
-            break;
-          }
+  public function students() {
+    $ret = [];
+    foreach ($this->authors() as $login) {
+      foreach ($this->group->students as $student) {
+        if ($login == $student->repository_user->username) {
+          $ret[] = $student;
+          break;
         }
       }
-      if ($this->students->isEmpty())
-        throw new ValidationException("Patch has no recognized authors");
+    }
+    return $ret;
+  }
 
-      if ($gh[0] !== $this->group->getRepo())
-        throw new ValidationException("Patch is not for Project's repository");
-
-      if ($this->pr_number) {
-        $repo   = GitHub\parse_repo_url($this->group->repository_url);
-        $status = GitHub\pr_status($repo, $this->pr_number);
-        $legal  = $this->status == PATCH_PR_OPEN;
-        if ($status['merged']) {
-          $this->status = $legal ? PATCH_MERGED : PATCH_MERGED_ILLEGAL;
-        } else if ($status['closed']) {
-          $this->status = $legal ? PATCH_NOTMERGED : PATCH_NOTMERGED_ILLEGAL;
-        }
+  public function updateStatus() {
+    if ($pr = $this->getPR()) {
+      $legal = $this->status == PATCH_PR_OPEN;
+      if ($pr->wasMerged()) {
+        $this->status = $legal ? PATCH_MERGED : PATCH_MERGED_ILLEGAL;
+      } else if ($pr->isClosed()) {
+        $this->status = $legal ? PATCH_NOTMERGED : PATCH_NOTMERGED_ILLEGAL;
       }
-    } else {
-      throw new ValidationException('Unsupported patch URL');
     }
   }
 
@@ -133,20 +118,6 @@ class Patch
       case PATCH_FEATURE: return 'feature';
       default: die('Internal error: getType');
     }
-  }
-
-  public function getPatchURL() {
-    if ($gh = GitHub\parse_patch_url($this->patch_url)) {
-      return GitHub\get_patch_url($gh[0], $gh[1], $gh[2], $gh[3]);
-    }
-    return 'broken patch';
-  }
-
-  public function getPatchSource() {
-    if ($gh = GitHub\parse_patch_url($this->patch_url)) {
-      return "$gh[2]:$gh[3]";
-    }
-    return 'broken patch';
   }
 
   public function isStillOpen() {

@@ -2,8 +2,16 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\Id;
+
+/** @Entity */
 abstract class Repository
 {
+  /** @Id @Column(length=255) */
+  public string $name;
+
   abstract public function defaultBranch() : string;
   abstract public function parent() : ?string;
   abstract public function language() : ProgLanguage;
@@ -14,7 +22,7 @@ abstract class Repository
   abstract public function __toString() : string;
 
   static function factory($url) : ?Repository {
-    if ($r = GitHubRepository::construct($url))
+    if ($r = GitHub\GitHubRepository::construct($url))
       return $r;
     return null;
   }

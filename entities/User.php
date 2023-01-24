@@ -12,26 +12,26 @@ use Doctrine\ORM\Mapping\OneToOne;
 class User
 {
   /** @Id @Column(length=16) */
-  public $id;
+  public string $id;
 
   /** @Column */
-  public $name;
+  public string $name;
 
   /** @Column */
-  public $email;
+  public string $email;
 
   /** @Column(type="text") */
-  public $photo;
+  public string $photo;
 
-  /** @Column(type="integer") */
+  /** @Column */
   // TODO: switch to enum with PHP 8
-  public $role;
+  public int $role;
 
   /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
   public $groups;
 
-  /** @Column(nullable="yes") @OneToOne(targetEntity="RepositoryUser") */
-  public $repository_user;
+  /** @Column(nullable="yes") @OneToOne */
+  public ?RepositoryUser $repository_user;
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
     $this->id     = $username;

@@ -20,8 +20,8 @@ class PROpenedEvent {
 /** @Entity */
 abstract class RepositoryUser
 {
-  /** @Id @Column(type="string", length=255) */
-  public $username;
+  /** @Id @Column(length=255) */
+  public string $username;
 
   abstract public function platform() : string;
   abstract public function name() : ?string;

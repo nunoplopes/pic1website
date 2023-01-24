@@ -9,30 +9,27 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 
 /** @Entity */
-class Repository extends \Repository
+class GitHubRepository extends \Repository
 {
-  /** @Id @Column(type="string", length=255) */
-  public $name;
-
   static function construct($url) {
     if (!preg_match('@^https://github.com/([^/]+/[^/]+)/?$@', $url, $m))
       return null;
-    if ($r = db_fetch_github($m[1]))
+    if ($r = db_fetch_repo('GitHub', $m[1]))
       return $r;
 
-    $r = new Repository();
+    $r = new GitHubRepository();
     $r->name = $m[1];
     // check if repo exists
     try {
       $r->defaultBranch();
-    } catch (Exception $ex) {
+    } catch (\Exception $ex) {
       return null;
     }
     db_save($r);
     return $r;
   }
 
-  private function getRepo() {
+  public function getRepo() {
     return explode('/', $this->name);
   }
 
@@ -50,11 +47,11 @@ class Repository extends \Repository
     return isset($data['parent']) ? $data['parent']['full_name'] : null;
   }
 
-  public function language() : ProgLanguage {
+  public function language() : \ProgLanguage {
     return db_fetch_prog_language($this->stats()['language']);
   }
 
-  public function license() : ?License {
+  public function license() : ?\License {
     return db_fetch_license($this->stats()['license']['spdx_id']);
   }
 
