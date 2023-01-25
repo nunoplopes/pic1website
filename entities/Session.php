@@ -13,7 +13,7 @@ class Session
   /** @Id @Column(length=32) */
   public string $id;
 
-  /** @ManyToOne(targetEntity="User") */
+  /** @ManyToOne */
   public User $user;
 
   /** @Column */

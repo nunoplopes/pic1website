@@ -15,8 +15,8 @@ echo '<table style="text-align:center"><tr>';
 foreach ($group->students as $s) {
   echo '<td><img src="', $s->getPhoto(), '"><br>';
   echo "$s->name ($s->id)";
-  if ($repo = (string)$s->repository_user)
-    echo "<br>\n$repo";
+  if ($repo = $s->repository_user)
+    echo "<br>\n", $repo->description();
   echo "</td>";
 }
 echo "</tr></table>\n";
@@ -27,17 +27,16 @@ if (!db_fetch_deadline(get_current_year())->isProjProposalActive()) {
 }
 
 echo "<p>&nbsp;</p>\n";
-echo '<div style="display: inline-block"><div style="float: left">';
+mk_box_left_begin();
 handle_form($group,
             /* hidden= */['id', 'students', 'patches'],
             $readonly);
-echo '</div>';
+mk_box_end();
 
 if ($repo = $group->repository) {
-  echo '<div style="float: right; width: 300px; padding: 10px; margin: 10px; ',
-       'background: blue; color: white">';
+  mk_box_right_begin();
   echo "<p>Repository data:</p><ul>";
-  echo "<li><b>Main language:</b> ",        htmlspecialchars($repo->language()),
+  echo "<li><b>Main language:</b> ", htmlspecialchars($repo->language()),
        "</li>\n";
   echo "<li><b>Num of commits in the past month:</b> ",
        number_format($repo->commitsLastMonth()), "</li>\n";
@@ -45,6 +44,7 @@ if ($repo = $group->repository) {
   echo "<li><b>License:</b> ", ($repo->license() ?? 'Unknown'), "</li>\n";
   $topics = array_map('htmlspecialchars', $repo->topics());
   echo "<li><b>Topics:</b> ", implode(', ', $topics), "</li>\n";
-  echo '</ul></div>';
+  echo '</ul>';
+  mk_box_end();
 }
-echo "</div>\n";
+mk_box_end();

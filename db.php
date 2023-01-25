@@ -12,6 +12,18 @@ $config = ORMSetup::createAnnotationMetadataConfiguration(
 $config->setAutoGenerateProxyClasses(
   Doctrine\Common\Proxy\AbstractProxyFactory::AUTOGENERATE_NEVER);
 
+if (!IN_PRODUCTION) {
+  class SQLLoogger implements Doctrine\DBAL\Logging\SQLLogger {
+    public function startQuery($sql, ?array $params = null,
+                               ?array $types = null) {
+      echo "\n\n<!-- $sql -->\n\n";
+    }
+
+    public function stopQuery() {}
+  }
+  $config->setSQLLogger(new SQLLoogger);
+}
+
 $entityManager = EntityManager::create(['url' => DB_DSN], $config);
 
 function db_flush() {
@@ -174,12 +186,7 @@ function db_insert_prog_language($name) {
 
 function db_fetch_repo($ns, $id) : ?Repository {
   global $entityManager;
-  return $entityManager->find("$ns\\Repository", $id);
-}
-
-function db_fetch_pr($ns, $id) : ?PullRequest {
-  global $entityManager;
-  return $entityManager->find("$ns\\PullRequest", $id);
+  return $entityManager->find("$ns\\$ns" . 'Repository', $id);
 }
 
 function db_fetch_deadline($year) : Deadline {

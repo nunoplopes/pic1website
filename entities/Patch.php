@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToOne;
 
 define('PATCH_WAITING_REVIEW', 0);
 define('PATCH_REVIEWED', 1);

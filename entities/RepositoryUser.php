@@ -30,8 +30,19 @@ abstract class RepositoryUser
   abstract public function location() : ?string;
   abstract public function getUnprocessedEvents() : array;
 
+  static function factory($txt) {
+    $ps = explode(':', $txt);
+    if (count($ps) != 2)
+      throw new ValidationException('Allowed syntax is: provider:username '.
+                                    '(e.g., github:johnsmith)');
+    switch ($ps[0]) {
+      case 'github': return GitHub\GitHubUser::construct($ps[1]);
+      default: throw new ValidationException('unknown platform');
+    }
+  }
+
   public function __toString() {
-    return $this->username;
+    return $this->platform() . ':' . $this->username;
   }
 
   public function description() {

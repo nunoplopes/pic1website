@@ -63,7 +63,7 @@ class GitHubUser extends \RepositoryUser
 
       if ($event['type'] == 'PullRequestEvent') {
         if ($event['payload']['action'] == 'opened') {
-          if ($repo = db_fetch_pr('GitHub', $event['repo']['name'])) {
+          if ($repo = db_fetch_repo('GitHub', $event['repo']['name'])) {
             $pr = new GitHubPullRequest($repo, $event['payload']['number']);
             $events[] = new \PROpenedEvent($pr, $date);
           }

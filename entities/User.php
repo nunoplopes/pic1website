@@ -72,4 +72,10 @@ class User
   public function __toString() {
     return $this->id;
   }
+
+  public function set_repository_user($txt) {
+    $this->repository_user = RepositoryUser::factory($txt);
+    if (!$this->repository_user)
+      throw new ValidationException('unknown user');
+  }
 }

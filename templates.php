@@ -61,6 +61,19 @@ function dolink($page, $txt, $args = []) {
   return "<a href=\"index.php?$q\">$txt</a>";
 }
 
+function mk_box_left_begin() {
+  echo '<div style="display: inline-block"><div style="float: left">';
+}
+
+function mk_box_right_begin() {
+  echo '<div style="float: right; width: 300px; padding: 10px; margin: 10px; ',
+       'background: blue; color: white">';
+}
+
+function mk_box_end() {
+  echo "</div>\n";
+}
+
 function print_table($table) {
   if (!$table)
     return;
