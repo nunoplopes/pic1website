@@ -107,11 +107,9 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
           ($only_fields && !in_array($name, $only_fields)))
         continue;
 
-      $annotations
-        = $docReader->getPropertyAnnotations($class->getProperty($name));
       $set = "set_$name";
 
-      if ($annotations[0]->type == "boolean") {
+      if (is_bool($val)) {
         $obj->$set(isset($_POST[$name]));
         continue;
       }
@@ -126,7 +124,6 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
         $errors[$name] = $ex;
       }
     }
-    db_flush();
 
     if ($errors) {
       echo "<span style=\"color: red\">\n",
@@ -136,6 +133,8 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
         echo "<li>$print_name: ", $error->getMessage(), "</li>\n";
       }
       echo "</ul></span><p>&nbsp;</p>\n";
+    } else {
+      db_flush();
     }
   }
 

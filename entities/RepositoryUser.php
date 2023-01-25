@@ -21,28 +21,69 @@ class PROpenedEvent {
 abstract class RepositoryUser
 {
   /** @Id @Column(length=255) */
-  public string $username;
+  public string $id;
 
-  abstract public function platform() : string;
-  abstract public function name() : ?string;
-  abstract public function email() : ?string;
-  abstract public function company() : ?string;
-  abstract public function location() : ?string;
-  abstract public function getUnprocessedEvents() : array;
+  /** @Column */
+  public string $etag = '';
 
-  static function factory($txt) {
-    $ps = explode(':', $txt);
+  /** @Column */
+  public int $last_processed_id = 0;
+
+  public function username() {
+    return substr($this->id, strpos($this->id, ':')+1);
+  }
+
+  public function platform() {
+    return substr($this->id, 0, strpos($this->id, ':'));
+  }
+
+  public function name() : ?string {
+
+  }
+
+  public function email() : ?string {
+
+  }
+
+  public function company() : ?string {
+
+  }
+
+  public function location() : ?string {
+
+  }
+
+  public function getUnprocessedEvents() : array {
+
+  }
+
+  static function factory($id) {
+    $ps = explode(':', $id);
     if (count($ps) != 2)
       throw new ValidationException('Allowed syntax is: provider:username '.
                                     '(e.g., github:johnsmith)');
-    switch ($ps[0]) {
-      case 'github': return GitHub\GitHubUser::construct($ps[1]);
-      default: throw new ValidationException('unknown platform');
+
+    if (db_fetch_repo_user($id))
+      throw new \ValidationException('Username already in use by another user');
+
+    $r = new RepositoryUser();
+    $r->id = $id;
+
+    if ($r->platform() != 'github')
+      throw new ValidationException('unknown platform');
+
+    // check if user exists
+    try {
+      $r->name();
+    } catch (\Exception $ex) {
+      return null;
     }
+    db_save($r);
+    return $r;
   }
 
   public function __toString() {
-    return $this->platform() . ':' . $this->username;
+    return $this->id;
   }
 
   public function description() {
@@ -57,6 +98,8 @@ abstract class RepositoryUser
       if ($v)
         $extra .= " [$k: $v]";
     }
-    return $this->platform() . ": " . $this->username . $extra;
+    return $this->platform() . ": " . $this->username() . $extra;
   }
+
+  static function userCanCreate() { return true; }
 }

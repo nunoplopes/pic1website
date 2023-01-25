@@ -3,9 +3,12 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\ManyToOne;
 
 define('PATCH_WAITING_REVIEW', 0);
@@ -22,7 +25,11 @@ define('PATCH_BUGFIX', 0);
 define('PATCH_FEATURE', 1);
 
 
-/** @Entity */
+/** @Entity
+ *  @InheritanceType("SINGLE_TABLE")
+ *  @DiscriminatorColumn(name="platform", type="string")
+ *  @DiscriminatorMap({"github" = "GitHub\GitHubPatch"})
+ */
 abstract class Patch
 {
   /** @Id @Column @GeneratedValue */
@@ -47,7 +54,7 @@ abstract class Patch
     if (!$group)
       throw new ValidationException('Group has no repository yet');
 
-    $p = GitHub\Patch::construct($url, $group);
+    $p = GitHub\GitHubPatch::construct($url, $group);
     if (!$p)
       return null;
 

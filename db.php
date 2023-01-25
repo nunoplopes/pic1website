@@ -9,8 +9,7 @@ use Doctrine\ORM\EntityManager;
 
 $config = ORMSetup::createAnnotationMetadataConfiguration(
   [__DIR__ . '/entities'], /*isDevMode:*/ !IN_PRODUCTION, /*proxyDir:*/ '.proxies');
-$config->setAutoGenerateProxyClasses(
-  Doctrine\Common\Proxy\AbstractProxyFactory::AUTOGENERATE_NEVER);
+$config->setAutoGenerateProxyClasses(!IN_PRODUCTION);
 
 if (!IN_PRODUCTION) {
   class SQLLoogger implements Doctrine\DBAL\Logging\SQLLogger {
@@ -184,9 +183,14 @@ function db_insert_prog_language($name) {
     $entityManager->persist(new ProgLanguage($name));
 }
 
-function db_fetch_repo($ns, $id) : ?Repository {
+function db_fetch_repo($id) : ?Repository {
   global $entityManager;
-  return $entityManager->find("$ns\\$ns" . 'Repository', $id);
+  return $entityManager->find('Repository', $id);
+}
+
+function db_fetch_repo_user($id) : ?RepositoryUser {
+  global $entityManager;
+  return $entityManager->find('RepositoryUser', $id);
 }
 
 function db_fetch_deadline($year) : Deadline {

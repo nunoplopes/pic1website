@@ -40,8 +40,8 @@ class ProjGroup
   /** @Column */
   public string $project_website = 'https://...';
 
-  /** @Column(nullable="yes") @ManyToOne */
-  public ?Repository $repository = null;
+  /** @ManyToOne */
+  public ?Repository $repository;
 
   /** @Column */
   public bool $cla = false;

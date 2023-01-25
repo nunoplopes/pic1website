@@ -10,47 +10,24 @@ use Doctrine\ORM\Mapping\Entity;
 /** @Entity */
 class GitHubUser extends \RepositoryUser
 {
-  /** @Column */
-  public string $etag = '';
-
-  /** @Column */
-  public int $last_processed_id = 0;
-
-  static function construct($username) {
-    $r = new GitHubUser();
-    $r->username = $username;
-    // check if user exists
-    try {
-      $r->name();
-    } catch (\Exception $ex) {
-      return null;
-    }
-    db_save($r);
-    return $r;
+  static function stats($username) {
+    return $GLOBALS['github_client']->api('user')->show($username);
   }
 
-  private function stats() {
-    return $GLOBALS['github_client']->api('user')->show($this->username);
+  static function name($username) : ?string {
+    return self::stats($username)['name'];
   }
 
-  public function platform() : string {
-    return 'github';
+  static function email($username) : ?string {
+    return self::stats($username)['email'];
   }
 
-  public function name() : ?string {
-    return $this->stats()['name'];
+  static function company($username) : ?string {
+    return self::stats($username)['company'];
   }
 
-  public function email() : ?string {
-    return $this->stats()['email'];
-  }
-
-  public function company() : ?string {
-    return $this->stats()['company'];
-  }
-
-  public function location() : ?string {
-    return $this->stats()['location'];
+  static function location($username) : ?string {
+    return self::stats($username)['location'];
   }
 
   private function processEvents(&$events, $data) {

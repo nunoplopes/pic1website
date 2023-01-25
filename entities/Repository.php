@@ -7,24 +7,80 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 
 /** @Entity */
-abstract class Repository
+class Repository
 {
   /** @Id @Column(length=255) */
-  public string $name;
+  public string $id;
 
-  abstract public function defaultBranch() : string;
-  abstract public function parent() : ?string;
-  abstract public function language() : ProgLanguage;
-  abstract public function license() : ?License;
-  abstract public function stars() : int;
-  abstract public function topics() : array;
-  abstract public function commitsLastMonth() : int;
-  abstract public function __toString() : string;
+  public function name() {
+    return substr($this->id, strpos($this->id, ':')+1);
+  }
+
+  public function platform() {
+    return substr($this->id, 0, strpos($this->id, ':'));
+  }
+
+  private function get($fn) {
+    $n = $this->name();
+    switch ($this->platform()) {
+      case 'github': return GitHub\GitHubRepository::$fn($n);
+    }
+    assert(false);
+  }
+
+  public function defaultBranch() : string {
+    return $this->get('defaultBranch');
+  }
+
+  public function parent() : ?string {
+    return $this->get('parent');
+  }
+
+  public function language() : ProgLanguage {
+    return $this->get('language');
+  }
+
+  public function license() : ?License {
+    return $this->get('license');
+  }
+
+  public function stars() : int {
+    return $this->get('stars');
+  }
+
+  public function topics() : array {
+    return $this->get('topics');
+  }
+
+  public function commitsLastMonth() : int {
+    return $this->get('commitsLastMonth');
+  }
+
+  public function __toString() : string {
+    return $this->get('toString');
+  }
 
   static function factory($url) : ?Repository {
-    if ($r = GitHub\GitHubRepository::construct($url))
+    if ($name = GitHub\GitHubRepository::parse($url)) {
+      $name = "github:$name";
+    } else {
+      return null;
+    }
+
+    if ($r = db_fetch_repo($name))
       return $r;
-    return null;
+
+    $r = new Repository();
+    $r->id = $name;
+
+    // check if repo exists
+    try {
+      $r->defaultBranch();
+    } catch (\Exception $ex) {
+      return null;
+    }
+    db_save($r);
+    return $r;
   }
 
   static function userCanCreate() {

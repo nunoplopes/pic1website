@@ -22,7 +22,8 @@ foreach ($group->students as $s) {
 echo "</tr></table>\n";
 
 $readonly = ['group_number', 'year', 'shift'];
-if (!db_fetch_deadline(get_current_year())->isProjProposalActive()) {
+if (!db_fetch_deadline(get_current_year())->isProjProposalActive() &&
+    get_user()->role == ROLE_STUDENT) {
   $readonly = array_keys(get_object_vars($group));
 }
 

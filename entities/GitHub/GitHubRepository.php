@@ -4,72 +4,55 @@
 
 namespace GitHub;
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-
-/** @Entity */
-class GitHubRepository extends \Repository
+class GitHubRepository implements \RepositoryInterface
 {
-  static function construct($url) {
-    if (!preg_match('@^https://github.com/([^/]+/[^/]+)/?$@', $url, $m))
-      return null;
-    if ($r = db_fetch_repo('GitHub', $m[1]))
-      return $r;
-
-    $r = new GitHubRepository();
-    $r->name = $m[1];
-    // check if repo exists
-    try {
-      $r->defaultBranch();
-    } catch (\Exception $ex) {
-      return null;
-    }
-    db_save($r);
-    return $r;
+  static function parse($url) : ?string {
+    if (preg_match('@^https://github.com/([^/]+/[^/]+)/?$@', $url, $m))
+      return $m[1];
+    return null;
   }
 
-  public function getRepo() {
-    return explode('/', $this->name);
+  static private function getRepo($name) {
+    return explode('/', $name);
   }
 
-  private function stats() {
-    [$org, $repo] = $this->getRepo();
+  static private function stats($name) {
+    [$org, $repo] = self::getRepo($name);
     return $GLOBALS['github_client']->api('repo')->show($org, $repo);
   }
 
-  public function defaultBranch() : string {
-    return $this->stats()['default_branch'];
+  static function defaultBranch($name) : string {
+    return self::stats($name)['default_branch'];
   }
 
-  public function parent() : ?string {
-    $data = $this->stats();
+  static function parent($name) : ?string {
+    $data = self::stats($name);
     return isset($data['parent']) ? $data['parent']['full_name'] : null;
   }
 
-  public function language() : \ProgLanguage {
-    return db_fetch_prog_language($this->stats()['language']);
+  static function language($name) : \ProgLanguage {
+    return db_fetch_prog_language(self::stats($name)['language']);
   }
 
-  public function license() : ?\License {
-    return db_fetch_license($this->stats()['license']['spdx_id']);
+  static function license($name) : ?\License {
+    return db_fetch_license(self::stats($name)['license']['spdx_id']);
   }
 
-  public function stars() : int {
-    return $this->stats()['stargazers_count'];
+  static function stars($name) : int {
+    return self::stats($name)['stargazers_count'];
   }
 
-  public function topics() : array {
-    return $this->stats()['topics'];
+  static function topics($name) : array {
+    return self::stats($name)['topics'];
   }
 
-  public function commitsLastMonth() : int {
-    [$org, $repo] = $this->getRepo();
+  static function commitsLastMonth($name) : int {
+    [$org, $repo] = self::getRepo($name);
     $data = $GLOBALS['github_client']->api('repo')->participation($org, $repo);
     return array_sum(array_slice($data['all'], -4));
   }
 
-  public function __toString() : string {
-    return 'https://github.com/' . $this->name;
+  static function toString($name) : string {
+    return "https://github.com/$name";
   }
 }

@@ -30,7 +30,7 @@ class User
   /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
   public $groups;
 
-  /** @Column(nullable="yes") @OneToOne */
+  /** @OneToOne */
   public ?RepositoryUser $repository_user;
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
