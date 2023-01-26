@@ -135,6 +135,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
       echo "</ul></span><p>&nbsp;</p>\n";
     } else {
       db_flush();
+      echo '<p style="color: green">Database updated!</p>';
     }
   }
 
@@ -161,13 +162,18 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
     $length = $column ? $column->length : 0;
 
     $print_name = strtr($name, '_', ' ');
+
+    $getter = "getstr_$name";
+
     if ($orig_value instanceof DateTimeInterface) {
       $val = $orig_value->format('Y-m-d\TH:i:s');
     } elseif (is_object($orig_value) &&
               $orig_value instanceof \Doctrine\ORM\PersistentCollection) {
-      $val = array_map(function($e) { return (string)$e; },
+      $val = array_map(function($e) { return htmlspecialchars($e); },
                        $orig_value->toArray());
       $val = implode(', ', $val);
+    } elseif (method_exists($obj, $getter)) {
+      $val = htmlspecialchars($obj->$getter());
     } else {
       $val = htmlspecialchars((string)$orig_value);
     }

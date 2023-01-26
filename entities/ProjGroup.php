@@ -40,7 +40,7 @@ class ProjGroup
   /** @Column */
   public string $project_website = 'https://...';
 
-  /** @Column(length=255) */
+  /** @Column(length=150) */
   public string $repository = '';
 
   /** @Column */
@@ -109,10 +109,12 @@ class ProjGroup
     return $this->group_number;
   }
 
+  public function getstr_repository() { return $this->repository ? (string)$this->getRepository() : ''; }
   public function set_project_name($name) { $this->project_name = $name; }
   public function set_project_description($description) { $this->project_description = $description; }
   public function set_project_website($url) { $this->project_website = check_url($url); }
   public function set_major_users($users) { $this->major_users = $users; }
+  public function set_repository($url) { $this->repository = Repository::factory($url); }
   public function set_cla($cla) { $this->cla = $cla; }
   public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
   public function set_coding_style($url) { $this->coding_style = check_url($url); }
@@ -124,8 +126,4 @@ class ProjGroup
   public function set_testing_manual($url) { $this->testing_manual = check_url($url); }
   public function set_developers_mailing_list($url) { $this->developers_mailing_list = check_url($url); }
   public function set_patch_submission($url) { $this->patch_submission = check_url($url); }
-
-  public function set_repository($url) {
-    $this->repository = Repository::factory($url);
-  }
 }

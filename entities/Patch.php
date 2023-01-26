@@ -61,7 +61,13 @@ abstract class Patch
     $p->type        = (int)$type;
     $p->description = $description;
 
-    if (empty($p->students()))
+    try {
+      $students = $p->students();
+    } catch (Exception $ex) {
+      throw new ValidationException('Patch not found');
+    }
+
+    if (empty($students))
       throw new ValidationException("Patch has no recognized authors");
 
     if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
