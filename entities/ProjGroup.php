@@ -40,8 +40,8 @@ class ProjGroup
   /** @Column */
   public string $project_website = 'https://...';
 
-  /** @ManyToOne */
-  public ?Repository $repository;
+  /** @Column(length=255) */
+  public string $repository = '';
 
   /** @Column */
   public bool $cla = false;
@@ -101,6 +101,10 @@ class ProjGroup
     $student->groups->add($this);
   }
 
+  public function getRepository() : ?Repository {
+    return $this->repository ? new Repository($this->repository) : null;
+  }
+
   public function __toString() {
     return $this->group_number;
   }
@@ -123,7 +127,5 @@ class ProjGroup
 
   public function set_repository($url) {
     $this->repository = Repository::factory($url);
-    if (!$this->repository)
-      throw new ValidationException('Unknown project repository');
   }
 }

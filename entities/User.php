@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToMany;
-use Doctrine\ORM\Mapping\OneToOne;
 
 /** @Entity */
 class User
@@ -30,8 +29,14 @@ class User
   /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
   public $groups;
 
-  /** @OneToOne */
-  public ?RepositoryUser $repository_user;
+  /** @Column */
+  public string $repository_user = '';
+
+  /** @Column */
+  public string $repository_etag = '';
+
+  /** @Column */
+  public int $repository_last_processed_id = 0;
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
     $this->id     = $username;
@@ -65,6 +70,10 @@ class User
              : "https://fenix.tecnico.ulisboa.pt/user/photo/$this->id";
   }
 
+  public function getRepoUser() {
+    return $this->repository_user ? new RepositoryUser($this) : null;
+  }
+
   public function isDummy() {
     return str_starts_with($this->id, 'ist0000');
   }
@@ -73,9 +82,18 @@ class User
     return $this->id;
   }
 
-  public function set_repository_user($txt) {
-    $this->repository_user = RepositoryUser::factory($txt);
-    if (!$this->repository_user)
-      throw new ValidationException('unknown user');
+  public function set_repository_user($id) {
+    $this->repository_user = $id;
+    try {
+      RepositoryUser::check($this);
+
+      if (($group = $this->getGroup()) &&
+          ($repo = $group->getRepository()) &&
+          $this->getRepoUser()->platform() != $repo->platform())
+        throw new ValidationException("User's and group's platforms don't match");
+    } catch (ValidationException $ex) {
+      $this->repository_user = '';
+      throw $ex;
+    }
   }
 }

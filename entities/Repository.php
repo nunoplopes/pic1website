@@ -2,15 +2,13 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-
-/** @Entity */
 class Repository
 {
-  /** @Id @Column(length=255) */
   public string $id;
+
+  public function __construct(string $id) {
+    $this->id = $id;
+  }
 
   public function name() {
     return substr($this->id, strpos($this->id, ':')+1);
@@ -60,30 +58,19 @@ class Repository
     return $this->get('toString');
   }
 
-  static function factory($url) : ?Repository {
+  static function factory($url) : string {
     if ($name = GitHub\GitHubRepository::parse($url)) {
-      $name = "github:$name";
+      $id = "github:$name";
     } else {
-      return null;
+      throw new ValidationException('Unsupported URL');
     }
-
-    if ($r = db_fetch_repo($name))
-      return $r;
-
-    $r = new Repository();
-    $r->id = $name;
 
     // check if repo exists
     try {
-      $r->defaultBranch();
+      (new Repository($id))->defaultBranch();
     } catch (\Exception $ex) {
-      return null;
+      throw new ValidationException('Unknown project repository');
     }
-    db_save($r);
-    return $r;
-  }
-
-  static function userCanCreate() {
-    return true;
+    return $id;
   }
 }

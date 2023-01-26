@@ -18,8 +18,8 @@ if (isset($_POST['url'])) {
     die("Student's group not found");
 
   try {
-    db_save(new Patch($group, $_POST['url'], $_POST['type'],
-                      $_POST['description']));
+    db_save(Patch::factory($group, $_POST['url'], $_POST['type'],
+                           $_POST['description']));
   } catch (ValidationException $ex) {
     echo "<p style=\"color: red\">Failed to validate all fields: ",
          htmlspecialchars($ex->getMessage()), "</p>\n";

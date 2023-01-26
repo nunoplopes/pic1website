@@ -12,7 +12,7 @@ class GitHubRepository implements \RepositoryInterface
     return null;
   }
 
-  static private function getRepo($name) {
+  static function getRepo(string $name) {
     return explode('/', $name);
   }
 

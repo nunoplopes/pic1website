@@ -15,7 +15,7 @@ echo '<table style="text-align:center"><tr>';
 foreach ($group->students as $s) {
   echo '<td><img src="', $s->getPhoto(), '"><br>';
   echo "$s->name ($s->id)";
-  if ($repo = $s->repository_user)
+  if ($repo = $s->getRepoUser())
     echo "<br>\n", $repo->description();
   echo "</td>";
 }
@@ -34,7 +34,7 @@ handle_form($group,
             $readonly);
 mk_box_end();
 
-if ($repo = $group->repository) {
+if ($repo = $group->getRepository()) {
   mk_box_right_begin();
   echo "<p>Repository data:</p><ul>";
   echo "<li><b>Main language:</b> ", htmlspecialchars($repo->language()),

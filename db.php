@@ -183,16 +183,6 @@ function db_insert_prog_language($name) {
     $entityManager->persist(new ProgLanguage($name));
 }
 
-function db_fetch_repo($id) : ?Repository {
-  global $entityManager;
-  return $entityManager->find('Repository', $id);
-}
-
-function db_fetch_repo_user($id) : ?RepositoryUser {
-  global $entityManager;
-  return $entityManager->find('RepositoryUser', $id);
-}
-
 function db_fetch_deadline($year) : Deadline {
   global $entityManager;
   $deadline = $entityManager->find('Deadline', $year);

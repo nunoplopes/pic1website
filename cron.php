@@ -146,19 +146,19 @@ function run_repository() {
   global $year;
 
   foreach (db_fetch_groups($year) as $group) {
-    if (!$group->repository)
+    if (!$group->getRepository())
       continue;
 
     foreach ($group->students as $user) {
-      if (!$user->repository_user)
+      if (!$user->getRepoUser())
         continue;
 
-      foreach ($user->repository_user->getUnprocessedEvents() as $event) {
+      foreach ($user->getRepoUser()->getUnprocessedEvents() as $event) {
         if (!$event instanceof PROpenedEvent)
           continue;
 
         $pr = $event->pr;
-        if ($pr->repository != $group->repository)
+        if ($pr->repository != $group->getRepository())
           continue;
 
         echo "Processing new PR $pr of group $group\n";

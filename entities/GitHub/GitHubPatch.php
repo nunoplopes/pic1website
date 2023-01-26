@@ -16,22 +16,22 @@ class GitHubPatch extends \Patch
   /** @Column */
   public int $pr_number = 0;
 
-  static function construct($url, $group) {
+  static function construct($url, \Repository $repository) {
     if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^.]+)...([^:]+:[^:]+:[^:]+)$@', $url, $m)) {
       $src_repo   = $m[1]; // user/repo
       $src_branch = $m[2];
       $tgt_repo   = $m[3];
 
-      if ($src_repo != $group->repository->name)
+      if ($src_repo != $repository->name())
         throw new \ValidationException("Patch is not for Project's repository");
 
-      if ($src_branch != $group->repository->defaultBranch())
+      if ($src_branch != $repository->defaultBranch())
         throw new \ValidationException("Patch is not against default branch");
     }
     elseif (preg_match('@^https://github.com/([^/]+/[^/]+)/tree/([^/]+)$@', $url, $m)) {
       $tgt_repo = strtr($m[1], '/', ':') . $m[2];
     } else {
-      return null;
+      throw new \ValidationException('Unknown patch URL format');
     }
 
     $p = new GitHubPatch;
@@ -40,9 +40,10 @@ class GitHubPatch extends \Patch
   }
 
   private function stats() {
-    [$org, $repo] = $this->group->repository->getRepo();
+    $r = $this->group->getRepository();
+    [$org, $repo] = GitHubRepository::getRepo($r->name());
     $c = $GLOBALS['github_client']->api('repo')->commits();
-    return $c->compare($org, $repo, $this->group->repository->defaultBranch(),
+    return $c->compare($org, $repo, $r->defaultBranch(),
                        $this->repo_branch);
   }
 
@@ -76,9 +77,9 @@ class GitHubPatch extends \Patch
 
   public function getURL() : string {
     return "https://github.com/" .
-            $this->group->repository->name .
+            $this->group->getRepository()->name() .
             "/compare/" .
-            $this->group->repository->defaultBranch() . "..." .
+            $this->group->getRepository()->defaultBranch() . "..." .
             $this->repo_branch;
   }
 
@@ -89,6 +90,7 @@ class GitHubPatch extends \Patch
   public function getPR() : ?\PullRequest {
     if ($this->pr_number == 0)
       return null;
-    return new GitHubPullRequest($this->group->repository, $this->pr_number);
+    return new GitHubPullRequest($this->group->getRepository(),
+                                 $this->pr_number);
   }
 }

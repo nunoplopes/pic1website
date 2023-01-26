@@ -8,13 +8,13 @@ class GitHubPullRequest extends \PullRequest
 {
   private int $number;
 
-  public function __construct(GitHubRepository $repository, $number) {
+  public function __construct(\Repository $repository, $number) {
     $this->repository = $repository;
     $this->number     = $number;
   }
 
   private function stats() {
-    [$org, $repo] = $this->repository->getRepo();
+    [$org, $repo] = GitHubRepository::getRepo($this->repository->name());
     return $GLOBALS['github_client']->api('pr')
                                     ->show($org, $repo, $this->number);
   }
@@ -53,6 +53,6 @@ class GitHubPullRequest extends \PullRequest
   }
 
   public function __toString() {
-    return 'GitHub PR ' . $this->repository->name . '#' . $this->number;
+    return 'GitHub PR ' . $this->repository->name() . '#' . $this->number;
   }
 }

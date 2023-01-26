@@ -50,14 +50,13 @@ abstract class Patch
   /** @Column(length=1000) */
   public string $review = '';
 
-  static function factory($group, $url, $type, $description) : ?Patch {
-    if (!$group)
+  static function factory(ProjGroup $group, string $url, $type,
+                          string $description) : Patch {
+    $repo = $group->getRepository();
+    if (!$repo)
       throw new ValidationException('Group has no repository yet');
 
-    $p = GitHub\GitHubPatch::construct($url, $group);
-    if (!$p)
-      return null;
-
+    $p = GitHub\GitHubPatch::construct($url, $repo);
     $p->group       = $group;
     $p->type        = (int)$type;
     $p->description = $description;
@@ -83,7 +82,7 @@ abstract class Patch
     $ret = [];
     foreach ($this->authors() as $login) {
       foreach ($this->group->students as $student) {
-        if ($login == $student->repository_user->username) {
+        if ($login == $student->getRepoUser()->username()) {
           $ret[] = $student;
           break;
         }

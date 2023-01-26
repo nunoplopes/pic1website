@@ -2,72 +2,48 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-
-class PROpenedEvent {
+class PROpenedEvent
+{
   public PullRequest $pr;
-  public \DateTimeImmutable $date;
+  public DateTimeImmutable $date;
 
-  public function __construct($pr, $date) {
+  public function __construct(PullRequest $pr, DateTimeImmutable $date) {
     $this->pr   = $pr;
     $this->date = $date;
   }
 }
 
 
-/** @Entity */
-abstract class RepositoryUser
+interface RepositoryUserInterface
 {
-  /** @Id @Column(length=255) */
-  public string $id;
+  static function profileURL(RepositoryUser $user) : string;
+  static function name(RepositoryUser $user) : ?string;
+  static function email(RepositoryUser $user) : ?string;
+  static function company(RepositoryUser $user) : ?string;
+  static function location(RepositoryUser $user) : ?string;
+  static function getUnprocessedEvents(RepositoryUser $user) : array;
+}
 
-  /** @Column */
-  public string $etag = '';
 
-  /** @Column */
-  public int $last_processed_id = 0;
+class RepositoryUser
+{
+  public User $user;
 
-  public function username() {
-    return substr($this->id, strpos($this->id, ':')+1);
+  public function __construct(User $user) {
+    $this->user = $user;
   }
 
-  public function platform() {
-    return substr($this->id, 0, strpos($this->id, ':'));
+  public function id() {
+    return $this->user->repository_user;
   }
 
-  public function name() : ?string {
+  static function check($user) {
+    $r = new RepositoryUser($user);
 
-  }
-
-  public function email() : ?string {
-
-  }
-
-  public function company() : ?string {
-
-  }
-
-  public function location() : ?string {
-
-  }
-
-  public function getUnprocessedEvents() : array {
-
-  }
-
-  static function factory($id) {
-    $ps = explode(':', $id);
+    $ps = explode(':', $r->id());
     if (count($ps) != 2)
       throw new ValidationException('Allowed syntax is: provider:username '.
                                     '(e.g., github:johnsmith)');
-
-    if (db_fetch_repo_user($id))
-      throw new \ValidationException('Username already in use by another user');
-
-    $r = new RepositoryUser();
-    $r->id = $id;
 
     if ($r->platform() != 'github')
       throw new ValidationException('unknown platform');
@@ -76,14 +52,47 @@ abstract class RepositoryUser
     try {
       $r->name();
     } catch (\Exception $ex) {
-      return null;
+      throw new ValidationException('user does not exist');
     }
-    db_save($r);
-    return $r;
   }
 
-  public function __toString() {
-    return $this->id;
+  public function username() {
+    return substr($this->id(), strpos($this->id(), ':')+1);
+  }
+
+  public function platform() {
+    return substr($this->id(), 0, strpos($this->id(), ':'));
+  }
+
+  private function get($fn) {
+    switch ($this->platform()) {
+      case 'github': return GitHub\GitHubUser::$fn($this);
+    }
+    assert(false);
+  }
+
+  public function profileURL() : string {
+    return $this->get('profileURL');
+  }
+
+  public function name() : ?string {
+    return $this->get('name');
+  }
+
+  public function email() : ?string {
+    return $this->get('email');
+  }
+
+  public function company() : ?string {
+    return $this->get('company');
+  }
+
+  public function location() : ?string {
+    return $this->get('location');
+  }
+
+  public function getUnprocessedEvents() : array {
+    return $this->get('getUnprocessedEvents');
   }
 
   public function description() {
@@ -100,6 +109,4 @@ abstract class RepositoryUser
     }
     return $this->platform() . ": " . $this->username() . $extra;
   }
-
-  static function userCanCreate() { return true; }
 }

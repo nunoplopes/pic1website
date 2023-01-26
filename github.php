@@ -17,6 +17,11 @@ function github_set_etag($etag) {
     ]));
 }
 
+function github_remove_etag() {
+  $GLOBALS['github_builder']
+    ->removePlugin('Http\Client\Common\Plugin\HeaderSetPlugin');
+}
+
 function github_parse_date($date) {
   return $date ? \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sp', $date)
                : null;
