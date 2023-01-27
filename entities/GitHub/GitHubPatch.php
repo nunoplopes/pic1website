@@ -29,7 +29,7 @@ class GitHubPatch extends \Patch
         throw new \ValidationException("Patch is not against default branch");
     }
     elseif (preg_match('@^https://github.com/([^/]+/[^/]+)/tree/([^/]+)$@', $url, $m)) {
-      $tgt_repo = strtr($m[1], '/', ':') . $m[2];
+      $tgt_repo = strtr($m[1], '/', ':') . ':' . $m[2];
     } else {
       throw new \ValidationException('Unknown patch URL format');
     }
@@ -37,6 +37,10 @@ class GitHubPatch extends \Patch
     $p = new GitHubPatch;
     $p->repo_branch = $tgt_repo;
     return $p;
+  }
+
+  public function origin() : string {
+    return $this->repo_branch;
   }
 
   private function stats() {
@@ -58,7 +62,7 @@ class GitHubPatch extends \Patch
   public function linesAdded() : int {
     $add = 0;
     foreach ($this->stats()['files'] as $f) {
-      $add += $f->additions;
+      $add += $f['additions'];
     }
     return $add;
   }
@@ -66,7 +70,7 @@ class GitHubPatch extends \Patch
   public function linesRemoved() : int {
     $del = 0;
     foreach ($this->stats()['files'] as $f) {
-      $del += $f->deletions;
+      $del += $f['deletions'];
     }
     return $del;
   }

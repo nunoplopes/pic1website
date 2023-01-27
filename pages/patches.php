@@ -68,7 +68,7 @@ foreach ($groups as $group) {
       continue;
 
     $authors = [];
-    foreach ($patch->students as $author) {
+    foreach ($patch->students() as $author) {
       $authors[] = $author->shortName();
     }
 
@@ -77,10 +77,10 @@ foreach ($groups as $group) {
       'Group'   => $group->group_number,
       'Status'  => $patch->getStatus(),
       'Type'    => $patch->getType(),
-      'URL'     => '<a href="'. $patch->getPatchURL() . '">link</a>',
-      '+'       => $patch->lines_added,
-      '-'       => $patch->lines_deleted,
-      'Files'   => $patch->num_files,
+      'URL'     => '<a href="'. $patch->getURL() . '">link</a>',
+      '+'       => $patch->linesAdded(),
+      '-'       => $patch->linesRemoved(),
+      'Files'   => $patch->filesModified(),
       'Authors' => implode(', ', $authors),
     ];
   }

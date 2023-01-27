@@ -76,6 +76,7 @@ abstract class Patch
     return $p;
   }
 
+  abstract public function origin() : string;
   abstract public function authors() : array;
   abstract public function linesAdded() : int;
   abstract public function linesRemoved() : int;
@@ -88,7 +89,8 @@ abstract class Patch
     $ret = [];
     foreach ($this->authors() as $login) {
       foreach ($this->group->students as $student) {
-        if ($login == $student->getRepoUser()->username()) {
+        if (($repou = $student->getRepoUser()) &&
+            $login == $repou->username()) {
           $ret[] = $student;
           break;
         }
@@ -134,4 +136,21 @@ abstract class Patch
   public function isStillOpen() {
     return $this->status < PATCH_MERGED;
   }
+
+  public function set_status($status) {
+    $status = (int)$status;
+    if ($status < PATCH_WAITING_REVIEW || $status > PATCH_NOTMERGED_ILLEGAL)
+      throw new ValidationException('invalid status');
+    $this->status = $status;
+  }
+
+  public function set_type($type) {
+    $type = (int)$type;
+    if ($type < PATCH_BUGFIX || $type > PATCH_FEATURE)
+      throw new ValidationException('invalid type');
+    $this->type = $type;
+  }
+
+  public function set_description($txt) { $this->description = $txt; }
+  public function set_review($txt) { $this->review = $txt; }
 }

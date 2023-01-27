@@ -11,16 +11,34 @@ $patch = db_fetch_patch_id($_GET['id']);
 if (!$patch || !has_group_permissions($patch->group))
   die('Permission error');
 
-$readonly = ['group', 'lines_added', 'lines_deleted', 'num_files', 'students',
-             'patch_url', 'pr_number'];
-if (get_user()->role == ROLE_STUDENT)
+$readonly = ['group'];
+if (get_user()->role == ROLE_STUDENT) {
   $readonly[] = 'review';
+  $readonly[] = 'status';
+}
 
 if (!db_fetch_deadline(get_current_year())->isPatchSubmissionActive()) {
   $readonly = array_keys(get_object_vars($patch));
 }
 
 echo "<p>&nbsp;</p>\n";
-handle_form($patch,
-            /* hidden= */['id'],
-            $readonly);
+mk_box_left_begin();
+handle_form($patch, [], $readonly,
+            ['group', 'status', 'type', 'description', 'review']);
+mk_box_end();
+
+$authors = [];
+foreach ($patch->students() as $author) {
+  $authors[] = $author->shortName() . ' (' . $author->id . ')';
+}
+
+mk_box_right_begin();
+echo "<p>Statistics:</p><ul>";
+echo "<li><b>Authors:</b> ", implode(', ', $authors), "</li>\n";
+echo "<li><b>Lines added:</b> ", $patch->linesAdded(), "</li>\n";
+echo "<li><b>Lines removed:</b> ", $patch->linesRemoved(), "</li>\n";
+echo "<li><b>Files modified:</b> ", $patch->filesModified(), "</li>\n";
+echo '<li><a style="color: white" href="', $patch->getURL(), '">Link</a></li>';
+echo '</ul>';
+mk_box_end();
+mk_box_end();

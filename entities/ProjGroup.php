@@ -115,7 +115,7 @@ class ProjGroup
   public function set_project_website($url) { $this->project_website = check_url($url); }
   public function set_major_users($users) { $this->major_users = $users; }
   public function set_repository($url) { $this->repository = Repository::factory($url); }
-  public function set_cla($cla) { $this->cla = $cla; }
+  public function set_cla($cla) { $this->cla = (bool)$cla; }
   public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
   public function set_coding_style($url) { $this->coding_style = check_url($url); }
   public function set_bugs_for_beginners($url) { $this->bugs_for_beginners = check_url($url); }
