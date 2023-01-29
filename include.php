@@ -12,8 +12,8 @@ if (IN_PRODUCTION) {
   ini_set('error_log', 'error.log');
 } else {
   ini_set('display_errors', true);
+  ini_get('zend.assertions') == 1 or die('zend.assertions != 1');
 }
-ini_get('zend.assertions') == 1 or die('zend.assertions != 1');
 
 setlocale(LC_ALL, 'C');
 ini_set('default_charset', 'UTF-8');
