@@ -14,17 +14,6 @@ class PROpenedEvent
 }
 
 
-interface RepositoryUserInterface
-{
-  static function profileURL(RepositoryUser $user) : string;
-  static function name(RepositoryUser $user) : ?string;
-  static function email(RepositoryUser $user) : ?string;
-  static function company(RepositoryUser $user) : ?string;
-  static function location(RepositoryUser $user) : ?string;
-  static function getUnprocessedEvents(RepositoryUser $user) : array;
-}
-
-
 class RepositoryUser
 {
   public $user;
