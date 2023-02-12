@@ -22,7 +22,7 @@ class ProjGroup
   /** @Column(type="integer") */
   public $year;
 
-  /** @ManyToOne(targetEntity="Shift") */
+  /** @ManyToOne(targetEntity="Shift", inversedBy="groups") */
   public $shift;
 
   /** @ManyToMany(targetEntity="User", inversedBy="groups", cascade={"persist"}) */
