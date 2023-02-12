@@ -28,16 +28,16 @@ handle_form($patch, [], $readonly,
 mk_box_end();
 
 $authors = [];
-foreach ($patch->students() as $author) {
+foreach ($patch->students as $author) {
   $authors[] = $author->shortName() . ' (' . $author->id . ')';
 }
 
 mk_box_right_begin();
 echo "<p>Statistics:</p><ul>";
 echo "<li><b>Authors:</b> ", implode(', ', $authors), "</li>\n";
-echo "<li><b>Lines added:</b> ", $patch->linesAdded(), "</li>\n";
-echo "<li><b>Lines removed:</b> ", $patch->linesRemoved(), "</li>\n";
-echo "<li><b>Files modified:</b> ", $patch->filesModified(), "</li>\n";
+echo "<li><b>Lines added:</b> ", $patch->linesAdded, "</li>\n";
+echo "<li><b>Lines removed:</b> ", $patch->linesRemoved, "</li>\n";
+echo "<li><b>Files modified:</b> ", $patch->filesModified, "</li>\n";
 echo '<li><a style="color: white" href="', $patch->getURL(), '">Link</a></li>';
 echo '</ul>';
 mk_box_end();

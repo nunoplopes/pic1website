@@ -128,7 +128,7 @@ function run_patch_stats() {
     foreach (db_get_all_patches($group) as $patch) {
       try {
         if ($patch->isStillOpen())
-          $patch->updateStatus();
+          $patch->updateStats();
         echo "Done patch: $patch->id\n";
       } catch (ValidationException $ex) {
         error_ta($group, "Patch $patch->id is broken", <<< EOF

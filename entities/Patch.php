@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\ManyToMany;
 
 define('PATCH_WAITING_REVIEW', 0);
 define('PATCH_REVIEWED', 1);
@@ -50,6 +51,18 @@ abstract class Patch
   /** @Column(length=1000) */
   public string $review = '';
 
+  /** @ManyToMany(targetEntity="User") */
+  public $students;
+
+  /** @Column */
+  public int $linesAdded = 0;
+
+  /** @Column */
+  public int $linesRemoved = 0;
+
+  /** @Column */
+  public int $filesModified = 0;
+
   static function factory(ProjGroup $group, string $url, $type,
                           string $description) : Patch {
     $repo = $group->getRepository();
@@ -62,50 +75,59 @@ abstract class Patch
     $p->description = $description;
 
     try {
-      $students = $p->students();
+      $p->updateStats();
     } catch (Exception $ex) {
       throw new ValidationException('Patch not found');
     }
 
-    if (empty($students))
+    if (empty($p->students))
       throw new ValidationException("Patch has no recognized authors");
 
     if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
       throw new ValidationException('Unknown patch type');
 
+    foreach ($group->patches as $old_patch) {
+      if ($p->origin() == $old_patch->origin())
+        throw new ValidationException('Duplicated patch');
+    }
+
     return $p;
   }
 
+  public function __construct() {
+    $this->students = new \Doctrine\Common\Collections\ArrayCollection();
+  }
+
   abstract public function origin() : string;
-  abstract public function authors() : array;
-  abstract public function linesAdded() : int;
-  abstract public function linesRemoved() : int;
-  abstract public function filesModified() : int;
+  abstract protected function computeAuthors() : array;
+  abstract protected function computeLinesAdded() : int;
+  abstract protected function computeLinesRemoved() : int;
+  abstract protected function computeFilesModified() : int;
   abstract public function getURL() : string;
   abstract public function setPR(PullRequest $pr);
   abstract public function getPR() : ?PullRequest;
 
-  public function students() {
-    $ret = [];
-    foreach ($this->authors() as $login) {
-      foreach ($this->group->students as $student) {
-        if (($repou = $student->getRepoUser()) &&
-            $login == $repou->username()) {
-          $ret[] = $student;
-          break;
-        }
-      }
-    }
-    return $ret;
-  }
-
-  public function updateStatus() {
+  public function updateStats() {
     if ($pr = $this->getPR()) {
       $legal = $this->status == PATCH_PR_OPEN;
       if ($pr->wasMerged()) {
         $this->status = $legal ? PATCH_MERGED : PATCH_MERGED_ILLEGAL;
       } else if ($pr->isClosed()) {
         $this->status = $legal ? PATCH_NOTMERGED : PATCH_NOTMERGED_ILLEGAL;
+      }
+    }
+    $this->linesAdded    = $this->computeLinesAdded();
+    $this->linesRemoved  = $this->computeLinesRemoved();
+    $this->filesModified = $this->computeFilesModified();
+
+    $this->students->clear();
+    foreach ($this->computeAuthors() as $login) {
+      foreach ($this->group->students as $student) {
+        if (($repou = $student->getRepoUser()) &&
+            $login == $repou->username()) {
+          $this->students->add($student);
+          break;
+        }
       }
     }
   }

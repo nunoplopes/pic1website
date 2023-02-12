@@ -4,6 +4,7 @@
     "doctrine/annotations": "*",
     "knplabs/github-api": "*",
     "m4tthumphrey/php-gitlab-api": "*",
+    "nyholm/psr7": "*",
     "symfony/cache": "*",
     "symfony/http-client": "*",
     "symfony/mailgun-mailer": "*"
@@ -14,6 +15,9 @@
   "config": {
     "platform": {
       "php": "7.3"
+    },
+    "allow-plugins": {
+      "php-http/discovery": true
     }
   }
 }

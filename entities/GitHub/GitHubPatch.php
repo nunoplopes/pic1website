@@ -51,7 +51,7 @@ class GitHubPatch extends \Patch
                        $this->repo_branch);
   }
 
-  public function authors() : array {
+  public function computeAuthors() : array {
     $authors = [];
     foreach ($this->stats()['commits'] as $commit) {
       $authors[$commit['author']['login']] = true;
@@ -59,7 +59,7 @@ class GitHubPatch extends \Patch
     return array_keys($authors);
   }
 
-  public function linesAdded() : int {
+  protected function computeLinesAdded() : int {
     $add = 0;
     foreach ($this->stats()['files'] as $f) {
       $add += $f['additions'];
@@ -67,7 +67,7 @@ class GitHubPatch extends \Patch
     return $add;
   }
 
-  public function linesRemoved() : int {
+  protected function computeLinesRemoved() : int {
     $del = 0;
     foreach ($this->stats()['files'] as $f) {
       $del += $f['deletions'];
@@ -75,15 +75,16 @@ class GitHubPatch extends \Patch
     return $del;
   }
 
-  public function filesModified() : int {
+  protected function computeFilesModified() : int {
     return count($this->stats()['files']);
   }
 
   public function getURL() : string {
+    $repo = $this->group->getRepository();
     return "https://github.com/" .
-            $this->group->getRepository()->name() .
+            $repo->name() .
             "/compare/" .
-            $this->group->getRepository()->defaultBranch() . "..." .
+            $repo->defaultBranch() . "..." .
             $this->repo_branch;
   }
 
