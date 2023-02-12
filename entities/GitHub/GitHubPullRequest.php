@@ -6,7 +6,7 @@ namespace GitHub;
 
 class GitHubPullRequest extends \PullRequest
 {
-  private int $number;
+  private $number;
 
   public function __construct(\Repository $repository, $number) {
     $this->repository = $repository;

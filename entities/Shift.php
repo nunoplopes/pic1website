@@ -12,17 +12,17 @@ use Doctrine\ORM\Mapping\OneToMany;
 /** @Entity */
 class Shift
 {
-  /** @Id @Column @GeneratedValue */
-  public int $id;
+  /** @Id @Column(type="integer") @GeneratedValue */
+  public $id;
 
   /** @Column */
-  public string $name;
+  public $name;
 
-  /** @Column */
-  public int $year;
+  /** @Column(type="integer") */
+  public $year;
 
-  /** @ManyToOne */
-  public ?User $prof;
+  /** @Column(nullable="yes") @ManyToOne(targetEntity="User") */
+  public $prof;
 
   /** @OneToMany(targetEntity="ProjGroup", mappedBy="shift") */
   public $groups;

@@ -11,10 +11,10 @@ use Doctrine\ORM\Mapping\Entity;
 class GitHubPatch extends \Patch
 {
   /** @Column */
-  public string $repo_branch;
+  public $repo_branch;
 
-  /** @Column */
-  public int $pr_number = 0;
+  /** @Column(type="integer") */
+  public $pr_number = 0;
 
   static function construct($url, \Repository $repository) {
     if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^.]+)...([^:]+:[^:]+:[^:]+)$@', $url, $m)) {
@@ -67,7 +67,7 @@ class GitHubPatch extends \Patch
     return $add;
   }
 
-  protected function computeLinesRemoved() : int {
+  protected function computeLinesDeleted() : int {
     $del = 0;
     foreach ($this->stats()['files'] as $f) {
       $del += $f['deletions'];

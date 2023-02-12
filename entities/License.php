@@ -10,10 +10,10 @@ use Doctrine\ORM\Mapping\Id;
 class License
 {
   /** @Id @Column(length=48) */
-  public string $id;
+  public $id;
 
   /** @Column */
-  public string $name;
+  public $name;
 
   public function __construct($id, $name) {
     $this->id   = $id;

@@ -45,7 +45,7 @@ mk_box_right_begin();
 echo "<p>Statistics:</p><ul>";
 echo "<li><b>Authors:</b> ", implode(', ', $authors), "</li>\n";
 echo "<li><b>Lines added:</b> ", $patch->lines_added, "</li>\n";
-echo "<li><b>Lines removed:</b> ", $patch->lines_removed, "</li>\n";
+echo "<li><b>Lines removed:</b> ", $patch->lines_deleted, "</li>\n";
 echo "<li><b>Files modified:</b> ", $patch->files_modified, "</li>\n";
 echo '<li><a style="color: white" href="', $patch->getURL(), '">Link</a></li>';
 echo '</ul>';

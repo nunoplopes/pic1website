@@ -33,35 +33,35 @@ define('PATCH_FEATURE', 1);
  */
 abstract class Patch
 {
-  /** @Id @Column @GeneratedValue */
-  public int $id;
+  /** @Id @Column(type="integer") @GeneratedValue */
+  public $id;
 
-  /** @ManyToOne */
-  public ProjGroup $group;
+  /** @ManyToOne(targetEntity="ProjGroup") */
+  public $group;
 
-  /** @Column */
-  public int $status = PATCH_WAITING_REVIEW;
+  /** @Column(type="integer") */
+  public $status = PATCH_WAITING_REVIEW;
 
-  /** @Column */
-  public int $type;
-
-  /** @Column(length=1000) */
-  public string $description;
+  /** @Column(type="integer") */
+  public $type;
 
   /** @Column(length=1000) */
-  public string $review = '';
+  public $description;
+
+  /** @Column(length=1000) */
+  public $review = '';
 
   /** @ManyToMany(targetEntity="User") */
   public $students;
 
-  /** @Column */
-  public int $lines_added = 0;
+  /** @Column(type="integer") */
+  public $lines_added;
 
-  /** @Column */
-  public int $lines_removed = 0;
+  /** @Column(type="integer") */
+  public $lines_deleted;
 
-  /** @Column */
-  public int $files_modified = 0;
+  /** @Column(type="integer") */
+  public $files_modified;
 
   static function factory(ProjGroup $group, string $url, $type,
                           string $description) : Patch {
@@ -101,7 +101,7 @@ abstract class Patch
   abstract public function origin() : string;
   abstract protected function computeAuthors() : array;
   abstract protected function computeLinesAdded() : int;
-  abstract protected function computeLinesRemoved() : int;
+  abstract protected function computeLinesDeleted() : int;
   abstract protected function computeFilesModified() : int;
   abstract public function getURL() : string;
   abstract public function setPR(PullRequest $pr);
@@ -117,7 +117,7 @@ abstract class Patch
       }
     }
     $this->lines_added    = $this->computeLinesAdded();
-    $this->lines_removed  = $this->computeLinesRemoved();
+    $this->lines_deleted  = $this->computeLinesDeleted();
     $this->files_modified = $this->computeFilesModified();
 
     $this->students->clear();

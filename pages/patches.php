@@ -82,7 +82,7 @@ foreach ($groups as $group) {
       'Type'    => $patch->getType(),
       'URL'     => '<a href="'. $patch->getURL() . '">link</a>',
       '+'       => $patch->lines_added,
-      '-'       => $patch->lines_removed,
+      '-'       => $patch->lines_deleted,
       'Files'   => $patch->files_modified,
       'Authors' => implode(', ', $authors),
     ];

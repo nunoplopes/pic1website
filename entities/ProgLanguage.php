@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping\Id;
 class ProgLanguage
 {
   /** @Id @Column(length=16) */
-  public string $id;
+  public $id;
 
   public function __construct($name) {
     $this->id = $name;

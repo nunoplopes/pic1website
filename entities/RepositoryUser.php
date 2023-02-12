@@ -4,8 +4,8 @@
 
 class PROpenedEvent
 {
-  public PullRequest $pr;
-  public DateTimeImmutable $date;
+  public $pr;
+  public $date;
 
   public function __construct(PullRequest $pr, DateTimeImmutable $date) {
     $this->pr   = $pr;
@@ -27,7 +27,7 @@ interface RepositoryUserInterface
 
 class RepositoryUser
 {
-  public User $user;
+  public $user;
 
   public function __construct(User $user) {
     $this->user = $user;
