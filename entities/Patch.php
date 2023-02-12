@@ -55,13 +55,13 @@ abstract class Patch
   public $students;
 
   /** @Column */
-  public int $linesAdded = 0;
+  public int $lines_added = 0;
 
   /** @Column */
-  public int $linesRemoved = 0;
+  public int $lines_removed = 0;
 
   /** @Column */
-  public int $filesModified = 0;
+  public int $files_modified = 0;
 
   static function factory(ProjGroup $group, string $url, $type,
                           string $description) : Patch {
@@ -116,9 +116,9 @@ abstract class Patch
         $this->status = $legal ? PATCH_NOTMERGED : PATCH_NOTMERGED_ILLEGAL;
       }
     }
-    $this->linesAdded    = $this->computeLinesAdded();
-    $this->linesRemoved  = $this->computeLinesRemoved();
-    $this->filesModified = $this->computeFilesModified();
+    $this->lines_added    = $this->computeLinesAdded();
+    $this->lines_removed  = $this->computeLinesRemoved();
+    $this->files_modified = $this->computeFilesModified();
 
     $this->students->clear();
     foreach ($this->computeAuthors() as $login) {
@@ -132,27 +132,33 @@ abstract class Patch
     }
   }
 
+  static function get_status_options() {
+    return [
+      PATCH_WAITING_REVIEW    => 'waiting review',
+      PATCH_REVIEWED          => 'reviewed',
+      PATCH_APPROVED          => 'approved',
+      PATCH_PR_OPEN           => 'PR open',
+      PATCH_PR_OPEN_ILLEGAL   => 'PR open wo/ approval',
+      PATCH_MERGED            => 'merged',
+      PATCH_MERGED_ILLEGAL    => 'merged wo/ approval',
+      PATCH_NOTMERGED         => 'closed, not merged',
+      PATCH_NOTMERGED_ILLEGAL => 'closed, not merged wo/ approval',
+    ];
+  }
+
   public function getStatus() {
-    switch ($this->status) {
-      case PATCH_WAITING_REVIEW:    return 'waiting review';
-      case PATCH_REVIEWED:          return 'reviewed';
-      case PATCH_APPROVED:          return 'approved';
-      case PATCH_PR_OPEN:           return 'PR open';
-      case PATCH_PR_OPEN_ILLEGAL:   return 'PR open wo/ approval';
-      case PATCH_MERGED:            return 'merged';
-      case PATCH_MERGED_ILLEGAL:    return 'merged wo/ approval';
-      case PATCH_NOTMERGED:         return 'closed, not merged';
-      case PATCH_NOTMERGED_ILLEGAL: return 'closed, not merged wo/ approval';
-      default: die('Internal error: getStatus');
-    }
+    return self::get_status_options()[$this->status];
+  }
+
+  static function get_type_options() {
+    return [
+      PATCH_BUGFIX  => 'bug fix',
+      PATCH_FEATURE => 'feature',
+    ];
   }
 
   public function getType() {
-    switch ($this->type) {
-      case PATCH_BUGFIX:  return 'bug fix';
-      case PATCH_FEATURE: return 'feature';
-      default: die('Internal error: getType');
-    }
+    return self::get_type_options()[$this->type];
   }
 
   public function isStillOpen() {
@@ -161,14 +167,14 @@ abstract class Patch
 
   public function set_status($status) {
     $status = (int)$status;
-    if ($status < PATCH_WAITING_REVIEW || $status > PATCH_NOTMERGED_ILLEGAL)
+    if (!isset(self::get_status_options()[$status]))
       throw new ValidationException('invalid status');
     $this->status = $status;
   }
 
   public function set_type($type) {
     $type = (int)$type;
-    if ($type < PATCH_BUGFIX || $type > PATCH_FEATURE)
+    if (!isset(self::get_type_options()[$type]))
       throw new ValidationException('invalid type');
     $this->type = $type;
   }

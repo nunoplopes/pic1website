@@ -76,4 +76,3 @@ foreach (db_fetch_groups($selected_year) as $group) {
 }
 
 print_table($table);
-echo '<p>&nbsp;</p>';

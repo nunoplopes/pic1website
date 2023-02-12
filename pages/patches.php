@@ -18,8 +18,10 @@ if (isset($_POST['url'])) {
     die("Student's group not found");
 
   try {
-    db_save(Patch::factory($group, $_POST['url'], $_POST['type'],
-                           $_POST['description']));
+    $p = Patch::factory($group, $_POST['url'], $_POST['type'],
+                        $_POST['description']);
+    $group->patches->add($p);
+    db_save($p);
   } catch (ValidationException $ex) {
     echo "<p style=\"color: red\">Failed to validate all fields: ",
          htmlspecialchars($ex->getMessage()), "</p>\n";
@@ -35,14 +37,15 @@ if (isset($_GET['group'])) {
   $groups = db_fetch_groups(get_current_year());
 }
 
-$only_needs_review = !empty($_POST['needs_review']);
-$own_shifts_only   = !empty($_POST['own_shifts']);
+$only_needs_review = !empty($_REQUEST['needs_review']);
+$own_shifts_only   = !empty($_REQUEST['own_shifts']);
 
 if (auth_at_least(ROLE_TA)) {
   $only_review_checked = $only_needs_review ? ' checked' : '';
-  $own_shifts_checked   = $own_shifts_only ? ' checked' : '';
+  $own_shifts_checked  = $own_shifts_only ? ' checked' : '';
   echo <<<HTML
-<form action="index.php?page=patches" method="post">
+<form action="index.php" method="get">
+<input type="hidden" name="page" value="patches">
 <label for="needs_review">Show only patches that need review</label>
 <input type="checkbox" id="needs_review" name="needs_review" value="1"
 onchange='this.form.submit()'$only_review_checked>
@@ -78,9 +81,9 @@ foreach ($groups as $group) {
       'Status'  => $patch->getStatus(),
       'Type'    => $patch->getType(),
       'URL'     => '<a href="'. $patch->getURL() . '">link</a>',
-      '+'       => $patch->linesAdded,
-      '-'       => $patch->linesRemoved,
-      'Files'   => $patch->filesModified,
+      '+'       => $patch->lines_added,
+      '-'       => $patch->lines_removed,
+      'Files'   => $patch->files_modified,
       'Authors' => implode(', ', $authors),
     ];
   }
@@ -113,6 +116,5 @@ echo <<<EOF
 
 <p><input type="submit"></p>
 </form>
-<p>&nbsp;</p>
 
 EOF;

@@ -23,6 +23,15 @@ if (!db_fetch_deadline(get_current_year())->isPatchSubmissionActive()) {
 
 echo "<p>&nbsp;</p>\n";
 mk_box_left_begin();
+
+// if the student changes description, get the patch back on the review queue
+if (get_user()->role == ROLE_STUDENT &&
+    $patch->status == PATCH_REVIEWED &&
+    isset($_POST['description']) &&
+    $patch->description != $_POST['description']) {
+  $patch->set_status(PATCH_WAITING_REVIEW);
+}
+
 handle_form($patch, [], $readonly,
             ['group', 'status', 'type', 'description', 'review']);
 mk_box_end();
@@ -35,9 +44,9 @@ foreach ($patch->students as $author) {
 mk_box_right_begin();
 echo "<p>Statistics:</p><ul>";
 echo "<li><b>Authors:</b> ", implode(', ', $authors), "</li>\n";
-echo "<li><b>Lines added:</b> ", $patch->linesAdded, "</li>\n";
-echo "<li><b>Lines removed:</b> ", $patch->linesRemoved, "</li>\n";
-echo "<li><b>Files modified:</b> ", $patch->filesModified, "</li>\n";
+echo "<li><b>Lines added:</b> ", $patch->lines_added, "</li>\n";
+echo "<li><b>Lines removed:</b> ", $patch->lines_removed, "</li>\n";
+echo "<li><b>Files modified:</b> ", $patch->files_modified, "</li>\n";
 echo '<li><a style="color: white" href="', $patch->getURL(), '">Link</a></li>';
 echo '</ul>';
 mk_box_end();

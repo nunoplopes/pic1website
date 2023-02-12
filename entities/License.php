@@ -23,8 +23,4 @@ class License
   public function __toString() {
     return $this->name;
   }
-
-  static function orderBy() {
-    return 'name';
-  }
 }

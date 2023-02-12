@@ -19,8 +19,4 @@ class ProgLanguage
   public function __toString() {
     return $this->id;
   }
-
-  static function orderBy() {
-    return 'id';
-  }
 }

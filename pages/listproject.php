@@ -53,6 +53,9 @@ if ($repo = $group->getRepository()) {
 }
 mk_box_end();
 
+echo "<p>", dolink('patches', 'Submitted patches', ['group' => $group->id]),
+     "</p><p>&nbsp;</p>\n";
+
 
 function check_min($txt, $val, $min) {
   if ($val >= $min)

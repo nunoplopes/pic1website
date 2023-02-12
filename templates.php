@@ -43,7 +43,7 @@ function html_footer() {
     ['cron', 'Cron', ROLE_PROF],
     ['phpinfo', 'PHP Info', ROLE_PROF],
   ];
-  echo '<footer>';
+  echo '<p>&nbsp;</p><footer>';
   foreach ($pages as $page) {
     if (auth_at_least($page[2]))
       echo dolink($page[0], $page[1]), ' | ';
@@ -197,8 +197,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
       echo "<input type=\"datetime-local\" id=\"$name\" name=\"$name\"",
            " value=\"$val\">";
     }
-    else if (isset($annotations[1]->targetEntity) &&
-             !$annotations[1]->targetEntity::userCanCreate()) {
+    else if (isset($annotations[1]->targetEntity)) {
       $orderby = $annotations[1]->targetEntity::orderBy();
       echo "<select name=\"$name\" id=\"$name\">\n";
 
@@ -209,6 +208,19 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
           $selected = ' selected';
         echo "<option value=\"", htmlspecialchars($entity->id), "\"$selected>",
              htmlspecialchars((string)$entity), "</option>\n";
+      }
+      echo "</select>";
+    }
+    else if (method_exists($obj, "get_$name"."_options")) {
+      echo "<select name=\"$name\" id=\"$name\">\n";
+
+      $method_name = "get_$name"."_options";
+      foreach ($obj->$method_name() as $id => $name) {
+        $selected = '';
+        if ($id == $orig_value)
+          $selected = ' selected';
+        echo "<option value=\"$id\"$selected>", htmlspecialchars($name),
+             "</option>\n";
       }
       echo "</select>";
     }
