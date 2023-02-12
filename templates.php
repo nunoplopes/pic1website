@@ -195,7 +195,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
     }
     else if ($orig_value instanceof DateTimeInterface) {
       echo "<input type=\"datetime-local\" id=\"$name\" name=\"$name\"",
-           " value=\"$val\">";
+           " step=1 value=\"$val\">";
     }
     else if (isset($annotations[1]->targetEntity)) {
       $orderby = $annotations[1]->targetEntity::orderBy();
