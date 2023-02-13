@@ -7,10 +7,13 @@ require_once 'entities/Patch.php';
 html_header("Patches");
 
 $user = get_user();
+$deadline = db_fetch_deadline(get_current_year());
+
+mk_box_left_begin();
 
 if (isset($_POST['url'])) {
   if ($user->role == ROLE_STUDENT &&
-      !db_fetch_deadline(get_current_year())->isPatchSubmissionActive())
+      !$deadline->isPatchSubmissionActive())
     die('Deadline expired');
 
   $group = $user->getGroup();
@@ -118,3 +121,7 @@ echo <<<EOF
 </form>
 
 EOF;
+mk_box_end();
+
+mk_deadline_box($deadline->patch_submission);
+mk_box_end();

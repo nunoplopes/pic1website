@@ -74,6 +74,19 @@ function mk_box_end() {
   echo "</div>\n";
 }
 
+function mk_deadline_box($deadline) {
+  $now = new DateTimeImmutable();
+  echo '<div style="float: right; width: 300px; padding: 10px; margin: 10px; ',
+       'background: green; color: white">';
+  if ($now > $deadline) {
+    echo "<p>Deadline has expired!</p>";
+  } else {
+    echo "<p>Time until deadline: ",
+         $deadline->diff($now)->format('%ad, %Im, %Ss'), "</p>\n";
+  }
+  mk_box_end();
+}
+
 function print_table($table) {
   if (!$table)
     return;

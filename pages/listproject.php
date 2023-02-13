@@ -22,8 +22,8 @@ foreach ($group->students as $s) {
 echo "</tr></table>\n";
 
 $readonly = ['group_number', 'year', 'shift'];
-if (!db_fetch_deadline(get_current_year())->isProjProposalActive() &&
-    get_user()->role == ROLE_STUDENT) {
+$deadline = db_fetch_deadline(get_current_year());
+if (!$deadline->isProjProposalActive() && get_user()->role == ROLE_STUDENT) {
   $readonly = array_keys(get_object_vars($group));
 }
 
@@ -33,6 +33,8 @@ handle_form($group,
             /* hidden= */['id', 'students', 'patches'],
             $readonly);
 mk_box_end();
+
+mk_deadline_box($deadline->proj_proposal);
 
 if ($repo = $group->getRepository()) {
   mk_box_right_begin();
