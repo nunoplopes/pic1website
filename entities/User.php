@@ -65,6 +65,10 @@ class User
     return null;
   }
 
+  function getRole() {
+    return get_all_roles(true)[$this->role];
+  }
+
   public function getPhoto() {
     return $this->photo ? $this->photo
              : "https://fenix.tecnico.ulisboa.pt/user/photo/$this->id";

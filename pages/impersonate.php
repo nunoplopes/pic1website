@@ -33,6 +33,8 @@ else {
   echo "<p>Impersonate real users:<br>\n";
   foreach (db_get_all_users() as $user) {
     $args = ['username' => $user->id];
-    echo dolink('impersonate', "$user->id: $user->name", $args), "<br>\n";
+    $role = $user->getRole();
+    echo dolink('impersonate', "$user->id: $user->name ($role)", $args),
+         "<br>\n";
   }
 }
