@@ -33,35 +33,35 @@ define('PATCH_FEATURE', 1);
  */
 abstract class Patch
 {
-  /** @Id @Column(type="integer") @GeneratedValue */
-  public $id;
+  /** @Id @Column @GeneratedValue */
+  public int $id;
 
-  /** @ManyToOne(targetEntity="ProjGroup", inversedBy="patches") */
-  public $group;
+  /** @ManyToOne */
+  public ProjGroup $group;
 
-  /** @Column(type="integer") */
-  public $status = PATCH_WAITING_REVIEW;
+  /** @Column */
+  public int $status = PATCH_WAITING_REVIEW;
 
-  /** @Column(type="integer") */
-  public $type;
-
-  /** @Column(length=1000) */
-  public $description;
+  /** @Column */
+  public int $type;
 
   /** @Column(length=1000) */
-  public $review = '';
+  public string $description;
+
+  /** @Column(length=1000) */
+  public string $review = '';
 
   /** @ManyToMany(targetEntity="User") */
   public $students;
 
-  /** @Column(type="integer") */
-  public $lines_added;
+  /** @Column */
+  public int $lines_added;
 
-  /** @Column(type="integer") */
-  public $lines_deleted;
+  /** @Column */
+  public int $lines_deleted;
 
-  /** @Column(type="integer") */
-  public $files_modified;
+  /** @Column */
+  public int $files_modified;
 
   static function factory(ProjGroup $group, string $url, $type,
                           string $description) : Patch {

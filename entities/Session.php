@@ -11,13 +11,13 @@ use Doctrine\ORM\Mapping\ManyToOne;
 class Session
 {
   /** @Id @Column(length=32) */
-  public $id;
+  public string $id;
 
-  /** @ManyToOne(targetEntity="User") */
-  public $user;
+  /** @ManyToOne */
+  public User $user;
 
-  /** @Column(type="datetime") */
-  public $expires;
+  /** @Column */
+  public DateTimeImmutable $expires;
 
   public function __construct($user) {
     $this->id      = substr(sha1(random_bytes(64)), 0, 32);

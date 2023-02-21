@@ -9,14 +9,14 @@ use Doctrine\ORM\Mapping\Id;
 /** @Entity */
 class Deadline
 {
-  /** @Id @Column(type="integer") */
-  public $year;
+  /** @Id @Column */
+  public int $year;
 
-  /** @Column(type="datetime") */
-  public $proj_proposal;
+  /** @Column */
+  public DateTimeImmutable $proj_proposal;
 
-  /** @Column(type="datetime") */
-  public $patch_submission;
+  /** @Column */
+  public DateTimeImmutable $patch_submission;
 
   public function __construct($year) {
     $this->year             = $year;

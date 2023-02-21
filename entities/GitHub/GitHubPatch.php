@@ -11,10 +11,10 @@ use Doctrine\ORM\Mapping\Entity;
 class GitHubPatch extends \Patch
 {
   /** @Column */
-  public $repo_branch;
+  public string $repo_branch;
 
-  /** @Column(type="integer") */
-  public $pr_number = 0;
+  /** @Column */
+  public int $pr_number = 0;
 
   static function construct($url, \Repository $repository) {
     if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^.]+)...([^:]+:[^:]+:[^:]+)$@', $url, $m)) {

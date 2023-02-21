@@ -4,8 +4,8 @@
 
 class PROpenedEvent
 {
-  public $pr;
-  public $date;
+  public PullRequest $pr;
+  public DateTimeImmutable $date;
 
   public function __construct(PullRequest $pr, DateTimeImmutable $date) {
     $this->pr   = $pr;
@@ -16,7 +16,7 @@ class PROpenedEvent
 
 class RepositoryUser
 {
-  public $user;
+  public User $user;
 
   public function __construct(User $user) {
     $this->user = $user;

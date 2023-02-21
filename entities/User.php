@@ -11,32 +11,32 @@ use Doctrine\ORM\Mapping\ManyToMany;
 class User
 {
   /** @Id @Column(length=16) */
-  public $id;
+  public string $id;
 
   /** @Column */
-  public $name;
+  public string $name;
 
   /** @Column */
-  public $email;
+  public string $email;
 
   /** @Column(type="text") */
-  public $photo;
+  public string $photo;
 
-  /** @Column(type="integer") */
+  /** @Column */
   // TODO: switch to enum with PHP 8
-  public $role;
+  public int $role;
 
   /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
   public $groups;
 
   /** @Column */
-  public $repository_user = '';
+  public string $repository_user = '';
 
   /** @Column */
-  public $repository_etag = '';
+  public string $repository_etag = '';
 
-  /** @Column(type="integer") */
-  public $repository_last_processed_id = 0;
+  /** @Column */
+  public int $repository_last_processed_id = 0;
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
     $this->id     = $username;

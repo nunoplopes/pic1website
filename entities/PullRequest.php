@@ -4,7 +4,7 @@
 
 abstract class PullRequest
 {
-  public $repository;
+  public Repository $repository;
 
   abstract public function origin() : string;
   abstract public function isClosed() : bool;
