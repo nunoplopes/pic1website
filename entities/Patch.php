@@ -121,7 +121,11 @@ abstract class Patch
     $this->files_modified = $this->computeFilesModified();
 
     $this->students->clear();
-    foreach ($this->computeAuthors() as $login) {
+    foreach ($this->computeAuthors() as $author) {
+      $login = $author[0];
+      if ($this->students->contains($login))
+        continue;
+
       foreach ($this->group->students as $student) {
         if (($repou = $student->getRepoUser()) &&
             $login == $repou->username()) {
@@ -130,6 +134,11 @@ abstract class Patch
         }
       }
     }
+  }
+
+  /// returns (login, name, email)*
+  public function allAuthors() {
+    return $this->computeAuthors();
   }
 
   static function get_status_options() {

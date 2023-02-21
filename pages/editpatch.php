@@ -43,11 +43,27 @@ foreach ($patch->students as $author) {
 
 mk_box_right_begin();
 echo "<p>Statistics:</p><ul>";
-echo "<li><b>Authors:</b> ", implode(', ', $authors), "</li>\n";
+echo "<li><b>Students:</b> ", implode(', ', $authors), "</li>\n";
 echo "<li><b>Lines added:</b> ", $patch->lines_added, "</li>\n";
 echo "<li><b>Lines removed:</b> ", $patch->lines_deleted, "</li>\n";
 echo "<li><b>Files modified:</b> ", $patch->files_modified, "</li>\n";
 echo '<li><a style="color: white" href="', $patch->getURL(), '">Link</a></li>';
+echo "<li><b>All authors:</b> ", gen_authors($patch->allAuthors()), "</li>\n";
 echo '</ul>';
 mk_box_end();
 mk_box_end();
+
+
+function gen_authors($list) {
+  $data = [];
+  foreach ($list as $author) {
+    $name  = htmlspecialchars($author[1]);
+    $email = htmlspecialchars($author[2]);
+    $emails = explode('@', $email);
+    if (sizeof($emails) != 2 || $emails[1] !== 'tecnico.ulisboa.pt')
+      $email = '<span style="color: red">' . $email . '</span>';
+
+    $data[] = "$name &lt;$email&gt;";
+  }
+  return implode(', ', $data);
+}

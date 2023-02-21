@@ -54,9 +54,11 @@ class GitHubPatch extends \Patch
   public function computeAuthors() : array {
     $authors = [];
     foreach ($this->stats()['commits'] as $commit) {
-      $authors[$commit['author']['login']] = true;
+      $authors[] = [$commit['author']['login'],
+                    $commit['commit']['author']['name'],
+                    $commit['commit']['author']['email']];
     }
-    return array_keys($authors);
+    return array_unique($authors);
   }
 
   protected function computeLinesAdded() : int {
