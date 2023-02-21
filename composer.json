@@ -7,7 +7,7 @@
     "nyholm/psr7": "*",
     "symfony/cache": "*",
     "symfony/http-client": "*",
-    "symfony/mailgun-mailer": "*"
+    "symfony/mailer": "*"
   },
   "autoload": {
     "psr-4": {"": "entities"}

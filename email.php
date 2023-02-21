@@ -9,7 +9,7 @@ use Symfony\Component\Mime\Email;
 
 function send_email($dsts, $subject, $msg) {
   $email = (new Email())
-    ->from(new Address('noreply@example.org', 'PIC1'))
+    ->from(new Address(EMAIL_FROM_ADDR, 'PIC1'))
     ->subject($subject);
 
   if (IN_PRODUCTION) {
@@ -32,7 +32,7 @@ function send_email($dsts, $subject, $msg) {
   $email->text($msg);
 
   $transport = Transport::fromDsn(MAILER_DSN);
-  $mailer = new Mailer($transport); 
+  $mailer = new Mailer($transport);
   $mailer->send($email);
 }
 
