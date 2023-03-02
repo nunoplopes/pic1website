@@ -36,7 +36,7 @@ abstract class Patch
   /** @Id @Column @GeneratedValue */
   public int $id;
 
-  /** @ManyToOne */
+  /** @ManyToOne(inversedBy="patches") */
   public ProjGroup $group;
 
   /** @Column */
