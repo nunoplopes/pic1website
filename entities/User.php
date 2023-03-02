@@ -35,7 +35,7 @@ class User
   /** @Column */
   public string $repository_etag = '';
 
-  /** @Column */
+  /** @Column(type="bigint") */
   public int $repository_last_processed_id = 0;
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
