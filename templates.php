@@ -82,7 +82,7 @@ function mk_deadline_box($deadline) {
     echo "<p>Deadline has expired!</p>";
   } else {
     echo "<p>Time until deadline: ",
-         $deadline->diff($now)->format('%ad, %Im, %Ss'), "</p>\n";
+         $deadline->diff($now)->format('%ad, %Hh, %Im, %Ss'), "</p>\n";
   }
   mk_box_end();
 }
