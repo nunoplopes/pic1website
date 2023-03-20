@@ -106,7 +106,7 @@ class ProjGroup
   }
 
   public function __toString() {
-    return $this->group_number;
+    return (string)$this->group_number;
   }
 
   public function getstr_repository() { return $this->repository ? (string)$this->getRepository() : ''; }
