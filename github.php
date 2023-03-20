@@ -23,6 +23,7 @@ function github_remove_etag() {
 }
 
 function github_parse_date($date) {
-  return $date ? \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sp', $date)
-               : null;
+  if ($ret = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sp', $date))
+    return $ret;
+  throw new Exception("Couldn't parse github date: $date");
 }
