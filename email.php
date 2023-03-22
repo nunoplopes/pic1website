@@ -53,7 +53,7 @@ function email_ta($group, $subject, $msg) {
 }
 
 function email_group($group, $subject, $msg) {
-  $emails = [$group->shift->prof];
+  $emails = [$group->shift->prof->email];
   foreach ($group->students as $user) {
     $emails[] = $user->email;
   }
