@@ -58,7 +58,7 @@ class GitHubPatch extends \Patch
                     $commit['commit']['author']['name'],
                     $commit['commit']['author']['email']];
     }
-    return array_unique($authors);
+    return array_unique($authors, SORT_REGULAR);
   }
 
   protected function computeLinesAdded() : int {
