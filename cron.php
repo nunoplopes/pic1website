@@ -46,22 +46,19 @@ $year = get_current_year();
 function error_profs($subject, $msg) {
   if (IN_PRODUCTION)
     email_profs($subject, $msg);
-  else
-    echo "ERROR: $subject\n$msg\n";
+  echo "ERROR: $subject\n$msg\n";
 }
 
 function error_ta($group, $subject, $msg) {
   if (IN_PRODUCTION)
     email_ta($group, $subject, $msg);
-  else
-    echo "ERROR: $subject (group $group)\n$msg\n";
+  echo "ERROR: $subject (group $group)\n$msg\n";
 }
 
 function error_group($group, $subject, $msg) {
   if (IN_PRODUCTION)
     email_group($group, $subject, $msg);
-  else
-    echo "ERROR: $subject (group $group)\n$msg\n";
+  echo "ERROR: $subject (group $group)\n$msg\n";
 }
 
 function get_courses() {
