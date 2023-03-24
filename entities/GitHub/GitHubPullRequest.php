@@ -21,7 +21,8 @@ class GitHubPullRequest extends \PullRequest
 
   public function origin() : string {
     $data = $this->stats();
-    return $data['head']['repo']['full_name'] . ':' . $data['head']['ref'];
+    return strtr($data['head']['repo']['full_name'], '/', ':') . ':' .
+           $data['head']['ref'];
   }
 
   public function isClosed() : bool {
@@ -50,6 +51,10 @@ class GitHubPullRequest extends \PullRequest
 
   public function filesModified() : int {
     return $this->stats()['changed_files'];
+  }
+
+  public function getNumber() {
+    return $this->number;
   }
 
   public function __toString() {

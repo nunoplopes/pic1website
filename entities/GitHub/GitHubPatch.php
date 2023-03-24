@@ -91,7 +91,7 @@ class GitHubPatch extends \Patch
   }
 
   public function setPR(\PullRequest $pr) {
-    $this->pr_number = $pr->number;
+    $this->pr_number = $pr->getNumber();
   }
 
   public function getPR() : ?\PullRequest {
