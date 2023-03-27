@@ -49,7 +49,7 @@ class GitHubPatch extends \Patch
       $p = new GitHubPatch;
       $p->repo_branch = $m[1] . ':' . $m[2] . ':' . $data['name'];
       return $p;
-    } catch (\Github\Exception\RuntimeException) {
+    } catch (\Github\Exception\RuntimeException $ex) {
       throw new \ValidationException("Non-existent patch");
     }
   }
