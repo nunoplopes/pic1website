@@ -17,7 +17,7 @@ class GitHubPatch extends \Patch
   public int $pr_number = 0;
 
   static function construct($url, \Repository $repository) {
-    if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^.]+)...([^:]+):([^:]+):([^:]+)$@', $url, $m)) {
+    if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^.]+)...([^:]+):([^:]+):(.+)$@', $url, $m)) {
       $src_repo   = $m[1]; // user/repo
       $src_branch = $m[2];
       $org        = $m[3];
@@ -30,7 +30,7 @@ class GitHubPatch extends \Patch
       if ($src_branch != $repository->defaultBranch())
         throw new \ValidationException("Patch is not against default branch");
     }
-    elseif (preg_match('@^https://github.com/([^/]+)/([^/]+)/tree/([^/]+)$@', $url, $m)) {
+    elseif (preg_match('@^https://github.com/([^/]+)/([^/]+)/tree/(.+)$@', $url, $m)) {
       $org    = $m[1];
       $repo   = $m[2];
       $branch = $m[3];
