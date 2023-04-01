@@ -96,7 +96,7 @@ class GitHubPatch extends \Patch
     return count($this->stats()['files']);
   }
 
-  public function getURL() : string {
+  public function getPatchURL() : string {
     $repo = $this->group->getRepository();
     return "https://github.com/" .
             $repo->name() .

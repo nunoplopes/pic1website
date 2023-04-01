@@ -103,7 +103,7 @@ abstract class Patch
   abstract protected function computeLinesAdded() : int;
   abstract protected function computeLinesDeleted() : int;
   abstract protected function computeFilesModified() : int;
-  abstract public function getURL() : string;
+  abstract public function getPatchURL() : string;
   abstract public function setPR(PullRequest $pr);
   abstract public function getPR() : ?PullRequest;
 
@@ -134,6 +134,11 @@ abstract class Patch
         }
       }
     }
+  }
+
+  public function getPRURL() {
+    $pr = $this->getPR();
+    return $pr ? $pr->url() : null;
   }
 
   /// returns (login, name, email)*

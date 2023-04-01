@@ -78,12 +78,16 @@ foreach ($groups as $group) {
       $authors[] = $author->shortName();
     }
 
+    $pr = $patch->getPRURL();
+
     $table[] = [
       'id'      => dolink('editpatch', $patch->id, ['id' => $patch->id]),
-      'Group'   => $group->group_number,
+      'Group'   => dolink('listproject', $group->group_number,
+                          ['id' => $group->group_number]),
       'Status'  => $patch->getStatus(),
       'Type'    => $patch->getType(),
-      'URL'     => '<a href="'. $patch->getURL() . '">link</a>',
+      'Patch'   => '<a href="'. $patch->getPatchURL() . '">link</a>',
+      'PR'      => $pr ? '<a href="'. $pr . '">link</a>' : '',
       '+'       => $patch->lines_added,
       '-'       => $patch->lines_deleted,
       'Files'   => $patch->files_modified,

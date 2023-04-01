@@ -19,6 +19,12 @@ class GitHubPullRequest extends \PullRequest
                                     ->show($org, $repo, $this->number);
   }
 
+  public function url() : string {
+    $data = $this->stats();
+    return 'https://github.com/' . $data['head']['repo']['full_name'] .
+           '/pull/' . $this->number;
+  }
+
   public function origin() : string {
     $data = $this->stats();
     return strtr($data['head']['repo']['full_name'], '/', ':') . ':' .
