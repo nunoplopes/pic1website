@@ -54,6 +54,16 @@ class GitHubPatch extends \Patch
     }
   }
 
+  public function isValid() : bool {
+    try {
+      $this->stats();
+      return true;
+    } catch (\Github\Exception\RuntimeException $ex) {
+      // may be just a transient failure
+      return $ex->getMessage() !== 'Not Found';
+    }
+  }
+
   public function origin() : string {
     return $this->repo_branch;
   }

@@ -98,6 +98,7 @@ abstract class Patch
     $this->students = new \Doctrine\Common\Collections\ArrayCollection();
   }
 
+  abstract public function isValid() : bool;
   abstract public function origin() : string;
   abstract protected function computeAuthors() : array;
   abstract protected function computeLinesAdded() : int;
@@ -108,6 +109,15 @@ abstract class Patch
   abstract public function getPR() : ?PullRequest;
 
   public function updateStats() {
+    if (!$this->isValid()) {
+      if ($this->status == PATCH_PR_OPEN_ILLEGAL) {
+        $this->status = PATCH_NOTMERGED_ILLEGAL;
+      } else if ($this->status <= PATCH_PR_OPEN) {
+        $this->status = PATCH_NOTMERGED;
+      }
+      return;
+    }
+
     if ($pr = $this->getPR()) {
       $legal = $this->status == PATCH_PR_OPEN;
       if ($pr->wasMerged()) {
