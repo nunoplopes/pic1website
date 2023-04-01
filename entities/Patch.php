@@ -45,7 +45,7 @@ abstract class Patch
   /** @Column */
   public int $type;
 
-  /** @Column(length=1000) */
+  /** @Column(length=2000) */
   public string $description;
 
   /** @Column(length=1000) */
