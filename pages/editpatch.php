@@ -47,7 +47,11 @@ echo "<li><b>Students:</b> ", implode(', ', $authors), "</li>\n";
 echo "<li><b>Lines added:</b> ", $patch->lines_added, "</li>\n";
 echo "<li><b>Lines removed:</b> ", $patch->lines_deleted, "</li>\n";
 echo "<li><b>Files modified:</b> ", $patch->files_modified, "</li>\n";
-echo '<li><a style="color: white" href="', $patch->getURL(), '">Link</a></li>';
+echo '<li><a style="color: white" href="', $patch->getPatchURL(),
+     '">Patch</a></li>';
+if ($pr = $patch->getPRURL()) {
+  echo '<li><a style="color: white" href="', $pr, '">PR</a></li>';
+}
 echo "<li><b>All authors:</b> ", gen_authors($patch->allAuthors()), "</li>\n";
 echo '</ul>';
 mk_box_end();
