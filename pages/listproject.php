@@ -14,7 +14,12 @@ if (!$group || !has_group_permissions($group))
 echo '<table style="text-align:center"><tr>';
 foreach ($group->students as $s) {
   echo '<td><img src="', $s->getPhoto(), '"><br>';
-  echo "$s->name ($s->id)";
+
+  $name = $s->name;
+  if ($s->email)
+    $name = "<a href=\"mailto:$s->email\">$name</a>";
+
+  echo "$name ($s->id)";
   if ($repo = $s->getRepoUser())
     echo "<br>\n", $repo->description();
   echo "</td>";
