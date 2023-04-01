@@ -19,7 +19,7 @@ function send_email($dsts, $subject, $msg) {
     $has_email = false;
     foreach ($dsts as $dst) {
       if ($dst) {
-        $email->to($dst);
+        $email->addTo($dst);
         $has_email = true;
       }
     }
