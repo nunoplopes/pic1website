@@ -115,6 +115,9 @@ abstract class Patch
       } else if ($this->status <= PATCH_PR_OPEN) {
         $this->status = PATCH_NOTMERGED;
       }
+      $this->lines_added    = 0;
+      $this->lines_deleted  = 0;
+      $this->files_modified = 0;
       return;
     }
 
