@@ -123,10 +123,18 @@ function run_patch_stats() {
 
   foreach (db_fetch_groups($year) as $group) {
     foreach (db_get_all_patches($group) as $patch) {
+      if (!$patch->isStillOpen())
+        continue;
       try {
-        if ($patch->isStillOpen())
-          $patch->updateStats();
-        echo "Done patch: $patch->id\n";
+        $oldstatus = $patch->getStatus();
+        $patch->updateStats();
+
+        if ($patch->getStatus() != $oldstatus) {
+          echo "Patch $patch->id status changed from $oldstatus to ",
+                $patch->getStatus(), "\n";
+        } else {
+          echo "Patch $patch->id status unchanged\n";
+        }
       } catch (ValidationException $ex) {
         error_ta($group, "Patch $patch->id is broken", <<< EOF
 Cron job failed to process patch $patch->id
