@@ -36,12 +36,16 @@ function send_email($dsts, $subject, $msg) {
   $mailer->send($email);
 }
 
-function email_profs($subject, $msg) {
+function get_prof_emails() {
   $emails = [];
   foreach (db_get_all_profs(false) as $prof) {
     $emails[] = $prof->email;
   }
-  send_email($emails, $subject, $msg);
+  return $emails;
+}
+
+function email_profs($subject, $msg) {
+  send_email(get_prof_emails(), $subject, $msg);
 }
 
 function email_ta($group, $subject, $msg) {
@@ -53,7 +57,11 @@ function email_ta($group, $subject, $msg) {
 }
 
 function email_group($group, $subject, $msg) {
-  $emails = [$group->shift->prof->email];
+  if ($ta = $group->shift->prof) {
+    $emails = [$ta->email];
+  } else {
+    $emails = get_prof_emails();
+  }
   foreach ($group->students as $user) {
     $emails[] = $user->email;
   }

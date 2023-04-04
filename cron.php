@@ -7,6 +7,7 @@ require_once 'db.php';
 require_once 'email.php';
 require_once 'fenix.php';
 require_once 'github.php';
+require_once 'templates.php';
 
 $tasks = [
   'groups'      => "Update student's group information from fenix",
@@ -130,8 +131,13 @@ function run_patch_stats() {
         $patch->updateStats();
 
         if ($patch->getStatus() != $oldstatus) {
-          echo "Patch $patch->id status changed from $oldstatus to ",
-                $patch->getStatus(), "\n";
+          email_ta($group,
+                   "PIC1: Patch $patch->id status changed (group $group)",
+                   "Patch $patch->id of group $group changed status from " .
+                   "$oldstatus to " . $patch->getStatus() . "\n" .
+                   link_patch($patch));
+          echo "Patch $patch->id changed status from $oldstatus to ",
+               $patch->getStatus(), "\n";
         } else {
           echo "Patch $patch->id status unchanged\n";
         }
@@ -154,6 +160,8 @@ function run_repository() {
     if (!$group->getRepository())
       continue;
 
+    echo "Processing group $group\n";
+
     foreach ($group->students as $user) {
       if (!$user->getRepoUser())
         continue;
@@ -166,7 +174,7 @@ function run_repository() {
         if ($pr->repository != $group->getRepository())
           continue;
 
-        echo "Processing new PR $pr of group $group\n";
+        echo "Processing new PR $pr\n";
 
         $processed = false;
         foreach ($group->patches as $patch) {
@@ -177,6 +185,10 @@ function run_repository() {
 
           if ($patch->status == PATCH_APPROVED) {
             $patch->status = PATCH_PR_OPEN;
+            email_ta($group,
+                     "PIC1: PR opened for approved patch $patch->id",
+                     "PR $pr of group $group was opened for ".
+                     "approved patch $patch->id.\n" . link_patch($patch));
           } else {
             $patch->status = PATCH_PR_OPEN_ILLEGAL;
             error_group($group,

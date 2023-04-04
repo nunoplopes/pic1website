@@ -55,6 +55,11 @@ function html_footer() {
 EOF;
 }
 
+function link_patch(Patch $patch) {
+ return 'https://' . $_SERVER['HTTP_HOST'] . '/index.php?page=editpatch&id=' .
+        $patch->id;
+}
+
 function dolink($page, $txt, $args = []) {
   $args['page'] = $page;
   $q = http_build_query($args, '', '&amp;');
