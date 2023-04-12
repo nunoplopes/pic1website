@@ -129,25 +129,28 @@ abstract class Patch
         $this->status = $legal ? PATCH_NOTMERGED : PATCH_NOTMERGED_ILLEGAL;
       }
       $this->lines_added    = $pr->linesAdded();
-      $this->lines_deleted  = $pr->linesRemoved();
+      $this->lines_deleted  = $pr->linesDeleted();
       $this->files_modified = $pr->filesModified();
+
+      // Can't update author data here as github doesn't give us that data for
+      // PRs. Since the branch may be deleted by now, the info is lost.
     } else {
       $this->lines_added    = $this->computeLinesAdded();
       $this->lines_deleted  = $this->computeLinesDeleted();
       $this->files_modified = $this->computeFilesModified();
-    }
 
-    $this->students->clear();
-    foreach ($this->computeAuthors() as $author) {
-      $login = $author[0];
-      if ($this->students->contains($login))
-        continue;
+      $this->students->clear();
+      foreach ($this->computeAuthors() as $author) {
+        $login = $author[0];
+        if ($this->students->contains($login))
+          continue;
 
-      foreach ($this->group->students as $student) {
-        if (($repou = $student->getRepoUser()) &&
-            $login == $repou->username()) {
-          $this->students->add($student);
-          break;
+        foreach ($this->group->students as $student) {
+          if (($repou = $student->getRepoUser()) &&
+              $login == $repou->username()) {
+            $this->students->add($student);
+            break;
+          }
         }
       }
     }

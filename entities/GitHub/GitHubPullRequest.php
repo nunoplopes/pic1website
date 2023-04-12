@@ -49,7 +49,7 @@ class GitHubPullRequest extends \PullRequest
     return $this->stats()['additions'];
   }
 
-  public function linesRemoved() : int {
+  public function linesDeleted() : int {
     return $this->stats()['deletions'];
   }
 
