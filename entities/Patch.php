@@ -128,10 +128,14 @@ abstract class Patch
       } else if ($pr->isClosed()) {
         $this->status = $legal ? PATCH_NOTMERGED : PATCH_NOTMERGED_ILLEGAL;
       }
+      $this->lines_added    = $pr->linesAdded();
+      $this->lines_deleted  = $pr->linesRemoved();
+      $this->files_modified = $pr->filesModified();
+    } else {
+      $this->lines_added    = $this->computeLinesAdded();
+      $this->lines_deleted  = $this->computeLinesDeleted();
+      $this->files_modified = $this->computeFilesModified();
     }
-    $this->lines_added    = $this->computeLinesAdded();
-    $this->lines_deleted  = $this->computeLinesDeleted();
-    $this->files_modified = $this->computeFilesModified();
 
     $this->students->clear();
     foreach ($this->computeAuthors() as $author) {
