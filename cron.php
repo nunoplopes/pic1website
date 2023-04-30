@@ -183,7 +183,9 @@ function run_repository() {
 
           $patch->setPR($pr);
 
-          if ($patch->status == PATCH_APPROVED) {
+          if ($patch->status == PATCH_APPROVED ||
+              $patch->status == PATCH_PR_OPEN ||
+              $patch->status == PATCH_NOTMERGED) {
             $patch->status = PATCH_PR_OPEN;
             email_ta($group,
                      "PIC1: PR opened for approved patch $patch->id",

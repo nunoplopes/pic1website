@@ -39,7 +39,8 @@ class GitHubUser implements \RepositoryUserInterface
       $date = github_parse_date($event['created_at']);
 
       if ($event['type'] == 'PullRequestEvent') {
-        if ($event['payload']['action'] == 'opened') {
+        if ($event['payload']['action'] == 'opened' ||
+            $event['payload']['action'] == 'reopened') {
           $repo = new \Repository('github:' . $event['repo']['name']);
           $pr   = new GitHubPullRequest($repo, $event['payload']['number']);
           $events[] = new \PROpenedEvent($pr, $date);
