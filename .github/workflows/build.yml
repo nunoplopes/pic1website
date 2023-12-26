@@ -34,7 +34,7 @@ jobs:
         run: php${{ matrix.phpversion }} doctrine.php orm:generate-proxies
 
       - name: Check ORM mapping
-        run: php${{ matrix.phpversion }} doctrine.php orm:validate-schema |& grep "The mapping files are correct"
+        run: php${{ matrix.phpversion }} doctrine.php orm:validate-schema | grep "The mapping files are correct"
 
     env:
       PHP_VERSION: ${{ matrix.phpversion }}
