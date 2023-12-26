@@ -14,7 +14,7 @@ define('GH_TOKEN', 'username:token');
 
 // degrees & courses that we care about
 define('FENIX_DEGREES', ['LEIC-A', 'LEIC-T', 'LERC']);
-define('FENIX_COURSES', ['PLic2']);
+define('FENIX_COURSES', ['PLic2', 'PLic23', 'PLic23-2']);
 
 // When does the new academic year starts? (integer)
 define('MONTH_NEW_YEAR', 9);
