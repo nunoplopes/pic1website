@@ -36,7 +36,7 @@ class User
   public string $repository_etag = '';
 
   /** @Column(type="bigint") */
-  public int $repository_last_processed_id = 0;
+  public string $repository_last_processed_id = '0';
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
     $this->id     = $username;
