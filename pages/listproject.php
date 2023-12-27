@@ -26,6 +26,11 @@ foreach ($group->students as $s) {
 }
 echo "</tr></table>\n";
 
+if ($prof = $group->shift->prof) {
+  echo "<p>Professor: <a href=\"mailto:$prof->email\">",
+       $prof->shortName(), "</a></p>\n";
+}
+
 $readonly = ['group_number', 'year', 'shift'];
 $deadline = db_fetch_deadline(get_current_year());
 if (!$deadline->isProjProposalActive() && get_user()->role == ROLE_STUDENT) {
