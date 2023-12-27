@@ -113,7 +113,8 @@ function print_table($table) {
   echo "</table>\n";
 }
 
-function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
+function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
+                     $extra_buttons = null) {
   $class = new ReflectionClass($obj);
   $docReader = new AnnotationReader();
 
@@ -253,5 +254,17 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null) {
     }
     echo "</td></tr>\n";
   }
-  echo "</table><p><input type=\"submit\"></p></form>\n";
+  echo "</table><p><input type=\"submit\"></p>\n";
+
+  if ($extra_buttons) {
+    echo "<p>";
+    foreach ($extra_buttons as $name => $args) {
+      $key = $args[0];
+      $value = $args[1];
+      echo "<input type=\"submit\" value=\"$name\"",
+           " onclick=\"document.getElementById('$key').value = '$value'\">\n";
+    }
+    echo "</p>\n";
+  }
+  echo "</form>\n";
 }

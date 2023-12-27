@@ -33,8 +33,17 @@ if (get_user()->role == ROLE_STUDENT &&
   $patch->set_status(PATCH_WAITING_REVIEW);
 }
 
+// Add approve/reject buttons to simplify the life of TAs
+$extra_buttons = [];
+if ($patch->status <= PATCH_REVIEWED &&
+    auth_at_least(ROLE_TA)) {
+  $extra_buttons['Approve'] = ['status', PATCH_APPROVED];
+  $extra_buttons['Reject']  = ['status', PATCH_REVIEWED];
+}
+
 handle_form($patch, [], $readonly,
-            ['group', 'status', 'type', 'description', 'review']);
+            ['group', 'status', 'type', 'description', 'review'],
+            $extra_buttons);
 mk_box_end();
 
 $authors = [];
