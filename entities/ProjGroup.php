@@ -82,12 +82,16 @@ class ProjGroup
   /** @Column */
   public string $patch_submission = 'https://...';
 
+  /** @Column */
+  public DateTimeImmutable $allow_modifications_date;
+
   public function __construct($number, $year, Shift $shift) {
     $this->group_number = $number;
     $this->year         = $year;
     $this->shift        = $shift;
     $this->patches      = new \Doctrine\Common\Collections\ArrayCollection();
     $this->students     = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->allow_modifications_date = new DateTimeImmutable();
     $shift->addGroup($this);
   }
 
@@ -130,4 +134,5 @@ class ProjGroup
   public function set_testing_manual($url) { $this->testing_manual = check_url($url); }
   public function set_developers_mailing_list($url) { $this->developers_mailing_list = check_url($url); }
   public function set_patch_submission($url) { $this->patch_submission = check_url($url); }
+  public function set_allow_modifications_date($time) { $this->allow_modifications_date = new DateTimeImmutable($time); }
 }

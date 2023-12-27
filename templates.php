@@ -163,6 +163,8 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
   echo '<input type="hidden" name="submit" value="1">';
   echo "<table>\n";
 
+  $not_all_readonly = false;
+
   foreach (get_object_vars($obj) as $name => $orig_value) {
     if (in_array($name, $hide_fields) ||
         ($only_fields && !in_array($name, $only_fields)))
@@ -203,6 +205,8 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
     $freeze = '';
     if (in_array($name, $readonly))
       $freeze = ' readonly';
+    else
+      $not_all_readonly = true;
 
     echo "<tr><td><label for=\"$name\">$print_name:</label></td><td>\n";
     if (is_bool($orig_value)) {
@@ -254,7 +258,11 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
     }
     echo "</td></tr>\n";
   }
-  echo "</table><p><input type=\"submit\"></p>\n";
+  echo "</table><p>";
+
+  if ($not_all_readonly)
+    echo "<input type=\"submit\" value=\"Save changes\">";
+  echo "</p>\n";
 
   if ($extra_buttons) {
     echo "<p>";

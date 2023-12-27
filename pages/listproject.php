@@ -32,24 +32,30 @@ if ($prof = $group->shift->prof) {
 }
 
 $readonly = ['group_number', 'year', 'shift'];
+$hidden   = ['id', 'students', 'patches'];
+if (get_user()->role == ROLE_STUDENT) {
+  $hidden[] = 'allow_modifications_date';
+}
+
 $deadline = db_fetch_deadline(get_current_year());
-if (!$deadline->isProjProposalActive() && get_user()->role == ROLE_STUDENT) {
+$deadline = $deadline->proj_proposal > $group->allow_modifications_date
+              ? $deadline->proj_proposal : $group->allow_modifications_date;
+
+if (!is_deadline_current($deadline) && get_user()->role == ROLE_STUDENT) {
   $readonly = array_keys(get_object_vars($group));
 }
 
-if (is_deadline_current($deadline->proj_proposal)) {
+if (is_deadline_current($deadline)) {
   echo "<p>NOTE: You can submit this form multiple times until the deadline. ",
        "Only the last submission will be considered.</p>\n";
 }
 
 echo "<p>&nbsp;</p>\n";
 mk_box_left_begin();
-handle_form($group,
-            /* hidden= */['id', 'students', 'patches'],
-            $readonly);
+handle_form($group, $hidden, $readonly);
 mk_box_end();
 
-mk_deadline_box($deadline->proj_proposal);
+mk_deadline_box($deadline);
 
 if ($repo = $group->getRepository()) {
   mk_box_right_begin();
