@@ -4,6 +4,7 @@
 
 require_once 'include.php';
 
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\EntityManager;
 
@@ -23,7 +24,8 @@ if (!IN_PRODUCTION) {
   $config->setSQLLogger(new SQLLoogger);
 }
 
-$entityManager = EntityManager::create(['url' => DB_DSN], $config);
+$connection = DriverManager::getConnection(['url' => DB_DSN], $config);
+$entityManager = new EntityManager($connection, $config);
 
 function db_flush() {
   global $entityManager;
