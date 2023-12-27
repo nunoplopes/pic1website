@@ -17,7 +17,8 @@ if (get_user()->role == ROLE_STUDENT) {
   $readonly[] = 'status';
 }
 
-if (!db_fetch_deadline(get_current_year())->isPatchSubmissionActive()) {
+if (!auth_at_least(ROLE_TA) &&
+    !db_fetch_deadline(get_current_year())->isPatchSubmissionActive()) {
   $readonly = array_keys(get_object_vars($patch));
 }
 
