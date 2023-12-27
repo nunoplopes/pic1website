@@ -99,10 +99,11 @@ foreach ($groups as $group) {
 print_table($table);
 
 
-$bugfix = PATCH_BUGFIX;
-$feature = PATCH_FEATURE;
+if ($user->role == ROLE_STUDENT && $deadline->isPatchSubmissionActive()) {
+  $bugfix = PATCH_BUGFIX;
+  $feature = PATCH_FEATURE;
 
-echo <<<EOF
+  echo <<<EOF
 <p>&nbsp;</p>
 <p>Submit new patch:</p>
 <form action="index.php?page=patches" method="post">
@@ -125,6 +126,7 @@ echo <<<EOF
 </form>
 
 EOF;
+}
 mk_box_end();
 
 mk_deadline_box($deadline->patch_submission);
