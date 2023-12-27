@@ -29,3 +29,7 @@ define('ROLE_STUDENT', 3);
 function is_higher_role($a, $b) {
   return $a < $b;
 }
+
+function is_deadline_current($deadline) {
+  return new DateTimeImmutable() <= $deadline;
+}

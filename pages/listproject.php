@@ -37,6 +37,11 @@ if (!$deadline->isProjProposalActive() && get_user()->role == ROLE_STUDENT) {
   $readonly = array_keys(get_object_vars($group));
 }
 
+if (is_deadline_current($deadline->proj_proposal)) {
+  echo "<p>NOTE: You can submit this form multiple times until the deadline. ",
+       "Only the last submission will be considered.</p>\n";
+}
+
 echo "<p>&nbsp;</p>\n";
 mk_box_left_begin();
 handle_form($group,
