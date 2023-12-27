@@ -20,7 +20,9 @@ class GitHubPullRequest extends \PullRequest
   }
 
   public function url() : string {
-    return $this->stats()['html_url'];
+    //return $this->stats()['html_url'];
+    return 'https://github.com/' . $this->repository->name() . '/pull/' .
+           $this->number;
   }
 
   public function origin() : string {

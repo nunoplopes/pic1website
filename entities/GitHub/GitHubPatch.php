@@ -111,7 +111,6 @@ class GitHubPatch extends \Patch
     return "https://github.com/" .
             $repo->name() .
             "/compare/" .
-            $repo->defaultBranch() . "..." .
             $this->repo_branch;
   }
 
