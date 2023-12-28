@@ -3,6 +3,7 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 html_header('Patch Detail');
+require_once 'email.php';
 
 if (empty($_GET['id']))
   die('Missing id');
@@ -41,10 +42,42 @@ if ($patch->status <= PATCH_REVIEWED &&
   $extra_buttons['Reject']  = ['status', PATCH_REVIEWED];
 }
 
+$prev_status = $patch->status;
+
 handle_form($patch, [], $readonly,
             ['group', 'status', 'type', 'description', 'review'],
             $extra_buttons);
 mk_box_end();
+
+// notify students of the patch review
+if ($patch->status != $prev_status) {
+  $subject = null;
+  $patchurl = $patch->getPatchURL();
+  $pic1link = link_patch($patch);
+
+  if ($patch->status == PATCH_APPROVED) {
+    $subject = 'PIC1: Patch approved';
+    $line = 'Congratulations! Your patch was approved. You can now open a PR.';
+  } else if ($patch->status == PATCH_REVIEWED) {
+    $subject = 'PIC1: Patch reviewed';
+    $line = 'Your patch was reviewed, but it needs further changes.';
+  }
+
+  if ($subject) {
+    email_group($patch->group, $subject, <<<EOF
+$line
+
+Description:
+{$patch->description}
+
+Review:
+{$patch->review}
+
+Patch: $patchurl
+$pic1link
+EOF);
+  }
+}
 
 $authors = [];
 foreach ($patch->students as $author) {
