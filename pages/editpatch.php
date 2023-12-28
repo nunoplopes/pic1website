@@ -28,7 +28,7 @@ mk_box_left_begin();
 
 // if the student changes description, get the patch back on the review queue
 if (get_user()->role == ROLE_STUDENT &&
-    $patch->status == PATCH_REVIEWED &&
+    ($patch->status == PATCH_REVIEWED || $patch->status == PATCH_NOTMERGED) &&
     isset($_POST['description']) &&
     $patch->description != $_POST['description']) {
   $patch->set_status(PATCH_WAITING_REVIEW);
