@@ -54,6 +54,9 @@ abstract class Patch
   /** @ManyToMany(targetEntity="User") */
   public $students;
 
+  /** @ManyToOne */
+  public User $submitter;
+
   /** @Column */
   public int $lines_added;
 
@@ -64,7 +67,7 @@ abstract class Patch
   public int $files_modified;
 
   static function factory(ProjGroup $group, string $url, $type,
-                          string $description) : Patch {
+                          string $description, User $submitter) : Patch {
     $repo = $group->getRepository();
     if (!$repo)
       throw new ValidationException('Group has no repository yet');
@@ -73,6 +76,7 @@ abstract class Patch
     $p->group       = $group;
     $p->type        = (int)$type;
     $p->description = $description;
+    $p->submitter   = $submitter;
 
     try {
       $p->updateStats();

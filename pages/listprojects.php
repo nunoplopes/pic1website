@@ -64,7 +64,7 @@ foreach (db_fetch_groups($selected_year) as $group) {
   if ($selected_shift && $group->shift != $selected_shift)
     continue;
 
-  if ($own_shifts_only && $group->shift->prof != get_user())
+  if ($own_shifts_only && $group->prof() != get_user())
     continue;
 
   $students = [];

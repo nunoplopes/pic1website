@@ -22,7 +22,7 @@ if (isset($_POST['url'])) {
 
   try {
     $p = Patch::factory($group, $_POST['url'], $_POST['type'],
-                        $_POST['description']);
+                        $_POST['description'], get_user());
     $group->patches->add($p);
     db_save($p);
   } catch (ValidationException $ex) {
@@ -108,7 +108,7 @@ foreach ($groups as $group) {
   if (!has_group_permissions($group))
     continue;
 
-  if ($own_shifts_only && $group->shift->prof != get_user())
+  if ($own_shifts_only && $group->prof() != get_user())
     continue;
 
   foreach ($group->patches as $patch) {
@@ -123,23 +123,24 @@ foreach ($groups as $group) {
 
     $authors = [];
     foreach ($patch->students as $author) {
-      $authors[] = $author->shortName();
+      $authors[] = htmlspecialchars($author->shortName());
     }
 
     $pr = $patch->getPRURL();
 
     $table[] = [
-      'id'      => dolink('editpatch', $patch->id, ['id' => $patch->id]),
-      'Group'   => dolink('listproject', $group->group_number,
-                          ['id' => $group->id]),
-      'Status'  => $patch->getStatus(),
-      'Type'    => $patch->getType(),
-      'Patch'   => '<a href="'. $patch->getPatchURL() . '">link</a>',
-      'PR'      => $pr ? '<a href="'. $pr . '">link</a>' : '',
-      '+'       => $patch->lines_added,
-      '-'       => $patch->lines_deleted,
-      'Files'   => $patch->files_modified,
-      'Authors' => implode(', ', $authors),
+      'id'        => dolink('editpatch', $patch->id, ['id' => $patch->id]),
+      'Group'     => dolink('listproject', $group->group_number,
+                            ['id' => $group->id]),
+      'Status'    => $patch->getStatus(),
+      'Type'      => $patch->getType(),
+      'Patch'     => '<a href="'. $patch->getPatchURL() . '">link</a>',
+      'PR'        => $pr ? '<a href="'. $pr . '">link</a>' : '',
+      '+'         => $patch->lines_added,
+      '-'         => $patch->lines_deleted,
+      'Files'     => $patch->files_modified,
+      'Submitter' => htmlspecialchars($patch->submitter->shortName()),
+      'Authors'   => implode(', ', $authors),
     ];
   }
 }
