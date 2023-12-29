@@ -146,12 +146,14 @@ abstract class Patch
       $this->students->clear();
       foreach ($this->computeAuthors() as $author) {
         $login = $author[0];
+        $email = $author[2];
         if ($this->students->contains($login))
           continue;
 
         foreach ($this->group->students as $student) {
-          if (($repou = $student->getRepoUser()) &&
-              $login == $repou->username()) {
+          $repou = $student->getRepoUser();
+          if (($repou && $login == $repou->username()) ||
+              (!$login && $email == $student->email)) {
             $this->students->add($student);
             break;
           }
