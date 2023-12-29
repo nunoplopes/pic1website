@@ -41,10 +41,12 @@ if (isset($_GET['group'])) {
 }
 
 $only_needs_review = !empty($_REQUEST['needs_review']);
+$open_patches      = !empty($_REQUEST['open_patches']);
 $own_shifts_only   = !empty($_REQUEST['own_shifts']);
 
 if (auth_at_least(ROLE_TA)) {
   $only_review_checked = $only_needs_review ? ' checked' : '';
+  $open_patches_checked = $open_patches ? ' checked' : '';
   $own_shifts_checked  = $own_shifts_only ? ' checked' : '';
   echo <<<HTML
 <form action="index.php" method="get">
@@ -52,6 +54,10 @@ if (auth_at_least(ROLE_TA)) {
 <label for="needs_review">Show only patches that need review</label>
 <input type="checkbox" id="needs_review" name="needs_review" value="1"
 onchange='this.form.submit()'$only_review_checked>
+<br>
+<label for="open_patches">Show only non-merged patches</label>
+<input type="checkbox" id="open_patches" name="open_patches" value="1"
+onchange='this.form.submit()'$open_patches_checked>
 <br>
 <label for="own_shifts">Show only own shifts</label>
 <input type="checkbox" id="own_shifts" name="own_shifts" value="1"
@@ -71,6 +77,9 @@ foreach ($groups as $group) {
 
   foreach ($group->patches as $patch) {
     if ($only_needs_review && $patch->status != PATCH_WAITING_REVIEW)
+      continue;
+
+    if ($open_patches && $patch->status >= PATCH_MERGED)
       continue;
 
     $authors = [];
