@@ -41,13 +41,13 @@ if (isset($_GET['group'])) {
 }
 
 $only_needs_review = !empty($_REQUEST['needs_review']);
-$open_patches      = !empty($_REQUEST['open_patches']);
+$only_open_patches = !empty($_REQUEST['open_patches']);
 $own_shifts_only   = !empty($_REQUEST['own_shifts']);
 
 if (auth_at_least(ROLE_TA)) {
-  $only_review_checked = $only_needs_review ? ' checked' : '';
-  $open_patches_checked = $open_patches ? ' checked' : '';
-  $own_shifts_checked  = $own_shifts_only ? ' checked' : '';
+  $only_review_checked  = $only_needs_review ? ' checked' : '';
+  $open_patches_checked = $only_open_patches ? ' checked' : '';
+  $own_shifts_checked   = $own_shifts_only ? ' checked' : '';
   echo <<<HTML
 <form action="index.php" method="get">
 <input type="hidden" name="page" value="patches">
@@ -62,9 +62,21 @@ onchange='this.form.submit()'$open_patches_checked>
 <label for="own_shifts">Show only own shifts</label>
 <input type="checkbox" id="own_shifts" name="own_shifts" value="1"
 onchange='this.form.submit()'$own_shifts_checked>
-</form>
 <br>
+<label for="group">Filter by group:</label>
+<select name="group" id="group" onchange='this.form.submit()'>
 HTML;
+
+  foreach (db_fetch_groups(get_current_year()) as $group) {
+    if (!has_group_permissions($group))
+      continue;
+
+    $selected = @$_GET['group'] == $group->id ? ' selected' : '';
+    echo "<option value=\"{$group->id}\"$selected>", $group->group_number,
+         "</option>\n";
+  }
+
+  echo "</select></form><br>\n";
 }
 
 $table = [];
@@ -79,7 +91,7 @@ foreach ($groups as $group) {
     if ($only_needs_review && $patch->status != PATCH_WAITING_REVIEW)
       continue;
 
-    if ($open_patches && $patch->status >= PATCH_MERGED)
+    if ($only_open_patches && $patch->status >= PATCH_MERGED)
       continue;
 
     $authors = [];
