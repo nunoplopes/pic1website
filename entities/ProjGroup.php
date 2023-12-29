@@ -112,6 +112,10 @@ class ProjGroup
     return $this->repository ? new Repository($this->repository) : null;
   }
 
+  public function prof() : ?User {
+    return $this->shift->prof;
+  }
+
   public function __toString() {
     return (string)$this->group_number;
   }

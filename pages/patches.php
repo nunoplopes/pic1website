@@ -32,7 +32,7 @@ if (isset($_POST['url'])) {
 }
 
 
-if (isset($_GET['group'])) {
+if (isset($_GET['group']) && $_GET['group'] != 'all') {
   $groups = [db_fetch_group_id((int)$_GET['group'])];
 } else if ($user->role == ROLE_STUDENT) {
   $groups = $user->groups;
@@ -43,6 +43,7 @@ if (isset($_GET['group'])) {
 $only_needs_review = !empty($_REQUEST['needs_review']);
 $only_open_patches = !empty($_REQUEST['open_patches']);
 $own_shifts_only   = !empty($_REQUEST['own_shifts']);
+$selected_shift    = @$_REQUEST['shift'] != 'all' ? @$_REQUEST['shift'] : null;
 
 if (auth_at_least(ROLE_TA)) {
   $only_review_checked  = $only_needs_review ? ' checked' : '';
@@ -63,12 +64,35 @@ onchange='this.form.submit()'$open_patches_checked>
 <input type="checkbox" id="own_shifts" name="own_shifts" value="1"
 onchange='this.form.submit()'$own_shifts_checked>
 <br>
+<label for="shift">Show specific shift:</label>
+<select name="shift" id="shift" onchange='this.form.submit()'>
+<option value="all">All</option>
+HTML;
+
+  foreach (db_fetch_shifts(get_current_year()) as $shift) {
+    if (!has_shift_permissions($shift))
+      continue;
+    if ($own_shifts_only && $shift->prof != get_user())
+      continue;
+    $select = $shift->id == $selected_shift ? ' selected' : '';
+    echo "<option value=\"$shift->id\"$select>", htmlspecialchars($shift->name),
+         "</option>\n";
+  }
+
+echo <<< HTML
+</select>
+<br>
 <label for="group">Filter by group:</label>
 <select name="group" id="group" onchange='this.form.submit()'>
+<option value="all">All</option>
 HTML;
 
   foreach (db_fetch_groups(get_current_year()) as $group) {
     if (!has_group_permissions($group))
+      continue;
+    if ($own_shifts_only && $group->prof() != get_user())
+      continue;
+    if ($selected_shift && $group->shift->id != $selected_shift)
       continue;
 
     $selected = @$_GET['group'] == $group->id ? ' selected' : '';
@@ -94,6 +118,9 @@ foreach ($groups as $group) {
     if ($only_open_patches && $patch->status >= PATCH_MERGED)
       continue;
 
+    if ($selected_shift && $group->shift->id != $selected_shift)
+      continue;
+
     $authors = [];
     foreach ($patch->students as $author) {
       $authors[] = $author->shortName();
@@ -104,7 +131,7 @@ foreach ($groups as $group) {
     $table[] = [
       'id'      => dolink('editpatch', $patch->id, ['id' => $patch->id]),
       'Group'   => dolink('listproject', $group->group_number,
-                          ['id' => $group->group_number]),
+                          ['id' => $group->id]),
       'Status'  => $patch->getStatus(),
       'Type'    => $patch->getType(),
       'Patch'   => '<a href="'. $patch->getPatchURL() . '">link</a>',
