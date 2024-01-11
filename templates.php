@@ -60,10 +60,14 @@ function link_patch(Patch $patch) {
         $patch->id;
 }
 
-function dolink($page, $txt, $args = []) {
+function dourl($page, $args = [], $separator = '&amp;') {
   $args['page'] = $page;
-  $q = http_build_query($args, '', '&amp;');
-  return "<a href=\"index.php?$q\">$txt</a>";
+  $q = http_build_query($args, '', $separator);
+  return "index.php?$q";
+}
+
+function dolink($page, $txt, $args = []) {
+  return '<a href="' . dourl($page, $args) . "\">$txt</a>";
 }
 
 function mk_box_left_begin() {

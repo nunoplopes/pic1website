@@ -9,6 +9,8 @@ require_once 'fenix.php';
 require_once 'github.php';
 require_once 'templates.php';
 
+$start = time();
+
 $tasks = [
   'groups'      => "Update student's group information from fenix",
   'professors'  => 'Update list of professors/TAs from fenix',
@@ -43,6 +45,29 @@ EOF;
 }
 
 $year = get_current_year();
+
+$checkpoint_idx = 0;
+if (empty($checkpoint_start)) $checkpoint_start = 0;
+if (empty($max_exec_time)) $max_exec_time = 3600;
+
+class CheckPointException extends Exception {
+  public int $idx;
+  public function __construct($idx) {
+    $this->idx = $idx;
+  }
+}
+
+function checkpoint() {
+  global $start, $max_exec_time, $checkpoint_idx, $checkpoint_start;
+
+  $elapsed = time() - $start;
+  if ($elapsed > $max_exec_time) {
+    db_flush();
+    throw new CheckPointException($checkpoint_idx);
+  }
+
+  return ++$checkpoint_idx <= $checkpoint_start;
+}
 
 function error_profs($subject, $msg) {
   if (IN_PRODUCTION)
@@ -123,6 +148,9 @@ function run_patch_stats() {
   global $year;
 
   foreach (db_fetch_groups($year) as $group) {
+    if (checkpoint())
+      continue;
+
     foreach (db_get_all_patches($group) as $patch) {
       if (!$patch->isStillOpen())
         continue;
@@ -157,6 +185,9 @@ function run_repository() {
   global $year;
 
   foreach (db_fetch_groups($year) as $group) {
+    if (checkpoint())
+      continue;
+
     if (!$group->getRepository())
       continue;
 
@@ -231,8 +262,11 @@ function run_prog_langs() {
     'C++',
     'C#',
     'Go',
+    'Haskell',
     'Java',
     'JavaScript',
+    'Kotlin',
+    'OCaml',
     'Perl',
     'PHP',
     'Python',
@@ -259,6 +293,8 @@ foreach ($run_tasks as $task) {
   try {
     $task = "run_$task";
     $task();
+  } catch (CheckPointException $ex) {
+    throw $ex;
   } catch (Throwable $ex) {
     error_profs("PIC1: Cron job failed",
                 "Cron had an exception when running $task:\n$ex");
