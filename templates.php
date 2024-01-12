@@ -33,6 +33,7 @@ EOF;
 
 function html_footer() {
   $pages = [
+    ['dashboard', 'Statistics', ROLE_STUDENT],
     ['profile', 'Edit profile', ROLE_STUDENT],
     ['listprojects', 'Projects', ROLE_STUDENT],
     ['patches', 'Patches', ROLE_STUDENT],

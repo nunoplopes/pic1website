@@ -206,3 +206,21 @@ function db_fetch_patch_id($id) : ?Patch {
   global $entityManager;
   return $entityManager->find('Patch', $id);
 }
+
+function db_get_merged_patch_stats() {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('Patch', 'p')
+                       ->where('p.status = ' . PATCH_MERGED . ' OR '.
+                               'p.status = ' . PATCH_MERGED_ILLEGAL)
+                       ->select(['g.year',
+                                 'COUNT(p.id) AS patches',
+                                 'SUM(p.lines_added) AS lines_added',
+                                 'SUM(p.lines_deleted) AS lines_deleted',
+                                 'SUM(p.files_modified) AS files_modified'])
+                       ->join('p.group', 'g')
+                       ->groupBy('g.year')
+                       ->orderBy('g.year')
+                       ->getQuery()
+                       ->getArrayResult();
+}

@@ -83,9 +83,12 @@ function get_current_year() {
 }
 
 // get a string like 2004/2005
-function get_term() {
-  $year = get_current_year();
+function get_term_for($year) {
   return "$year/" . ($year+1);
+}
+
+function get_term() {
+  return get_term_for(get_current_year());
 }
 
 function fenix_get_personal_data($auth) {
