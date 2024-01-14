@@ -37,7 +37,7 @@ if (get_user()->role == ROLE_STUDENT) {
   $hidden[] = 'allow_modifications_date';
 }
 
-$deadline = db_fetch_deadline(get_current_year());
+$deadline = db_fetch_deadline($group->year);
 $deadline = $deadline->proj_proposal > $group->allow_modifications_date
               ? $deadline->proj_proposal : $group->allow_modifications_date;
 

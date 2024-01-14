@@ -19,7 +19,7 @@ if (get_user()->role == ROLE_STUDENT) {
 }
 
 if (!auth_at_least(ROLE_TA) &&
-    !db_fetch_deadline(get_current_year())->isPatchSubmissionActive()) {
+    !db_fetch_deadline($patch->group->year)->isPatchSubmissionActive()) {
   $readonly = array_keys(get_object_vars($patch));
 }
 

@@ -7,7 +7,8 @@ require_once 'entities/Patch.php';
 html_header("Patches");
 
 $user = get_user();
-$deadline = db_fetch_deadline(get_current_year());
+$group = $user->getGroup();
+$deadline = db_fetch_deadline($group ? $group->year : get_current_year());
 
 mk_box_left_begin();
 
@@ -16,13 +17,12 @@ if (isset($_POST['url'])) {
       !$deadline->isPatchSubmissionActive())
     die('Deadline expired');
 
-  $group = $user->getGroup();
   if (!$group)
     die("Student's group not found");
 
   try {
     $p = Patch::factory($group, $_POST['url'], $_POST['type'],
-                        $_POST['description'], get_user());
+                        $_POST['description'], $user);
     $group->patches->add($p);
     db_save($p);
   } catch (ValidationException $ex) {
