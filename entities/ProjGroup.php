@@ -47,7 +47,7 @@ class ProjGroup
   public bool $cla = false;
 
   /** @Column */
-  public bool $clo = false;
+  public bool $dco = false;
 
   /** @Column */
   public string $major_users = '';
@@ -127,7 +127,7 @@ class ProjGroup
   public function set_major_users($users) { $this->major_users = $users; }
   public function set_repository($url) { $this->repository = Repository::factory($url); }
   public function set_cla($cla) { $this->cla = (bool)$cla; }
-  public function set_clo($clo) { $this->clo = (bool)$clo; }
+  public function set_dco($dco) { $this->dco = (bool)$dco; }
   public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
   public function set_coding_style($url) { $this->coding_style = check_url($url); }
   public function set_bugs_for_beginners($url) { $this->bugs_for_beginners = check_url($url); }
