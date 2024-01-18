@@ -43,9 +43,13 @@ function db_fetch_user($username) : ?User {
 }
 
 function db_fetch_or_add_user($username, $name, $role, $email = '',
-                              $photo = '', $dummy = false) : User {
+                              $photo = '', $dummy = false,
+                              $update_data = true) : User {
   $user = db_fetch_user($username);
   if ($user) {
+    if (!$update_data)
+      return $user;
+
     $changed = false;
     if ($user->name != $name) {
       $user->name = $name;
@@ -60,7 +64,7 @@ function db_fetch_or_add_user($username, $name, $role, $email = '',
       $changed = true;
     }
     if ($changed)
-      $GLOBALS['entityManager']->flush();
+      db_flush();
     return $user;
   }
 

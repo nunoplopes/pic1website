@@ -127,7 +127,9 @@ function run_professors() {
 
   foreach (get_courses() as $course) {
     foreach (get_course_teachers($course) as $prof) {
-      $user = db_fetch_or_add_user($prof[0], $prof[1], $prof[2]);
+      // fenix returns full prof names, not display names
+      $user = db_fetch_or_add_user($prof[0], $prof[1], $prof[2], '', '', false,
+                                   /*update_data=*/false);
       if (is_higher_role($prof[2], $user->role))
         $user->role = $prof[2];
     }
