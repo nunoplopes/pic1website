@@ -112,7 +112,9 @@ function get_course_ids($year) {
       }
     }
   }
-  return array_unique($ids);
+  $data = array_unique($ids);
+  sort($data);
+  return $data;
 }
 
 // returns array of [shift-name, [username => name]*]

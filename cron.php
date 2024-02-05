@@ -98,9 +98,12 @@ function get_courses() {
 // Update student's group information
 function run_groups() {
   global $year;
+  $base_number = 0;
   foreach (get_courses() as $course) {
+    $base_number += 1000;
     foreach (get_groups($course) as $number => $data) {
       [$shift, $students] = $data;
+      $number += $base_number;
 
       $shift = db_fetch_shift($year, $shift);
       $group = db_fetch_group($year, $number, $shift);
