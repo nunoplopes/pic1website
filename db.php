@@ -95,6 +95,14 @@ function db_save($obj) {
   db_flush();
 }
 
+function db_delete($obj) {
+  if ($obj) {
+    global $entityManager;
+    $entityManager->remove($obj);
+    db_flush();
+  }
+}
+
 function db_fetch_session($id) {
   global $entityManager;
   return $entityManager->find('Session', $id);
@@ -103,11 +111,6 @@ function db_fetch_session($id) {
 function db_get_all_sessions() {
   global $entityManager;
   return $entityManager->getRepository('Session')->findAll();
-}
-
-function db_delete_session($session) {
-  global $entityManager;
-  return $entityManager->remove($session);
 }
 
 function db_get_group_years() {
@@ -126,12 +129,14 @@ function db_fetch_groups($year) {
                        ->findByYear($year, ['group_number' => 'ASC']);
 }
 
-function db_fetch_group($year, $number, Shift $shift) : ProjGroup {
+function db_fetch_group($year, $number, Shift $shift) : ?ProjGroup {
   global $entityManager;
-  $group = $entityManager->getRepository('ProjGroup')
-                         ->findOneBy(['year'=>$year, 'group_number'=>$number]);
-  if ($group)
-    return $group;
+  return $entityManager->getRepository('ProjGroup')
+                       ->findOneBy(['year'=>$year, 'group_number'=> $number]);
+}
+
+function db_create_group($year, $number, Shift $shift) : ProjGroup {
+  global $entityManager;
   $group = new ProjGroup($number, $year, $shift);
   $entityManager->persist($group);
   return $group;

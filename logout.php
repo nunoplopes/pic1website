@@ -8,8 +8,7 @@ require 'db.php';
 if (isset($_COOKIE['sessid'])) {
   $session = db_fetch_session($_COOKIE['sessid']);
   if ($session) {
-    db_delete_session($session);
-    db_flush();
+    db_delete($session);
   }
 }
 

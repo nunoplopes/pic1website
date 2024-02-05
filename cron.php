@@ -101,11 +101,17 @@ function run_groups() {
   foreach (get_courses() as $course) {
     foreach (get_groups($course) as $number => $data) {
       [$shift, $students] = $data;
-      if (!$students)
-        continue;
 
       $shift = db_fetch_shift($year, $shift);
       $group = db_fetch_group($year, $number, $shift);
+
+      if (!$students) {
+        db_delete($group);
+        continue;
+      }
+
+      if (!$group)
+        $group = db_create_group($year, $number, $shift);
       $group->resetStudents();
       foreach ($students as $id => $name) {
         $group->addStudent(db_fetch_or_add_user($id, $name, ROLE_STUDENT));
@@ -141,7 +147,7 @@ function run_professors() {
 function run_gc_sessions() {
   foreach (db_get_all_sessions() as $session) {
     if (!$session->isFresh())
-      db_delete_session($session);
+      db_delete($session);
   }
 }
 
