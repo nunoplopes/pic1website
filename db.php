@@ -70,8 +70,7 @@ function db_fetch_or_add_user($username, $name, $role, $email = '',
 
   global $entityManager;
   $user = new User($username, $name, $email, $photo, $role, $dummy);
-  $entityManager->persist($user);
-  $entityManager->flush();
+  db_save($user);
   return $user;
 }
 
@@ -136,9 +135,8 @@ function db_fetch_group($year, $number, Shift $shift) : ?ProjGroup {
 }
 
 function db_create_group($year, $number, Shift $shift) : ProjGroup {
-  global $entityManager;
   $group = new ProjGroup($number, $year, $shift);
-  $entityManager->persist($group);
+  db_save($group);
   return $group;
 }
 
@@ -149,7 +147,7 @@ function db_fetch_shift($year, $name) : Shift {
   if ($shift)
     return $shift;
   $shift = new Shift($name, $year);
-  $entityManager->persist($shift);
+  db_save($shift);
   return $shift;
 }
 
@@ -180,7 +178,7 @@ function db_update_license($id, $name) {
   if ($license)
     $license->name = $name;
   else
-    $entityManager->persist(new License($id, $name));
+    db_save(new License($id, $name));
 }
 
 function db_fetch_prog_language($id) : ?ProgLanguage {
@@ -189,9 +187,8 @@ function db_fetch_prog_language($id) : ?ProgLanguage {
 }
 
 function db_insert_prog_language($name) {
-  global $entityManager;
   if (!db_fetch_prog_language($name))
-    $entityManager->persist(new ProgLanguage($name));
+    db_save(new ProgLanguage($name));
 }
 
 function db_fetch_deadline($year) : Deadline {
@@ -199,8 +196,7 @@ function db_fetch_deadline($year) : Deadline {
   $deadline = $entityManager->find('Deadline', $year);
   if (!$deadline) {
     $deadline = new Deadline($year);
-    $entityManager->persist($deadline);
-    db_flush();
+    db_save($deadline);
   }
   return $deadline;
 }
