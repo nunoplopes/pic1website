@@ -35,7 +35,8 @@ class GitHubRepository implements \RepositoryInterface
   }
 
   static function license($name) : ?\License {
-    return db_fetch_license(self::stats($name)['license']['spdx_id']);
+    $license = self::stats($name)['license'];
+    return $license ? db_fetch_license($license['spdx_id']) : null;
   }
 
   static function stars($name) : int {

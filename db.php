@@ -169,7 +169,7 @@ function db_fetch_group_id($id) : ?ProjGroup {
 
 function db_fetch_license($id) : ?License {
   global $entityManager;
-  return $entityManager->find('License', $id);
+  return $id ? $entityManager->find('License', $id) : null;
 }
 
 function db_update_license($id, $name) {
@@ -183,7 +183,7 @@ function db_update_license($id, $name) {
 
 function db_fetch_prog_language($id) : ?ProgLanguage {
   global $entityManager;
-  return $entityManager->find('ProgLanguage', $id);
+  return $id ? $entityManager->find('ProgLanguage', $id) : null;
 }
 
 function db_insert_prog_language($name) {
