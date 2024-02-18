@@ -62,15 +62,17 @@ if ($repo = $group->getRepository()) {
   $commits = $repo->commitsLastMonth();
   $stars   = $repo->stars();
   echo "<p>Repository data:</p><ul>";
-  echo "<li><b>Main language:</b> ", htmlspecialchars($repo->language()),
-       "</li>\n";
+  echo "<li><b>Main language:</b> ",
+       htmlspecialchars($repo->language() ?? 'Unknown'), "</li>\n";
   echo "<li><b>Num of commits in the past month:</b> ",
        check_min(number_format($commits), $commits, 50), "</li>\n";
   echo "<li><b>Stars:</b> ",
        check_min(number_format($stars), $stars, 200), "</li>\n";
-  echo "<li><b>License:</b> ", ($repo->license() ?? 'Unknown'), "</li>\n";
+  echo "<li><b>License:</b> ", htmlspecialchars($repo->license() ?? 'Unknown'),
+       "</li>\n";
   $topics = array_map('htmlspecialchars', $repo->topics());
-  echo "<li><b>Topics:</b> ", implode(', ', $topics), "</li>\n";
+  if ($topics)
+    echo "<li><b>Topics:</b> ", implode(', ', $topics), "</li>\n";
   echo '</ul>';
   mk_box_end();
 }
