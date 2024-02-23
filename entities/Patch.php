@@ -45,6 +45,9 @@ abstract class Patch
   /** @Column */
   public int $type;
 
+  /** @Column */
+  public string $issue_url = 'https://...';
+
   /** @Column(length=2000) */
   public string $description;
 
@@ -67,7 +70,8 @@ abstract class Patch
   public int $files_modified;
 
   static function factory(ProjGroup $group, string $url, $type,
-                          string $description, User $submitter) : Patch {
+                          string $issue_url, string $description,
+                          User $submitter) : Patch {
     $repo = $group->getRepository();
     if (!$repo)
       throw new ValidationException('Group has no repository yet');
@@ -75,6 +79,7 @@ abstract class Patch
     $p = GitHub\GitHubPatch::construct($url, $repo);
     $p->group       = $group;
     $p->type        = (int)$type;
+    $p->issue_url   = check_url($issue_url);
     $p->description = $description;
     $p->submitter   = $submitter;
 
@@ -219,6 +224,7 @@ abstract class Patch
     $this->type = $type;
   }
 
+  public function set_issue_url($url) { $this->issue_url = check_url($url); }
   public function set_description($txt) { $this->description = $txt; }
   public function set_review($txt) { $this->review = $txt; }
 }

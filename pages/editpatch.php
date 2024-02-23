@@ -45,7 +45,7 @@ if ($patch->status <= PATCH_REVIEWED &&
 $prev_status = $patch->status;
 
 handle_form($patch, [], $readonly,
-            ['group', 'status', 'type', 'description', 'review'],
+            ['group', 'status', 'type', 'issue_url', 'description', 'review'],
             $extra_buttons);
 mk_box_end();
 

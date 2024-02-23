@@ -22,7 +22,7 @@ if (isset($_POST['url'])) {
 
   try {
     $p = Patch::factory($group, $_POST['url'], $_POST['type'],
-                        $_POST['description'], $user);
+                        $_POST['issue_url'], $_POST['description'], $user);
     $group->patches->add($p);
     db_save($p);
   } catch (ValidationException $ex) {
@@ -166,6 +166,10 @@ if ($user->role == ROLE_STUDENT && $deadline->isPatchSubmissionActive()) {
 <option value="$bugfix">Bug fix</option>
 <option value="$feature">Feature</option>
 </select>
+
+<br>
+<label for="issue_url">Issue URL:</label>
+<input type="text" id="issue_url" name="issue_url" value="https://..." size="50">
 
 <br>
 <label for="description">Description:</label>
