@@ -276,6 +276,7 @@ function run_prog_langs() {
     'Haskell',
     'Java',
     'JavaScript',
+    'Julia',
     'Kotlin',
     'OCaml',
     'Perl',
