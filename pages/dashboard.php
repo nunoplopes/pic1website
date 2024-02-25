@@ -11,6 +11,12 @@ foreach (db_get_merged_patch_stats() as $entry) {
   $lines_deleted[]  = $entry['lines_deleted'];
   $files_modified[] = $entry['files_modified'];
 }
+
+$max_y  = round(max($patches) * 1.1);
+$max_y2 = round(max(max($lines_added),
+                    max($lines_deleted),
+                    max($files_modified)) * 1.1);
+
 $years          = implode(', ', $years);
 $patches        = implode(', ', $patches);
 $lines_added    = implode(', ', $lines_added);
@@ -54,10 +60,12 @@ var layout = {
     autotick: false
   },
   yaxis: {
-    title: 'PR count'
+    title: 'PR count',
+    range: [0, $max_y]
   },
   yaxis2: {
     title: 'File/Line count',
+    range: [0, $max_y2],
     showgrid: false,
     overlaying: 'y',
     side: 'right'
