@@ -25,7 +25,7 @@ $files_modified = implode(', ', $files_modified);
 
 echo <<<HTML
 <script src='https://cdn.plot.ly/plotly-2.27.0.min.js'></script>
-<div id='plotdiv' style="max-width: 800px"></div>
+<div id='plotdiv' style="max-width: 900px"></div>
 <script>
 xData = [$years];
 yData = [[$patches], [$lines_added], [$lines_deleted], [$files_modified]];
@@ -94,6 +94,76 @@ config = {
 };
 
 Plotly.newPlot('plotdiv', data, layout, config);
+</script>
+
+HTML;
+
+$current_year = db_get_group_years()[0]['year'];
+
+foreach (db_fetch_groups($current_year) as $group) {
+  if ($repo = $group->getRepository()) {
+    if ($lang = $repo->language()) {
+      @++$langs[(string)$lang];
+    }
+    @++$projs[$repo->name()];
+  }
+}
+
+foreach ($projs as $proj => $n) {
+  if ($n == 1)
+    unset($projs[$proj]);
+}
+
+arsort($langs);
+arsort($projs);
+
+$lang_x = implode(', ', array_map(function ($s) { return "'$s'"; },
+                                  array_keys($langs)));
+$lang_y = implode(', ', $langs);
+
+$proj_x = implode(', ', array_map(function ($s) { return "'$s'"; },
+                                  array_keys($projs)));
+$proj_y = implode(', ', $projs);
+
+echo <<<HTML
+<div id='langsplot' style="max-width: 800px"></div>
+<script>
+var data = [
+  {
+    x: [$lang_x],
+    y: [$lang_y],
+    type: 'bar'
+  }
+];
+var layout = {
+  title: {
+    text: 'Project Languages'
+  }
+};
+Plotly.newPlot('langsplot', data, layout);
+</script>
+
+<div id='projsplot' style="max-width: 900px; max-height: 500px"></div>
+<script>
+var data = [
+  {
+    x: [$proj_x],
+    y: [$proj_y],
+    type: 'bar'
+  }
+];
+var layout = {
+  title: {
+    text: 'Most Frequent Projects'
+  },
+  xaxis: {
+    tickangle: 45
+  },
+  margin: {
+    b: 150
+  }
+};
+Plotly.newPlot('projsplot', data, layout);
 </script>
 
 HTML;
