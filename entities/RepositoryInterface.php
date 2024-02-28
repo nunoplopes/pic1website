@@ -6,7 +6,7 @@ interface RepositoryInterface {
   static function parse($url) : ?string;
   static function defaultBranch($name) : string;
   static function parent($name) : ?string;
-  static function language($name) : ?ProgLanguage;
+  static function language($name) : string;
   static function license($name) : ?License;
   static function stars($name) : int;
   static function topics($name) : array;

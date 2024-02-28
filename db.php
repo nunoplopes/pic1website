@@ -181,16 +181,6 @@ function db_update_license($id, $name) {
     db_save(new License($id, $name));
 }
 
-function db_fetch_prog_language($id) : ?ProgLanguage {
-  global $entityManager;
-  return $id ? $entityManager->find('ProgLanguage', $id) : null;
-}
-
-function db_insert_prog_language($name) {
-  if (!db_fetch_prog_language($name))
-    db_save(new ProgLanguage($name));
-}
-
 function db_fetch_deadline($year) : Deadline {
   global $entityManager;
   $deadline = $entityManager->find('Deadline', $year);

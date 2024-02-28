@@ -56,6 +56,10 @@ function html_footer() {
 EOF;
 }
 
+function quote($str) {
+  return "'" . htmlspecialchars($str) . "'";
+}
+
 function link_patch(Patch $patch) {
  return 'https://' . $_SERVER['HTTP_HOST'] . '/index.php?page=editpatch&id=' .
         $patch->id;

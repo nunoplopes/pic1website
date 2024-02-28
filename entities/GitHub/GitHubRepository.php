@@ -30,8 +30,8 @@ class GitHubRepository implements \RepositoryInterface
     return isset($data['parent']) ? $data['parent']['full_name'] : null;
   }
 
-  static function language($name) : ?\ProgLanguage {
-    return db_fetch_prog_language(self::stats($name)['language']);
+  static function language($name) : string {
+    return self::stats($name)['language'];
   }
 
   static function license($name) : ?\License {

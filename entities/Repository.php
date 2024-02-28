@@ -34,7 +34,7 @@ class Repository
     return $this->get('parent');
   }
 
-  public function language() : ?ProgLanguage {
+  public function language() : string {
     return $this->get('language');
   }
 

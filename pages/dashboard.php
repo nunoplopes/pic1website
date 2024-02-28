@@ -117,12 +117,10 @@ foreach ($projs as $proj => $n) {
 arsort($langs);
 arsort($projs);
 
-$lang_x = implode(', ', array_map(function ($s) { return "'$s'"; },
-                                  array_keys($langs)));
+$lang_x = implode(', ', array_map('quote', array_keys($langs)));
 $lang_y = implode(', ', $langs);
 
-$proj_x = implode(', ', array_map(function ($s) { return "'$s'"; },
-                                  array_keys($projs)));
+$proj_x = implode(', ', array_map('quote', array_keys($projs)));
 $proj_y = implode(', ', $projs);
 
 echo <<<HTML

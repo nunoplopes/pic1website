@@ -18,7 +18,6 @@ $tasks = [
   'patch_stats' => 'Update patch statistics',
   'repository'  => 'Update repository information',
   'licenses'    => 'Update list of licenses',
-  'prog_langs'  => 'Update list of programming languages',
 ];
 
 for ($i = 1; $i < sizeof($argv); ++$i) {
@@ -263,34 +262,6 @@ function run_licenses() {
   foreach ($data->licenses as $license) {
     if (!$license->isDeprecatedLicenseId)
       db_update_license($license->licenseId, $license->name);
-  }
-}
-
-function run_prog_langs() {
-  // List of programming languages
-  $languages = [
-    'C',
-    'C++',
-    'C#',
-    'Go',
-    'Haskell',
-    'Java',
-    'JavaScript',
-    'Julia',
-    'Kotlin',
-    'OCaml',
-    'Perl',
-    'PHP',
-    'Python',
-    'Ruby',
-    'Rust',
-    'Scala',
-    'Swift',
-    'TypeScript',
-  ];
-
-  foreach ($languages as $l) {
-    db_insert_prog_language($l);
   }
 }
 
