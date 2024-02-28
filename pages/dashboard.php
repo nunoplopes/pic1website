@@ -140,7 +140,7 @@ var layout = {
     text: 'Project Languages'
   }
 };
-Plotly.newPlot('langsplot', data, layout);
+Plotly.newPlot('langsplot', data, layout, config);
 </script>
 
 <div id='projsplot' style="max-width: 900px; max-height: 500px"></div>
@@ -163,7 +163,7 @@ var layout = {
     b: 150
   }
 };
-Plotly.newPlot('projsplot', data, layout);
+Plotly.newPlot('projsplot', data, layout, config);
 </script>
 
 HTML;
