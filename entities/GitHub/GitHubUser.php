@@ -69,11 +69,6 @@ class GitHubUser implements \RepositoryUserInterface
     $data      = $paginator->fetch($api, 'events', [$r->username()]);
 
     $response = $github_client->getLastResponse();
-    if ($response->getStatusCode() == 304) {
-      // no new events
-      return [];
-    }
-
     $user->repository_etag = $response->getHeader('etag')[0];
     $last_id
       = $data ? (int)$data[0]['id'] : $user->repository_last_processed_id;
