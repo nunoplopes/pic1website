@@ -2,12 +2,15 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+use Http\Client\Common\Plugin\Cache\Generator\HeaderCacheKeyGenerator;
+
 $github_builder = new Github\HttpClient\Builder;
 $github_client  = new \Github\Client($github_builder);
 $github_client->authenticate(GH_TOKEN, null, \Github\AuthMethod::ACCESS_TOKEN);
 
 $github_client->addCache(
-  new Symfony\Component\Cache\Adapter\PdoAdapter(DB_DSN, 'cache', 3*3600));
+  new Symfony\Component\Cache\Adapter\PdoAdapter(DB_DSN, 'cache', 3*3600),
+  ['cache_key_generator' => new HeaderCacheKeyGenerator(['If-None-Match'])]);
 
 function github_set_etag($etag) {
   $GLOBALS['github_builder']
