@@ -10,18 +10,16 @@ $github_client->authenticate(GH_TOKEN, null, \Github\AuthMethod::ACCESS_TOKEN);
 
 $github_client->addCache(
   new Symfony\Component\Cache\Adapter\PdoAdapter(DB_DSN, 'cache', 3*3600),
-  ['cache_key_generator' => new HeaderCacheKeyGenerator(['If-None-Match'])]);
+  ['cache_key_generator' => new HeaderCacheKeyGenerator(['If-None-Match']),
+   'default_ttl' => 3*3600,
+   'respect_response_cache_directives' => false]);
 
 function github_set_etag($etag) {
-  $GLOBALS['github_builder']
-    ->addPlugin(new Http\Client\Common\Plugin\HeaderSetPlugin([
-      'If-None-Match' => $etag,
-    ]));
+  $GLOBALS['github_builder']->addHeaderValue('If-None-Match', $etag);
 }
 
 function github_remove_etag() {
-  $GLOBALS['github_builder']
-    ->removePlugin('Http\Client\Common\Plugin\HeaderSetPlugin');
+  $GLOBALS['github_builder']->clearHeaders();
 }
 
 function github_parse_date($date) {
