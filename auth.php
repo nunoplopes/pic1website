@@ -16,7 +16,12 @@ function auth_set_user($user) {
 }
 
 function create_session($user) {
-  $session = new Session($user);
+  // get a fresh session id
+  do {
+    $session = new Session($user);
+    if (!db_fetch_session($session->id))
+      break;
+  } while (true);
   db_save($session);
 
   $time = $session->expires->getTimestamp();
