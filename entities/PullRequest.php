@@ -7,6 +7,7 @@ abstract class PullRequest
   public Repository $repository;
 
   abstract public function url() : string;
+  abstract public function branchURL() : string;
   abstract public function origin() : string;
   abstract public function isClosed() : bool;
   abstract public function wasMerged() : bool;

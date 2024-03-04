@@ -25,6 +25,12 @@ class GitHubPullRequest extends \PullRequest
            $this->number;
   }
 
+  public function branchURL() : string {
+    $data = $this->stats();
+    return 'https://github.com/' . $data['head']['repo']['full_name'] .
+           '/tree/' . $data['head']['ref'];
+  }
+
   public function origin() : string {
     $data = $this->stats();
     return strtr($data['head']['repo']['full_name'], '/', ':') . ':' .

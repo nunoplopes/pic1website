@@ -231,23 +231,31 @@ function run_repository() {
             email_ta($group,
                      "PIC1: PR opened for approved patch $patch->id",
                      "PR $pr of group $group was opened for ".
-                     "approved patch $patch->id.\n" . link_patch($patch));
+                     "approved patch $patch->id.\n\n" . link_patch($patch));
           } else {
             $patch->status = PATCH_PR_OPEN_ILLEGAL;
             error_group($group,
                         "PIC1: PR opened without approval",
                         "PR $pr of group $group was opened ".
-                        "without prior approval.");
+                        "without prior approval.\n\n" . link_patch($patch));
           }
           $processed = true;
           break;
         }
 
         if (!$processed) {
+          $patch = Patch::factory($group, $pr->branchURL(), PATCH_BUGFIX, '',
+                                  'Automatically generated', $group->prof());
+          $patch->setPR($pr);
+          $group->patches->add($patch);
+          db_save($patch);
+
           error_group($group,
                       "PIC1: PR opened without a corresponding patch entry",
                       "PR $pr of group $group was opened ".
-                       "without a corresponding patch entry on the website.");
+                      "without a corresponding patch entry on the website.\n\n".
+                      "Created a patch entry automatically: ".
+                      link_patch($patch));
         }
       }
     }
