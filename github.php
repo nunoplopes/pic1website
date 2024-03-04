@@ -12,7 +12,7 @@ $github_client->addCache(
   new Symfony\Component\Cache\Adapter\PdoAdapter(DB_DSN, 'cache', 3*3600),
   ['cache_key_generator' => new HeaderCacheKeyGenerator(['If-None-Match']),
    'default_ttl' => 3*3600,
-   'respect_response_cache_directives' => false]);
+   'respect_response_cache_directives' => []]);
 
 function github_set_etag($etag) {
   $GLOBALS['github_builder']->addHeaderValue('If-None-Match', $etag);
