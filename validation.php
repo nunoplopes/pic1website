@@ -9,7 +9,12 @@ class ValidationException extends Exception {
 }
 
 function check_url($url) {
-  if ($url !== '' && !preg_match('@^https?://@', $url))
+  //reject https://https://
+  if ($url !== '' &&
+      (!preg_match('@^https?://@', $url) ||
+      !filter_var($url, FILTER_VALIDATE_URL) ||
+       //reject https://https:// as it's a common mistake
+       preg_match('@^https?://https?://@', $url)))
     throw new ValidationException('Malformed URL');
   return $url;
 }
