@@ -47,6 +47,13 @@ $prev_status = $patch->status;
 handle_form($patch, [], $readonly,
             ['group', 'status', 'type', 'issue_url', 'description', 'review'],
             $extra_buttons);
+
+if (auth_at_least(ROLE_PROF)) {
+  $link = dolink('rmpatch', 'Delete', ['id' => $patch->id]);
+  echo "<p>&nbsp;</p>\n<p>", dolink('rmpatch', 'Delete', ['id' => $patch->id]),
+       "</p>\n";
+}
+
 mk_box_end();
 
 // notify students of the patch review
