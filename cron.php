@@ -116,7 +116,8 @@ function run_groups() {
         $group = db_create_group($year, $number, $shift);
       $group->resetStudents();
       foreach ($students as $id => $name) {
-        $group->addStudent(db_fetch_or_add_user($id, $name, ROLE_STUDENT));
+        $group->addStudent(
+          db_fetch_or_add_user($id, $name, ROLE_STUDENT, '', '', false, false));
       }
     }
   }
