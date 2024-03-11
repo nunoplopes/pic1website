@@ -98,6 +98,55 @@ Plotly.newPlot('plotdiv', data, layout, config);
 
 HTML;
 
+
+// % of merged patches
+$merged = [];
+$total = [];
+
+foreach (db_get_patch_stats() as $data) {
+  @$total[$data['year']] += $data['count'];
+
+  switch ($data['status']) {
+    case PATCH_MERGED:
+    case PATCH_MERGED_ILLEGAL:
+      @$merged[$data['year']] += $data['count'];
+  }
+}
+ksort($total);
+
+$pcmerged_x = [];
+$pcmerged_y = [];
+foreach ($total as $year => $n) {
+  $pcmerged_x[] = '"' . get_term_for($year) . '"';
+  $pcmerged_y[] = round(@$merged[$year] / $n, 2);
+}
+$pcmerged_x = implode(', ', $pcmerged_x);
+$pcmerged_y = implode(', ', $pcmerged_y);
+
+echo <<<HTML
+<div id='pcmergedplot' style="max-width: 500px"></div>
+<script>
+var data = [
+  {
+    x: [$pcmerged_x],
+    y: [$pcmerged_y],
+    type: 'bar'
+  }
+];
+var layout = {
+  title: {
+    text: 'Percentage of Merged PRs'
+  },
+  yaxis: {
+    tickformat: ',.0%'
+  }
+};
+Plotly.newPlot('pcmergedplot', data, layout, config);
+</script>
+HTML;
+
+
+// stats of projects selected this year
 $current_year = db_get_group_years()[0]['year'];
 
 foreach (db_fetch_groups($current_year) as $group) {

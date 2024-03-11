@@ -219,3 +219,17 @@ function db_get_merged_patch_stats() {
                        ->getQuery()
                        ->getArrayResult();
 }
+
+function db_get_patch_stats() {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('Patch', 'p')
+                       ->select(['g.year',
+                                 'p.status',
+                                 'COUNT(p.status) AS count'])
+                       ->join('p.group', 'g')
+                       ->groupBy('g.year, p.status')
+                       ->orderBy('g.year')
+                       ->getQuery()
+                       ->getArrayResult();
+}
