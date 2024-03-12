@@ -104,12 +104,26 @@ $merged = [];
 $total = [];
 
 foreach (db_get_patch_stats() as $data) {
-  @$total[$data['year']] += $data['count'];
-
   switch ($data['status']) {
+    case PATCH_WAITING_REVIEW:
+    case PATCH_REVIEWED:
+    case PATCH_APPROVED:
+      break;
+
     case PATCH_MERGED:
     case PATCH_MERGED_ILLEGAL:
       @$merged[$data['year']] += $data['count'];
+      // fallthrough
+
+    case PATCH_PR_OPEN:
+    case PATCH_PR_OPEN_ILLEGAL:
+    case PATCH_NOTMERGED:
+    case PATCH_NOTMERGED_ILLEGAL:
+      @$total[$data['year']] += $data['count'];
+      break;
+
+    default:
+     die('invalid patch status');
   }
 }
 ksort($total);
