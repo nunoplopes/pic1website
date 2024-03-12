@@ -12,6 +12,7 @@ require_once 'templates.php';
 $start = time();
 
 $tasks = [
+  'prune_cache' => 'Prune cache',
   'groups'      => "Update student's group information from fenix",
   'professors'  => 'Update list of professors/TAs from fenix',
   'gc_sessions' => 'Prune old sessions',
@@ -93,6 +94,10 @@ function get_courses() {
   return $courses;
 }
 
+
+function run_prune_cache() {
+  db_delete_cache();
+}
 
 // Update student's group information
 function run_groups() {

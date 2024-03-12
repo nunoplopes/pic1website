@@ -68,7 +68,6 @@ function db_fetch_or_add_user($username, $name, $role, $email = '',
     return $user;
   }
 
-  global $entityManager;
   $user = new User($username, $name, $email, $photo, $role, $dummy);
   db_save($user);
   return $user;
@@ -232,4 +231,9 @@ function db_get_patch_stats() {
                        ->orderBy('g.year')
                        ->getQuery()
                        ->getArrayResult();
+}
+
+function db_delete_cache() {
+  global $connection;
+  $connection->executeStatement('DROP TABLE cache_items');
 }
