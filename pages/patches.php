@@ -3,6 +3,7 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 require_once 'entities/Patch.php';
+require_once 'email.php';
 
 html_header("Patches");
 
@@ -25,6 +26,11 @@ if (isset($_POST['url'])) {
                         $_POST['issue_url'], $_POST['description'], $user);
     $group->patches->add($p);
     db_save($p);
+
+    $name = $user->shortName();
+    email_ta($group, 'PIC1: New patch',
+             "$name ($user) of group $group submitted a new patch\n\n" .
+             link_patch($patch));
   } catch (ValidationException $ex) {
     echo "<p style=\"color: red\">Failed to validate all fields: ",
          htmlspecialchars($ex->getMessage()), "</p>\n";

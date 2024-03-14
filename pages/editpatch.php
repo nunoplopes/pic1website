@@ -32,6 +32,12 @@ if (get_user()->role == ROLE_STUDENT &&
     isset($_POST['description']) &&
     $patch->description != $_POST['description']) {
   $patch->set_status(PATCH_WAITING_REVIEW);
+
+  $user = get_user();
+  $name = $user->shortName();
+  email_ta($group, 'PIC1: patch updated',
+           "$name ($user) requested review for an existing patch\n" .
+           link_patch($patch));
 }
 
 // Add approve/reject buttons to simplify the life of TAs
