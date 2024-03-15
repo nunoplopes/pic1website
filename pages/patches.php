@@ -30,7 +30,7 @@ if (isset($_POST['url'])) {
     $name = $user->shortName();
     email_ta($group, 'PIC1: New patch',
              "$name ($user) of group $group submitted a new patch\n\n" .
-             link_patch($patch));
+             link_patch($p));
   } catch (ValidationException $ex) {
     echo "<p style=\"color: red\">Failed to validate all fields: ",
          htmlspecialchars($ex->getMessage()), "</p>\n";
