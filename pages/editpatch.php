@@ -35,7 +35,7 @@ if (get_user()->role == ROLE_STUDENT &&
 
   $user = get_user();
   $name = $user->shortName();
-  email_ta($group, 'PIC1: patch updated',
+  email_ta($patch->group, 'PIC1: patch updated',
            "$name ($user) requested review for an existing patch\n" .
            link_patch($patch));
 }
