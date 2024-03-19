@@ -253,6 +253,7 @@ function run_repository() {
           $patch = Patch::factory($group, $pr->branchURL(), PATCH_BUGFIX, '',
                                   'Automatically generated', $group->prof());
           $patch->setPR($pr);
+          $patch->status = PATCH_PR_OPEN_ILLEGAL;
           $group->patches->add($patch);
           db_save($patch);
 
