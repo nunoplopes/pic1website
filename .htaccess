@@ -15,3 +15,8 @@ RewriteRule ^(.*)$ https://pic1dei.tecnico.ulisboa.pt/$1 [L,R=301]
   Order Allow,Deny
   Allow from all
 </Files>
+
+<Files favicon.ico>
+  Order Allow,Deny
+  Allow from all
+</Files>
