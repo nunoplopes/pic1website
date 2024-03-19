@@ -41,7 +41,8 @@ class GitHubPatch extends \Patch
     // canonicalize repo data and check if branch exists
     try {
       $github = $GLOBALS['github_client']->api('repository');
-      $data = $github->branches($org, $repo, $branch);
+      $data = $github->branches(urldecode($org), urldecode($repo),
+                                urldecode($branch));
       if (!preg_match('@https://api.github.com/repos/([^/]+)/([^/]+)/@',
                       $data['commit']['url'], $m)) {
         throw new \ValidationException("Couldn't parse github commit URL");
