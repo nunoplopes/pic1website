@@ -112,14 +112,14 @@ foreach (db_get_patch_stats() as $data) {
 
     case PATCH_MERGED:
     case PATCH_MERGED_ILLEGAL:
-      @$merged[$data['year']] += $data['count'];
+      @$merged[$data['year']][$data['type']] += $data['count'];
       // fallthrough
 
     case PATCH_PR_OPEN:
     case PATCH_PR_OPEN_ILLEGAL:
     case PATCH_NOTMERGED:
     case PATCH_NOTMERGED_ILLEGAL:
-      @$total[$data['year']] += $data['count'];
+      @$total[$data['year']][$data['type']] += $data['count'];
       break;
 
     default:
@@ -130,27 +130,37 @@ ksort($total);
 
 $pcmerged_x = [];
 $pcmerged_y = [];
-foreach ($total as $year => $n) {
+foreach ($total as $year => $data) {
   $pcmerged_x[] = '"' . get_term_for($year) . '"';
-  $pcmerged_y[] = round(@$merged[$year] / $n, 2);
+  foreach ($data as $type => $n) {
+    $pcmerged_y[$type][] = round(@$merged[$year][$type] / $n, 2);
+  }
 }
 $pcmerged_x = implode(', ', $pcmerged_x);
-$pcmerged_y = implode(', ', $pcmerged_y);
+$pcmerged_bug = implode(', ', $pcmerged_y[PATCH_BUGFIX]);
+$pcmerged_feat = implode(', ', $pcmerged_y[PATCH_FEATURE]);
 
 echo <<<HTML
 <div id='pcmergedplot' style="max-width: 500px"></div>
 <script>
-var data = [
-  {
-    x: [$pcmerged_x],
-    y: [$pcmerged_y],
-    type: 'bar'
-  }
-];
+var bugs = {
+  x: [$pcmerged_x],
+  y: [$pcmerged_bug],
+  name: 'Bug fixes',
+  type: 'bar'
+};
+var features = {
+  x: [$pcmerged_x],
+  y: [$pcmerged_feat],
+  name: 'Features',
+  type: 'bar'
+};
+var data = [bugs, features];
 var layout = {
   title: {
     text: 'Percentage of Merged PRs'
   },
+  barmode: 'group',
   yaxis: {
     tickformat: ',.0%'
   }

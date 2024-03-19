@@ -225,9 +225,10 @@ function db_get_patch_stats() {
                        ->from('Patch', 'p')
                        ->select(['g.year',
                                  'p.status',
+                                 'p.type',
                                  'COUNT(p.status) AS count'])
                        ->join('p.group', 'g')
-                       ->groupBy('g.year, p.status')
+                       ->groupBy('g.year, p.status, p.type')
                        ->orderBy('g.year')
                        ->getQuery()
                        ->getArrayResult();
