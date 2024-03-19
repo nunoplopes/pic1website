@@ -81,6 +81,7 @@ class GitHubUser implements \RepositoryUserInterface
 
     github_remove_etag();
     $user->repository_last_processed_id = $last_id;
-    return $events;
+    // returns events in cronological order
+    return array_reverse($events);
   }
 }
