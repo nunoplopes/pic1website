@@ -19,6 +19,44 @@ class GitHubPullRequest extends \PullRequest
                                     ->show($org, $repo, $this->number);
   }
 
+  public function comments() : array {
+    [$org, $repo] = GitHubRepository::getRepo($this->repository->name());
+    return
+      $GLOBALS['github_client']->api('issue')
+                               ->comments()->all($org, $repo, $this->number);
+  }
+
+  public function labels() : array {
+    [$org, $repo] = GitHubRepository::getRepo($this->repository->name());
+    return
+      $GLOBALS['github_client']->api('issue')
+                               ->labels()->all($org, $repo, $this->number);
+  }
+
+  public function has_label($label) : bool {
+    foreach (self::labels() as $l) {
+      if ($l['name'] == $label)
+        return true;
+    }
+    return false;
+  }
+
+  private function did_bot_merge($login, $txt) : bool {
+    $bots = [
+      // (bot username, comment string, label)
+      ['gopherbot',       ' has been merged.', null],
+      ['pytorchmergebot', '### Merge started', 'Merged'],
+    ];
+    foreach ($bots as $data) {
+      [$bot, $msg, $label] = $data;
+      if ($login == $bot &&
+          strpos($txt, $msg) !== false &&
+          (!$label || $this->has_label($label)))
+        return true;
+    }
+    return false;
+  }
+
   public function url() : string {
     //return $this->stats()['html_url'];
     return 'https://github.com/' . $this->repository->name() . '/pull/' .
@@ -42,7 +80,16 @@ class GitHubPullRequest extends \PullRequest
   }
 
   public function wasMerged() : bool {
-    return $this->stats()['merged'];
+    if ($this->stats()['merged'])
+      return true;
+
+    if ($this->isClosed()) {
+      foreach ($this->comments() as $c) {
+        if ($this->did_bot_merge($c['user']['login'], $c['body']))
+          return true;
+      }
+    }
+    return false;
   }
 
   public function mergedBy() : string {
