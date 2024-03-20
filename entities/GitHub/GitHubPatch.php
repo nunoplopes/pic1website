@@ -118,7 +118,7 @@ class GitHubPatch extends \Patch
     return "https://github.com/" .
             $repo->name() .
             "/compare/" .
-            $this->repo_branch;
+            urlencode($this->repo_branch);
   }
 
   public function setPR(\PullRequest $pr) {
