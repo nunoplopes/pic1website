@@ -3,7 +3,6 @@
     "doctrine/orm": "*",
     "doctrine/annotations": "*",
     "knplabs/github-api": "*",
-    "m4tthumphrey/php-gitlab-api": "*",
     "nyholm/psr7": "*",
     "symfony/cache": "*",
     "symfony/http-client": "*",
