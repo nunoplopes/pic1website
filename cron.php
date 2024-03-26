@@ -275,8 +275,7 @@ function run_licenses() {
   $url = 'https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json';
   $data = json_decode(file_get_contents($url));
   foreach ($data->licenses as $license) {
-    if (!$license->isDeprecatedLicenseId)
-      db_update_license($license->licenseId, $license->name);
+    db_update_license($license->licenseId, $license->name);
   }
 }
 
