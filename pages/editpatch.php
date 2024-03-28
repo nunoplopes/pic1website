@@ -113,6 +113,9 @@ if ($patch->isValid()) {
   echo '</ul>';
 } else {
   echo '<p>The patch is no longer available!</p>';
+  if ($pr = $patch->getPRURL()) {
+    echo '<p><a style="color: white" href="', $pr, '">PR</a></p>';
+  }
 }
 mk_box_end();
 mk_box_end();
