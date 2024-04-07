@@ -13,6 +13,8 @@ $deadline = db_fetch_deadline($group ? $group->year : get_current_year());
 
 mk_box_left_begin();
 
+$patch_accepted = false;
+
 if (isset($_POST['url'])) {
   if ($user->role == ROLE_STUDENT &&
       !$deadline->isPatchSubmissionActive())
@@ -27,6 +29,7 @@ if (isset($_POST['url'])) {
     $group->patches->add($p);
     db_save($p);
 
+    $patch_accepted = true;
     $name = $user->shortName();
     email_ta($group, 'PIC1: New patch',
              "$name ($user) of group $group submitted a new patch\n\n" .
@@ -158,28 +161,40 @@ if ($user->role == ROLE_STUDENT && $deadline->isPatchSubmissionActive()) {
   $bugfix = PATCH_BUGFIX;
   $feature = PATCH_FEATURE;
 
+  if ($patch_accepted) {
+    $url = $issue_url = 'https://...';
+    $description = $select_bugfix = $select_feature = '';
+  } else {
+    $url            = htmlspecialchars($_POST['url'] ?? 'https://...');
+    $issue_url      = htmlspecialchars($_POST['issue_url'] ?? 'https://...');
+    $description    = htmlspecialchars($_POST['description'] ?? '');
+    $type           = (int)($_POST['type'] ?? -1);
+    $select_bugfix  = $type == $bugfix  ? ' selected' : '';
+    $select_feature = $type == $feature ? ' selected' : '';
+  }
+
   echo <<<EOF
 <p>&nbsp;</p>
 <p>Submit new patch:</p>
 <form action="index.php?page=patches" method="post">
 
 <label for="url">URL:</label>
-<input type="text" id="url" name="url" value="https://..." size="50">
+<input type="text" id="url" name="url" value="$url" size="50">
 
 <br>
 <label for="type">Type:</label>
 <select name="type" id="type">
-<option value="$bugfix">Bug fix</option>
-<option value="$feature">Feature</option>
+<option value="$bugfix"$select_bugfix>Bug fix</option>
+<option value="$feature"$select_feature>Feature</option>
 </select>
 
 <br>
 <label for="issue_url">Issue URL:</label>
-<input type="text" id="issue_url" name="issue_url" value="https://..." size="50">
+<input type="text" id="issue_url" name="issue_url" value="$issue_url" size="50">
 
 <br>
 <label for="description">Description:</label>
-<textarea id="description" name="description" rows="5" cols="60"></textarea>
+<textarea id="description" name="description" rows="5" cols="60">$description</textarea>
 
 <p><input type="submit"></p>
 </form>
