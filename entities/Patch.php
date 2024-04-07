@@ -25,6 +25,10 @@ define('PATCH_NOTMERGED_ILLEGAL', 8);
 define('PATCH_BUGFIX', 0);
 define('PATCH_FEATURE', 1);
 
+define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
+  'github:oppia/oppia', // https://github.com/oppia/oppia/wiki/Make-a-pull-request#step-2-make-commits-locally-to-your-feature-branch
+]);
+
 
 /** @Entity
  *  @InheritanceType("SINGLE_TABLE")
@@ -126,12 +130,14 @@ abstract class Patch
       if (count($commits) != 1)
         throw new ValidationException('Only 1 commit allowed');
 
-      if (!preg_match('/#(\d+)/', $commits[0]['message'], $m))
+      $needs_issue = !in_array($repo->id, DONT_WANT_ISSUE_IN_COMMIT_MSG);
+
+      if (preg_match('/#(\d+)/', $commits[0]['message'], $m) != $needs_issue)
         throw new ValidationException(
           "Commit message doesn't reference the fixed issue:\n" .
           $commits[0]['message']);
 
-      if (!strstr($p->issue_url, $m[1]))
+      if ($needs_issue && !strstr($p->issue_url, $m[1]))
           throw new ValidationException(
             "Referenced issue #$m[1] doesn't match the specified issue URL: " .
             $p->issue_url);
