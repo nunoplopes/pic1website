@@ -126,8 +126,7 @@ function gen_authors($list) {
   foreach ($list as $author) {
     $name  = htmlspecialchars($author[1]);
     $email = htmlspecialchars($author[2]);
-    $emails = explode('@', $email);
-    if (sizeof($emails) != 2 || $emails[1] !== 'tecnico.ulisboa.pt')
+    if (!check_email($email))
       $email = '<span style="color: red">' . $email . '</span>';
 
     $data[] = "$name &lt;$email&gt;";

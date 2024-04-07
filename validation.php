@@ -17,3 +17,40 @@ function check_url($url) {
     throw new ValidationException('Malformed URL');
   return $url;
 }
+
+function check_email($email) {
+  return filter_var($email, FILTER_VALIDATE_EMAIL) &&
+         str_ends_with($email, '@tecnico.ulisboa.pt');
+}
+
+function has_similar_name($base, $name) {
+  $base = explode(' ', strtolower($base));
+  $name = explode(' ', strtolower($name));
+  return !array_diff($name, $base);
+}
+
+function check_reasonable_name($name, $group) {
+  if (!preg_match('/^\p{L}[\p{L}\']*(?: \p{L}[\p{L}\']*){1,7}$/Su', $name))
+    throw new ValidationException("Invalid name: $name");
+
+  if (preg_match('/\p{Lu}{2}/Su', $name))
+    throw new ValidationException(
+      "Name has too many capitalized letters: $name");
+
+  if (preg_match("/'\p{L}*'/Su", $name))
+    throw new ValidationException("Name has too many ': $name");
+
+  $matched = false;
+  foreach ($group->students as $user) {
+    $matched |= has_similar_name($user->name, $name);
+  }
+  if (!$matched)
+    throw new ValidationException(
+      "Name doesn't match any of the group's student names: $name");
+}
+
+function check_wrapped_text($text, $width) {
+  if (preg_match('/[^\n]{'.($width+1).'}/Su', $text))
+    throw new ValidationException(
+      "Text is not wrapped to $width characters:\n$text");
+}

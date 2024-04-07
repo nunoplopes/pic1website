@@ -80,7 +80,7 @@ abstract class Patch
     $p->group       = $group;
     $p->type        = (int)$type;
     $p->issue_url   = check_url($issue_url);
-    $p->description = $description;
+    $p->description = trim($description);
     $p->submitter   = $submitter;
 
     try {
@@ -89,15 +89,52 @@ abstract class Patch
       throw new ValidationException('Patch not found');
     }
 
+    if (!$p->description)
+      throw new ValidationException("Empty description");
+
     if (empty($p->students))
       throw new ValidationException("Patch has no recognized authors");
 
     if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
       throw new ValidationException('Unknown patch type');
 
+    $commits = $p->commits();
+
+    if (count($commits) == 0)
+      throw new ValidationException('No commit found in the given branch');
+
     foreach ($group->patches as $old_patch) {
       if ($p->origin() == $old_patch->origin())
         throw new ValidationException('Duplicated patch');
+      if ($p->issue_url && $p->issue_url == $old_patch->issue_url)
+        throw new ValidationException(
+          'There is already a patch for the same issue');
+    }
+
+    foreach ($commits as $commit) {
+      if (!check_email($commit['email']))
+        throw new ValidationException(
+          'Invalid email used in commit: ' . $commit['email']);
+
+      check_reasonable_name($commit['name'], $group);
+      check_wrapped_text($commit['message'], 72);
+    }
+
+    if ($p->type == PATCH_BUGFIX) {
+      if (!$p->issue_url)
+        throw new ValidationException('Issue field empty');
+      if (count($commits) != 1)
+        throw new ValidationException('Only 1 commit allowed');
+
+      if (!preg_match('/#(\d+)/', $commits[0]['message'], $m))
+        throw new ValidationException(
+          "Commit message doesn't reference the fixed issue:\n" .
+          $commits[0]['message']);
+
+      if (!strstr($p->issue_url, $m[1]))
+          throw new ValidationException(
+            "Referenced issue #$m[1] doesn't match the specified issue URL: " .
+            $p->issue_url);
     }
 
     return $p;
@@ -109,7 +146,7 @@ abstract class Patch
 
   abstract public function isValid() : bool;
   abstract public function origin() : string;
-  abstract protected function computeAuthors() : array;
+  abstract public function commits() : array;
   abstract protected function computeLinesAdded() : int;
   abstract protected function computeLinesDeleted() : int;
   abstract protected function computeFilesModified() : int;
@@ -149,7 +186,7 @@ abstract class Patch
       $this->files_modified = $this->computeFilesModified();
 
       $this->students->clear();
-      foreach ($this->computeAuthors() as $author) {
+      foreach ($this->allAuthors() as $author) {
         $login = $author[0];
         $email = $author[2];
         if ($this->students->contains($login))
@@ -174,7 +211,12 @@ abstract class Patch
 
   /// returns (login, name, email)*
   public function allAuthors() {
-    return $this->computeAuthors();
+    $authors = [];
+    foreach ($this->commits() as $commit) {
+      $authors[] = [$commit['username'], $commit['name'], $commit['email']];
+      $authors = array_merge($authors, $commit['co-authored']);
+    }
+    return array_unique($authors, SORT_REGULAR);
   }
 
   static function get_status_options() {

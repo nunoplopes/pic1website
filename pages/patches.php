@@ -33,7 +33,7 @@ if (isset($_POST['url'])) {
              link_patch($p));
   } catch (ValidationException $ex) {
     echo "<p style=\"color: red\">Failed to validate all fields: ",
-         htmlspecialchars($ex->getMessage()), "</p>\n";
+         nl2br(htmlspecialchars($ex->getMessage())), "</p>\n";
   }
 }
 

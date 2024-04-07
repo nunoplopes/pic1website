@@ -77,20 +77,25 @@ class GitHubPatch extends \Patch
                        $this->repo_branch);
   }
 
-  public function computeAuthors() : array {
-    $authors = [];
+  public function commits() : array {
+    $commits = [];
     foreach ($this->stats()['commits'] as $commit) {
-      $authors[] = [$commit['author']['login'] ?? '',
-                    $commit['commit']['author']['name'],
-                    $commit['commit']['author']['email']];
+      $commit['username'] = $commit['author']['login'] ?? '';
+      $commit['name']     = $commit['commit']['author']['name'];
+      $commit['email']    = $commit['commit']['author']['email'];
+      $commit['message']  = $commit['commit']['message'];
 
+      $authors = [];
       preg_match_all('/^Co-authored-by: ([^<]+) <([^>]+)>$/Sm',
                      $commit['commit']['message'], $m, PREG_SET_ORDER);
       foreach ($m as $author) {
         $authors[] = ['', $author[1], $author[2]];
       }
+      $commit['co-authored'] = array_unique($authors, SORT_REGULAR);
+
+      $commits[] = $commit;
     }
-    return array_unique($authors, SORT_REGULAR);
+    return $commits;
   }
 
   protected function computeLinesAdded() : int {
