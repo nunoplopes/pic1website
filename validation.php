@@ -23,9 +23,19 @@ function check_email($email) {
          str_ends_with($email, '@tecnico.ulisboa.pt');
 }
 
+function transliterate_str($str) {
+  $rules = <<<EOF
+:: NFD (NFC);
+:: [:Nonspacing Mark:] Remove;
+:: Lower();
+:: NFC (NFD);
+EOF;
+  return Transliterator::createFromRules($rules)->transliterate($str);
+}
+
 function has_similar_name($base, $name) {
-  $base = explode(' ', strtolower($base));
-  $name = explode(' ', strtolower($name));
+  $base = explode(' ', transliterate_str($base));
+  $name = explode(' ', transliterate_str($name));
   return !array_diff($name, $base);
 }
 
