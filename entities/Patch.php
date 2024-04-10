@@ -194,6 +194,7 @@ abstract class Patch
       $this->students->clear();
       foreach ($this->allAuthors() as $author) {
         $login = $author[0];
+        $name = $author[1];
         $email = $author[2];
         if ($this->students->contains($login))
           continue;
@@ -201,7 +202,8 @@ abstract class Patch
         foreach ($this->group->students as $student) {
           $repou = $student->getRepoUser();
           if (($repou && $login == $repou->username()) ||
-              (!$login && $email == $student->email)) {
+              $email == $student->email ||
+              has_similar_name($student->name, $name)) {
             $this->students->add($student);
             break;
           }
