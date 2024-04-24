@@ -92,7 +92,7 @@ class User
       RepositoryUser::check($this);
 
       if (($group = $this->getGroup()) &&
-          ($repo = $group->getRepository()) &&
+          ($repo = $group->getValidRepository()) &&
           $this->getRepoUser()->platform() != $repo->platform())
         throw new ValidationException("User's and group's platforms don't match");
     } catch (ValidationException $ex) {

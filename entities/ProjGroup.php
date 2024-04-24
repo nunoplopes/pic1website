@@ -112,6 +112,11 @@ class ProjGroup
     return $this->repository ? new Repository($this->repository) : null;
   }
 
+  public function getValidRepository() : ?Repository {
+    $repo = $this->getRepository();
+    return $repo && $repo->isValid() ? $repo : null;
+  }
+
   public function prof() : ?User {
     return $this->shift->prof;
   }

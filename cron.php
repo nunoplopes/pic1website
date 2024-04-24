@@ -204,7 +204,8 @@ function run_repository() {
     if (checkpoint())
       continue;
 
-    if (!$group->getRepository())
+    $group_repo = $group->getValidRepository();
+    if (!$group_repo)
       continue;
 
     echo "Processing group $group\n";
@@ -218,7 +219,7 @@ function run_repository() {
           continue;
 
         $pr = $event->pr;
-        if ($pr->repository != $group->getRepository())
+        if ($pr->repository != $group_repo)
           continue;
 
         echo "Processing new PR $pr\n";

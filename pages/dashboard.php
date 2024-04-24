@@ -174,7 +174,7 @@ HTML;
 $current_year = db_get_group_years()[0]['year'];
 
 foreach (db_fetch_groups($current_year) as $group) {
-  if ($repo = $group->getRepository()) {
+  if ($repo = $group->getValidRepository()) {
     if ($lang = $repo->language()) {
       @++$langs[(string)$lang];
     }
