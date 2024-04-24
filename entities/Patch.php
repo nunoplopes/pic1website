@@ -132,9 +132,10 @@ abstract class Patch
 
       $needs_issue = !in_array($repo->id, DONT_WANT_ISSUE_IN_COMMIT_MSG);
 
-      if (preg_match('/#(\d+)/', $commits[0]['message'], $m) != $needs_issue)
+      if (preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m)
+            != $needs_issue)
         throw new ValidationException(
-          "Commit message doesn't reference the fixed issue:\n" .
+          "Commit message doesn't reference the fixed issue properly:\n" .
           $commits[0]['message']);
 
       if ($needs_issue && !strstr($p->issue_url, $m[1]))
