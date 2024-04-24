@@ -21,6 +21,15 @@ class GitHubRepository implements \RepositoryInterface
     return $GLOBALS['github_client']->api('repo')->show($org, $repo);
   }
 
+  static function isValid($name) : bool {
+    try {
+      self::stats($name);
+      return true;
+    } catch (\Github\Exception\RuntimeException $e) {
+      return $e->getMessage() == 'Not Found' ? false : true;
+    }
+  }
+
   static function defaultBranch($name) : string {
     return self::stats($name)['default_branch'];
   }

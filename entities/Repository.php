@@ -26,6 +26,10 @@ class Repository
     assert(false);
   }
 
+  public function isValid() : string {
+    return $this->get('isValid');
+  }
+
   public function defaultBranch() : string {
     return $this->get('defaultBranch');
   }
