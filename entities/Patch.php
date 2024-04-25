@@ -121,7 +121,7 @@ abstract class Patch
           'Invalid email used in commit: ' . $commit['email']);
 
       check_reasonable_name($commit['name'], $group);
-      check_wrapped_text($commit['message'], 72);
+      check_wrapped_commit_text($commit['message'], 72);
     }
 
     if ($p->type == PATCH_BUGFIX) {

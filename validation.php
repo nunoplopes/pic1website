@@ -59,8 +59,8 @@ function check_reasonable_name($name, $group) {
       "Name doesn't match any of the group's student names: $name");
 }
 
-function check_wrapped_text($text, $width) {
-  if (preg_match('/[^\n]{'.($width+1).'}/Su', $text))
+function check_wrapped_commit_text($text, $width) {
+  if (preg_match('/^(?!Co-authored-by: ).{'.($width+1).'}/Sum', $text))
     throw new ValidationException(
       "Text is not wrapped to $width characters:\n$text");
 }
