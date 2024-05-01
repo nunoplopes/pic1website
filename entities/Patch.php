@@ -102,6 +102,9 @@ abstract class Patch
     if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
       throw new ValidationException('Unknown patch type');
 
+    if (in_array($p->branch(), ['main', 'master', 'develop']))
+      throw new ValidationException('Invalid branch name: ' . $p->branch());
+
     $commits = $p->commits();
 
     if (count($commits) == 0)
@@ -152,6 +155,7 @@ abstract class Patch
   }
 
   abstract public function isValid() : bool;
+  abstract public function branch() : string;
   abstract public function origin() : string;
   abstract public function commits() : array;
   abstract protected function computeLinesAdded() : int;

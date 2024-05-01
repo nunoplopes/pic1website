@@ -65,6 +65,10 @@ class GitHubPatch extends \Patch
     }
   }
 
+  public function branch() : string {
+    return explode(':', $this->repo_branch)[2];
+  }
+
   public function origin() : string {
     return $this->repo_branch;
   }
