@@ -112,6 +112,28 @@ class GitHubPullRequest extends \PullRequest
     return $this->stats()['changed_files'];
   }
 
+  public function failedCIjobs() : array {
+    [$org, $repo] = GitHubRepository::getRepo($this->repository->name());
+    $pr     = $GLOBALS['github_client']->api('pr');
+    $checks = $GLOBALS['github_client']->api('repo')->checkRuns();
+
+    $failed = [];
+
+    foreach ($pr->commits($org, $repo, $this->number) as $commit) {
+      $cks = $checks->allForReference($org, $repo, $commit['sha']);
+      foreach ($cks['check_runs'] as $check) {
+        if ($check['conclusion'] == 'failure') {
+          $failed[] = [
+            'name'   => $check['name'],
+            'commit' => $commit['sha'],
+            'time'   => github_parse_date($check['completed_at'])
+          ];
+        }
+      }
+    }
+    return $failed;
+  }
+
   public function getNumber() {
     return $this->number;
   }

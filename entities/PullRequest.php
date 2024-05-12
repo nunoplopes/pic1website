@@ -16,5 +16,6 @@ abstract class PullRequest
   abstract public function linesAdded() : int;
   abstract public function linesDeleted() : int;
   abstract public function filesModified() : int;
+  abstract public function failedCIjobs() : array; // [name, time]
   abstract public function __toString();
 }
