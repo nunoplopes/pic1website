@@ -9,6 +9,7 @@ $selected_year = $_POST['year'] ?? ($years[0]['year'] ?? '');
 $selected_shift
   = isset($_POST['shift']) ? db_fetch_shift_id($_POST['shift']) : null;
 $own_shifts_only = !empty($_POST['own_shifts']);
+$selected_repo = $_POST['repo'] ?? 'all';
 
 echo <<<EOF
 <form action="index.php?page=listprojects" method="post">
@@ -50,14 +51,42 @@ foreach (db_fetch_shifts($selected_year) as $shift) {
        "</option>\n";
 }
 
-echo <<<EOF
-</select>
-</form>
+echo "</select>\n";
+
+$groups = db_fetch_groups($selected_year);
+
+if (auth_at_least(ROLE_PROF)) {
+  echo <<<EOF
+<br>
+<label for="repo">Filter by repository:</label>
+<select name="repo" id="repo" onchange='this.form.submit()'>
+<option value="all">All</option>
 EOF;
+
+  $repos = [];
+  foreach ($groups as $group) {
+    if (!has_group_permissions($group))
+      continue;
+
+    if ($repo = $group->getRepositoryId())
+      $repos[$repo] = true;
+  }
+  $repos = array_keys($repos);
+  natsort($repos);
+
+  foreach ($repos as $repo) {
+    $select = $repo == $selected_repo ? ' selected' : '';
+    echo "<option value=\"$repo\"$select>", htmlspecialchars($repo),
+         "</option>\n";
+  }
+  echo "</select>\n";
+}
+
+echo "</form>\n";
 
 echo "<p>Groups:</p>\n";
 $table = [];
-foreach (db_fetch_groups($selected_year) as $group) {
+foreach ($groups as $group) {
   if (!has_group_permissions($group))
     continue;
 
@@ -65,6 +94,9 @@ foreach (db_fetch_groups($selected_year) as $group) {
     continue;
 
   if ($own_shifts_only && $group->prof() != get_user())
+    continue;
+
+  if ($selected_repo != 'all' && $group->getRepositoryId() != $selected_repo)
     continue;
 
   $students = [];
