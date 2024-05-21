@@ -113,6 +113,8 @@ if ($patch->isValid()) {
   echo '</ul>';
 } else {
   echo '<p>The patch is no longer available!</p>';
+  echo '<p><a style="color: white" href="', $patch->getPatchURL(),
+       '">Patch</a></p>';
   if ($pr = $patch->getPRURL()) {
     echo '<p><a style="color: white" href="', $pr, '">PR</a></p>';
   }
