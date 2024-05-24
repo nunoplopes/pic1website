@@ -30,6 +30,15 @@ class GitHubPatch extends \Patch
       if ($src_branch != $repository->defaultBranch())
         throw new \ValidationException("Patch is not against default branch");
     }
+    elseif (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^:]+):([^:]+):(.+)$@', $url, $m)) {
+      $src_repo   = $m[1]; // user/repo
+      $org        = $m[2];
+      $repo       = $m[3];
+      $branch     = $m[4];
+
+      if ($src_repo != $repository->name())
+        throw new \ValidationException("Patch is not for Project's repository");
+    }
     elseif (preg_match('@^https://github.com/([^/]+)/([^/]+)/tree/(.+)$@', $url, $m)) {
       $org    = $m[1];
       $repo   = $m[2];
