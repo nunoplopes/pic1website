@@ -75,7 +75,8 @@ abstract class Patch
 
   static function factory(ProjGroup $group, string $url, $type,
                           string $issue_url, string $description,
-                          User $submitter) : Patch {
+                          User $submitter,
+                          bool $ignore_errors = false) : Patch {
     $repo = $group->getRepository();
     if (!$repo)
       throw new ValidationException('Group has no repository yet');
@@ -93,61 +94,67 @@ abstract class Patch
       throw new ValidationException('Patch not found');
     }
 
-    if (!$p->description)
-      throw new ValidationException("Empty description");
+    try {
+      if (!$p->description)
+        throw new ValidationException("Empty description");
 
-    if (empty($p->students))
-      throw new ValidationException("Patch has no recognized authors");
+      if (empty($p->students))
+        throw new ValidationException("Patch has no recognized authors");
 
-    if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
-      throw new ValidationException('Unknown patch type');
+      if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
+        throw new ValidationException('Unknown patch type');
 
-    if (in_array($p->branch(), ['main', 'master', 'develop']))
-      throw new ValidationException('Invalid branch name: ' . $p->branch());
+      if (in_array($p->branch(), ['main', 'master', 'develop']))
+        throw new ValidationException('Invalid branch name: ' . $p->branch());
 
-    $commits = $p->commits();
+      $commits = $p->commits();
 
-    if (count($commits) == 0)
-      throw new ValidationException('No commit found in the given branch');
+      if (count($commits) == 0)
+        throw new ValidationException('No commit found in the given branch');
 
-    foreach ($group->patches as $old_patch) {
-      if ($p->origin() == $old_patch->origin())
-        throw new ValidationException('Duplicated patch');
-      if ($p->issue_url && $p->issue_url == $old_patch->issue_url)
-        throw new ValidationException(
-          'There is already a patch for the same issue');
-    }
+      foreach ($group->patches as $old_patch) {
+        if ($p->origin() == $old_patch->origin())
+          throw new ValidationException('Duplicated patch');
+        if ($p->issue_url && $p->issue_url == $old_patch->issue_url)
+          throw new ValidationException(
+            'There is already a patch for the same issue');
+      }
 
-    foreach ($commits as $commit) {
-      if (!check_email($commit['email']))
-        throw new ValidationException(
-          'Invalid email used in commit: ' . $commit['email']);
+      foreach ($commits as $commit) {
+        if (!check_email($commit['email']))
+          throw new ValidationException(
+            'Invalid email used in commit: ' . $commit['email']);
 
-      if (str_starts_with($commit['message'], 'Merge branch '))
-        throw new ValidationException('Merge commits are not allowed');
+        if (str_starts_with($commit['message'], 'Merge branch '))
+          throw new ValidationException('Merge commits are not allowed');
 
-      check_reasonable_name($commit['name'], $group);
-      check_wrapped_commit_text($commit['message'], 72);
-    }
+        check_reasonable_name($commit['name'], $group);
+        check_wrapped_commit_text($commit['message'], 72);
+      }
 
-    if ($p->type == PATCH_BUGFIX) {
-      if (!$p->issue_url)
-        throw new ValidationException('Issue field empty');
-      if (count($commits) != 1)
-        throw new ValidationException('Only 1 commit allowed');
+      if ($p->type == PATCH_BUGFIX) {
+        if (!$p->issue_url)
+          throw new ValidationException('Issue field empty');
+        if (count($commits) != 1)
+          throw new ValidationException('Only 1 commit allowed');
 
-      $needs_issue = !in_array($repo->id, DONT_WANT_ISSUE_IN_COMMIT_MSG);
+        $needs_issue = !in_array($repo->id, DONT_WANT_ISSUE_IN_COMMIT_MSG);
 
-      if (preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m)
-            != $needs_issue)
-        throw new ValidationException(
-          "Commit message doesn't reference the fixed issue properly:\n" .
-          $commits[0]['message']);
+        if (preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m)
+              != $needs_issue)
+          throw new ValidationException(
+            "Commit message doesn't reference the fixed issue properly:\n" .
+            $commits[0]['message']);
 
-      if ($needs_issue && !strstr($p->issue_url, $m[1]))
+        if ($needs_issue && !strstr($p->issue_url, $m[1]))
           throw new ValidationException(
             "Referenced issue #$m[1] doesn't match the specified issue URL: " .
             $p->issue_url);
+      }
+    } catch (ValidationException $ex) {
+      if (!$ignore_errors)
+        throw $ex;
+      $p->description .= "\n\nFailed validation:\n" . $ex->getMessage();
     }
 
     return $p;
