@@ -39,7 +39,7 @@ function fenix_get_auth_token($code) {
     'grant_type'    => 'authorization_code',
   ];
   $auth = fenix_do_post($url, $data);
-  if (isset($auth->error))
+  if (!$auth || isset($auth->error))
     return null;
 
   $auth->expires_in = time() + (int)$auth->expires_in;
@@ -74,7 +74,9 @@ function get_fnx($path, $year = null, $auth = null) {
 
   $data = http_build_query($data, '', '&', PHP_QUERY_RFC3986);
   $url = "https://fenix.tecnico.ulisboa.pt/api/fenix/v1/$path?$data";
-  return json_decode(@file_get_contents($url));
+  if (!($data = @file_get_contents($url)))
+    die("Fenix is dead; try again!\n");
+  return json_decode($data);
 }
 
 function get_current_year() {
