@@ -9,6 +9,7 @@ error_reporting(E_ALL);
 if (IN_PRODUCTION) {
   ini_set('display_errors', false);
   ini_set('log_errors', true);
+  ini_set('log_errors_max_len', 4096);
   ini_set('error_log', 'error.log');
 } else {
   ini_set('display_errors', true);
