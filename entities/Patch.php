@@ -190,18 +190,6 @@ abstract class Patch
   abstract public function getPR() : ?PullRequest;
 
   public function updateStats() {
-    if (!$this->isValid()) {
-      if ($this->status == PATCH_PR_OPEN_ILLEGAL) {
-        $this->status = PATCH_NOTMERGED_ILLEGAL;
-      } else if ($this->status <= PATCH_PR_OPEN) {
-        $this->status = PATCH_NOTMERGED;
-      }
-      $this->lines_added    = 0;
-      $this->lines_deleted  = 0;
-      $this->files_modified = 0;
-      return;
-    }
-
     if ($pr = $this->getPR()) {
       $legal = $this->status == PATCH_PR_OPEN;
       if ($pr->wasMerged()) {
@@ -215,27 +203,43 @@ abstract class Patch
 
       // Can't update author data here as github doesn't give us that data for
       // PRs. Since the branch may be deleted by now, the info is lost.
-    } else {
-      $this->lines_added    = $this->computeLinesAdded();
-      $this->lines_deleted  = $this->computeLinesDeleted();
-      $this->files_modified = $this->computeFilesModified();
 
-      $this->students->clear();
-      foreach ($this->allAuthors() as $author) {
-        $login = $author[0];
-        $name = $author[1];
-        $email = $author[2];
-        if ($this->students->contains($login))
-          continue;
+      return;
+    }
 
-        foreach ($this->group->students as $student) {
-          $repou = $student->getRepoUser();
-          if (($repou && $login == $repou->username()) ||
-              $email == $student->email ||
-              has_similar_name($student->name, $name)) {
-            $this->students->add($student);
-            break;
-          }
+    // check if branch was deleted in the meantime
+    if (!$this->isValid()) {
+      if ($this->status == PATCH_PR_OPEN_ILLEGAL) {
+        $this->status = PATCH_NOTMERGED_ILLEGAL;
+      } else if ($this->status <= PATCH_PR_OPEN) {
+        $this->status = PATCH_NOTMERGED;
+      }
+      $this->lines_added    = 0;
+      $this->lines_deleted  = 0;
+      $this->files_modified = 0;
+      return;
+    }
+
+    // Branch is valid, but no PR yet
+    $this->lines_added    = $this->computeLinesAdded();
+    $this->lines_deleted  = $this->computeLinesDeleted();
+    $this->files_modified = $this->computeFilesModified();
+
+    $this->students->clear();
+    foreach ($this->allAuthors() as $author) {
+      $login = $author[0];
+      $name  = $author[1];
+      $email = $author[2];
+      if ($this->students->contains($login))
+        continue;
+
+      foreach ($this->group->students as $student) {
+        $repou = $student->getRepoUser();
+        if (($repou && $login == $repou->username()) ||
+            $email == $student->email ||
+            has_similar_name($student->name, $name)) {
+          $this->students->add($student);
+          break;
         }
       }
     }
