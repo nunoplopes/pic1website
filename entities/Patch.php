@@ -129,6 +129,11 @@ abstract class Patch
         if (str_starts_with($commit['message'], 'Merge branch '))
           throw new ValidationException('Merge commits are not allowed');
 
+        if (empty($commit['co-authored']) &&
+            preg_match('/Co[- ]*authored[- ]*by\s*:.*/Si',
+                       $commit['commit']['message'], $m))
+          throw new ValidationException("Invalid Co-authored-by line:\n$m[0]");
+
         check_reasonable_name($commit['name'], $group);
         check_wrapped_commit_text($commit['message'], 72);
       }
