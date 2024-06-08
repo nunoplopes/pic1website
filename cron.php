@@ -235,10 +235,12 @@ function run_repository() {
               $patch->status == PATCH_PR_OPEN ||
               $patch->status == PATCH_NOTMERGED) {
             $patch->status = PATCH_PR_OPEN;
+            /*
             email_ta($group,
                      "PIC1: PR opened for approved patch $patch->id",
                      "PR $pr of group $group was opened for ".
                      "approved patch $patch->id.\n\n" . link_patch($patch));
+            */
           } else {
             $patch->status = PATCH_PR_OPEN_ILLEGAL;
             error_group($group,
