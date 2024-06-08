@@ -26,7 +26,7 @@ define('PATCH_BUGFIX', 0);
 define('PATCH_FEATURE', 1);
 
 define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
-  'github:oppia/oppia', // https://github.com/oppia/oppia/wiki/Make-a-pull-request#step-2-make-commits-locally-to-your-feature-branch
+  'github:oppia/oppia' => 'https://github.com/oppia/oppia/wiki/Make-a-pull-request#step-2-make-commits-locally-to-your-feature-branch',
 ]);
 
 
@@ -105,7 +105,8 @@ abstract class Patch
         throw new ValidationException('Unknown patch type');
 
       if (in_array($p->branch(), ['main', 'master', 'develop']))
-        throw new ValidationException('Invalid branch name: ' . $p->branch());
+        throw new ValidationException('Invalid branch name: ' . $p->branch().
+                                      "\nPlease use a different branch name");
 
       $commits = $p->commits();
 
@@ -132,21 +133,29 @@ abstract class Patch
         check_wrapped_commit_text($commit['message'], 72);
       }
 
+      if ($url_exception = DONT_WANT_ISSUE_IN_COMMIT_MSG[$repo->id] ?? '') {
+        foreach ($commits as $commit) {
+          if (preg_match('/Fix(?:es)?\s*#/i', $commit['message'])) {
+            throw new ValidationException(
+              "Commit message references an issue, but it shouldn't per the ".
+              "project's guidelines:\n$url_exception\n\n" .
+              $commit['message']);
+          }
+        }
+      }
+
       if ($p->type == PATCH_BUGFIX) {
         if (!$p->issue_url)
           throw new ValidationException('Issue field empty');
         if (count($commits) != 1)
           throw new ValidationException('Only 1 commit allowed');
 
-        $needs_issue = !in_array($repo->id, DONT_WANT_ISSUE_IN_COMMIT_MSG);
-
-        if (preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m)
-              != $needs_issue)
+        if (!preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m))
           throw new ValidationException(
             "Commit message doesn't reference the fixed issue properly:\n" .
             $commits[0]['message']);
 
-        if ($needs_issue && !strstr($p->issue_url, $m[1]))
+        if (!strstr($p->issue_url, $m[1]))
           throw new ValidationException(
             "Referenced issue #$m[1] doesn't match the specified issue URL: " .
             $p->issue_url);
