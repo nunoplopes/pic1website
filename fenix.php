@@ -125,12 +125,15 @@ function get_groups($course) {
   $data = get_fnx("courses/$course/groups");
   if (!$data)
     return [];
-  foreach ($data[0]->associatedGroups as $group) {
-    $students = [];
-    foreach ($group->members as $m) {
-      $students[$m->username] = $m->name;
+  foreach ($data as $proj) {
+    foreach ($proj->associatedGroups as $group) {
+      $students = [];
+      foreach ($group->members as $m) {
+        $students[$m->username] = $m->name;
+      }
+      assert(empty($groups[$group->groupNumber]));
+      $groups[$group->groupNumber] = [trim($group->shift), $students];
     }
-    $groups[$group->groupNumber] = [trim($group->shift), $students];
   }
   return $groups;
 }
