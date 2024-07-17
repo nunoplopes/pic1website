@@ -112,7 +112,7 @@ function run_groups() {
       $shift = db_fetch_shift($year, $shift);
       $group = db_fetch_group($year, $number, $shift);
 
-      if (!$students) {
+      if (!$students && (!$group || !$group->patches)) {
         db_delete($group);
         continue;
       }
