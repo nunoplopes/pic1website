@@ -140,7 +140,7 @@ abstract class Patch
 
       if ($url_exception = DONT_WANT_ISSUE_IN_COMMIT_MSG[$repo->id] ?? '') {
         foreach ($commits as $commit) {
-          if (preg_match('/Fix(?:es)?\s*#/i', $commit['message'])) {
+          if (preg_match('/Fix(?:es)? #/i', $commit['message'])) {
             throw new ValidationException(
               "Commit message references an issue, but it shouldn't per the ".
               "project's guidelines:\n$url_exception\n\n" .
