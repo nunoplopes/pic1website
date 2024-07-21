@@ -7,7 +7,11 @@ namespace GitHub;
 class GitHubUser implements \RepositoryUserInterface
 {
   static function stats(\RepositoryUser $user) {
-    return $GLOBALS['github_client']->api('user')->show($user->username());
+    try {
+      return $GLOBALS['github_client']->api('user')->show($user->username());
+    } catch (\Github\Exception\RuntimeException $e) {
+      return [];
+    }
   }
 
   static function profileURL(\RepositoryUser $user) : string {
@@ -15,19 +19,19 @@ class GitHubUser implements \RepositoryUserInterface
   }
 
   static function name(\RepositoryUser $user) : ?string {
-    return self::stats($user)['name'];
+    return self::stats($user)['name'] ?? null;
   }
 
   static function email(\RepositoryUser $user) : ?string {
-    return self::stats($user)['email'];
+    return self::stats($user)['email'] ?? null;
   }
 
   static function company(\RepositoryUser $user) : ?string {
-    return self::stats($user)['company'];
+    return self::stats($user)['company'] ?? null;
   }
 
   static function location(\RepositoryUser $user) : ?string {
-    return self::stats($user)['location'];
+    return self::stats($user)['location'] ?? null;
   }
 
   static function processEvents(&$events, $user, $data) {
@@ -64,24 +68,29 @@ class GitHubUser implements \RepositoryUserInterface
     $user = $r->user;
     github_set_etag($user->repository_etag);
 
-    $api       = $github_client->user('user');
-    $paginator = new \Github\ResultPager($github_client);
-    $data      = $paginator->fetch($api, 'events', [$r->username()]);
+    try {
+      $api       = $github_client->user('user');
+      $paginator = new \Github\ResultPager($github_client);
+      $data      = $paginator->fetch($api, 'events', [$r->username()]);
 
-    $response = $github_client->getLastResponse();
-    $user->repository_etag = $response->getHeader('etag')[0];
-    $last_id
-      = $data ? (int)$data[0]['id'] : $user->repository_last_processed_id;
+      $response = $github_client->getLastResponse();
+      $user->repository_etag = $response->getHeader('etag')[0];
+      $last_id
+        = $data ? (int)$data[0]['id'] : $user->repository_last_processed_id;
 
-    $events = [];
-    while (self::processEvents($events, $user, $data) &&
-           $paginator->hasNext()) {
-      $data = $paginator->fetchNext();
+      $events = [];
+      while (self::processEvents($events, $user, $data) &&
+             $paginator->hasNext()) {
+        $data = $paginator->fetchNext();
+      }
+
+      github_remove_etag();
+      $user->repository_last_processed_id = $last_id;
+      // returns events in cronological order
+      return array_reverse($events);
+
+    } catch (\Github\Exception\RuntimeException $e) {
+      return [];
     }
-
-    github_remove_etag();
-    $user->repository_last_processed_id = $last_id;
-    // returns events in cronological order
-    return array_reverse($events);
   }
 }
