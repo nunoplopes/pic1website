@@ -41,94 +41,33 @@ if (isset($_POST['url'])) {
 }
 
 
-if (isset($_GET['group']) && $_GET['group'] != 'all') {
-  $groups = [db_fetch_group_id((int)$_GET['group'])];
-} else if ($user->role == ROLE_STUDENT) {
-  $groups = $user->groups;
-} else {
-  $groups = db_fetch_groups(get_current_year());
-}
-
-$only_needs_review = !empty($_REQUEST['needs_review']);
-$only_open_patches = !empty($_REQUEST['open_patches']);
-$own_shifts_only   = !empty($_REQUEST['own_shifts']);
-$selected_shift    = @$_REQUEST['shift'] != 'all' ? @$_REQUEST['shift'] : null;
-
 if (auth_at_least(ROLE_TA)) {
-  $only_review_checked  = $only_needs_review ? ' checked' : '';
-  $open_patches_checked = $only_open_patches ? ' checked' : '';
-  $own_shifts_checked   = $own_shifts_only ? ' checked' : '';
-  echo <<<HTML
-<form action="index.php" method="get">
-<input type="hidden" name="page" value="patches">
-<label for="needs_review">Show only patches that need review</label>
-<input type="checkbox" id="needs_review" name="needs_review" value="1"
-onchange='this.form.submit()'$only_review_checked>
-<br>
-<label for="open_patches">Show only non-merged patches</label>
-<input type="checkbox" id="open_patches" name="open_patches" value="1"
-onchange='this.form.submit()'$open_patches_checked>
-<br>
-<label for="own_shifts">Show only own shifts</label>
-<input type="checkbox" id="own_shifts" name="own_shifts" value="1"
-onchange='this.form.submit()'$own_shifts_checked>
-<br>
-<label for="shift">Show specific shift:</label>
-<select name="shift" id="shift" onchange='this.form.submit()'>
-<option value="all">All</option>
-HTML;
-
-  foreach (db_fetch_shifts(get_current_year()) as $shift) {
-    if (!has_shift_permissions($shift))
-      continue;
-    if ($own_shifts_only && $shift->prof != get_user())
-      continue;
-    $select = $shift->id == $selected_shift ? ' selected' : '';
-    echo "<option value=\"$shift->id\"$select>", htmlspecialchars($shift->name),
-         "</option>\n";
-  }
-
-echo <<< HTML
-</select>
-<br>
-<label for="group">Filter by group:</label>
-<select name="group" id="group" onchange='this.form.submit()'>
-<option value="all">All</option>
-HTML;
-
-  foreach (db_fetch_groups(get_current_year()) as $group) {
-    if (!has_group_permissions($group))
-      continue;
-    if ($own_shifts_only && $group->prof() != get_user())
-      continue;
-    if ($selected_shift && $group->shift->id != $selected_shift)
-      continue;
-
-    $selected = @$_GET['group'] == $group->id ? ' selected' : '';
-    echo "<option value=\"{$group->id}\"$selected>", $group->group_number,
-         "</option>\n";
-  }
-
-  echo "</select></form><br>\n";
+  do_start_form('patches');
+  $selected_year     = do_year_selector();
+  $only_needs_review = do_bool_selector('Show only patches that need review',
+                                        'needs_review');
+  $only_open_patches = do_bool_selector('Show only non-merged patches',
+                                        'open_patches');
+  $own_shifts_only   = do_bool_selector('Show only own shifts', 'own_shifts');
+  $selected_shift    = do_shift_selector($selected_year, $own_shifts_only);
+  $selected_repo     = do_repo_selector($selected_year);
+  $groups            = do_group_selector($selected_year, $selected_shift,
+                                         $own_shifts_only, $selected_repo);
+  echo "</form><p>&nbsp;</p>\n";
+} else {
+  $groups = $user->groups;
 }
 
 $table = [];
 foreach ($groups as $group) {
-  if (!has_group_permissions($group))
-    continue;
-
-  if ($own_shifts_only && $group->prof() != get_user())
-    continue;
-
   foreach ($group->patches as $patch) {
-    if ($only_needs_review && $patch->status != PATCH_WAITING_REVIEW)
-      continue;
+    if (auth_at_least(ROLE_TA)) {
+      if ($only_needs_review && $patch->status != PATCH_WAITING_REVIEW)
+        continue;
 
-    if ($only_open_patches && $patch->status >= PATCH_MERGED)
-      continue;
-
-    if ($selected_shift && $group->shift->id != $selected_shift)
-      continue;
+      if ($only_open_patches && $patch->status >= PATCH_MERGED)
+        continue;
+    }
 
     $authors = [];
     foreach ($patch->students as $author) {

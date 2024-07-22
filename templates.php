@@ -285,3 +285,131 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
   }
   echo "</form>\n";
 }
+
+function do_start_form($page) {
+  echo <<<HTML
+<form action="index.php" method="get">
+<input type="hidden" name="page" value="$page">
+
+HTML;
+}
+
+function do_year_selector() {
+  $years = db_get_group_years();
+  $selected_year = $_REQUEST['year'] ?? ($years[0]['year'] ?? '');
+
+  echo <<<HTML
+<label for="year">Year:</label>
+<select name="year" id="year" onchange='this.form.submit()'>
+HTML;
+
+  foreach ($years as $year) {
+    $year = $year['year'];
+    $select = $year == $selected_year ? ' selected' : '';
+    echo "<option value=\"$year\"$select>$year/",$year+1,"</option>\n";
+  }
+  echo "</select>\n<br>\n";
+
+  return $selected_year;
+}
+
+function do_bool_selector($label, $var) {
+  $yes = !empty($_REQUEST[$var]);
+  $checked = $yes ? ' checked' : '';
+  echo <<<HTML
+<label for="$var">$label</label>
+<input type="checkbox" id="$var" name="$var" value="1"
+       onchange='this.form.submit()'$checked>
+<br>
+HTML;
+  return $yes;
+}
+
+function do_shift_selector($selected_year, $own_shifts_only) {
+  $selected_shift
+    = isset($_REQUEST['shift']) ? db_fetch_shift_id($_REQUEST['shift']) : null;
+
+  echo <<<HTML
+  <label for="shift">Show specific shift:</label>
+<select name="shift" id="shift" onchange='this.form.submit()'>
+<option value="all">All</option>
+HTML;
+
+  foreach (db_fetch_shifts($selected_year) as $shift) {
+    if (!has_shift_permissions($shift))
+      continue;
+    if ($own_shifts_only &&
+        $shift->prof != get_user())
+      continue;
+    $select = $shift == $selected_shift ? ' selected' : '';
+    echo "<option value=\"$shift->id\"$select>", htmlspecialchars($shift->name),
+         "</option>\n";
+  }
+  echo "</select>\n<br>\n";
+
+  return $selected_shift;
+}
+
+function do_group_selector($selected_year, $selected_shift, $own_shifts_only,
+                           $selected_repo) {
+echo <<< HTML
+<label for="group">Filter by group:</label>
+<select name="group" id="group" onchange='this.form.submit()'>
+<option value="all">All</option>
+HTML;
+
+  $user   = get_user();
+  $groups = [];
+  foreach (db_fetch_groups($selected_year) as $group) {
+    if (!has_group_permissions($group))
+      continue;
+    if ($own_shifts_only && $group->prof() != $user)
+      continue;
+    if ($selected_shift && $group->shift != $selected_shift)
+      continue;
+    if ($selected_repo != 'all' && $group->getRepositoryId() != $selected_repo)
+      continue;
+
+    $groups[] = $group;
+    $selected = @$_REQUEST['group'] == $group->id ? ' selected' : '';
+    echo "<option value=\"{$group->id}\"$selected>", $group->group_number,
+         "</option>\n";
+  }
+  echo "</select>\n<br>\n";
+
+  if (isset($_REQUEST['group']) && $_REQUEST['group'] != 'all') {
+    foreach ($groups as $group) {
+      if ($group->id == $_REQUEST['group'])
+        return [$group];
+    }
+  }
+  return $groups;
+}
+
+function do_repo_selector($selected_year) {
+  $selected_repo = $_REQUEST['repo'] ?? 'all';
+  echo <<<HTML
+  <label for="repo">Filter by repository:</label>
+  <select name="repo" id="repo" onchange='this.form.submit()'>
+  <option value="all">All</option>
+  HTML;
+
+    $repos = [];
+    foreach (db_fetch_groups($selected_year) as $group) {
+      if (!has_group_permissions($group))
+        continue;
+
+      if ($repo = $group->getRepositoryId())
+        $repos[$repo] = true;
+    }
+    $repos = array_keys($repos);
+    natsort($repos);
+
+    foreach ($repos as $repo) {
+      $select = $repo == $selected_repo ? ' selected' : '';
+      echo "<option value=\"$repo\"$select>", htmlspecialchars($repo),
+           "</option>\n";
+    }
+    echo "</select>\n<br>\n";
+    return $selected_repo;
+}
