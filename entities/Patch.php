@@ -293,6 +293,11 @@ abstract class Patch
     return $this->status < PATCH_MERGED;
   }
 
+  public function wasMerged() {
+    return $this->status == PATCH_MERGED ||
+           $this->status == PATCH_MERGED_ILLEGAL;
+  }
+
   public function set_status($status) {
     $status = (int)$status;
     if (!isset(self::get_status_options()[$status]))

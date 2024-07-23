@@ -182,6 +182,11 @@ foreach (db_fetch_groups($selected_year) as $group) {
       @++$langs[(string)$lang];
     }
     @++$projs[$repo->name()];
+
+    $prs_per_project[$repo->name()]['url'] = (string)$repo;
+    foreach ($group->patches as $patch) {
+      @++$prs_per_project[$repo->name()][$patch->type][$patch->wasMerged()];
+    }
   }
 }
 
@@ -194,6 +199,7 @@ if (sizeof($projs) > 10) {
 
 arsort($langs);
 arsort($projs);
+ksort($prs_per_project);
 
 $lang_x = implode(', ', array_map('quote', array_keys($langs)));
 $lang_y = implode(', ', $langs);
@@ -240,6 +246,57 @@ var layout = {
   }
 };
 Plotly.newPlot('projsplot', data, layout, config);
+</script>
+
+HTML;
+
+
+// Now a table with all projects
+echo <<<HTML
+<link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+<p>&nbsp;</p>
+<h2>All projects</h2>
+<div id="projects-table" style="max-width: 1100px"></div>
+<script>
+var tabledata = [
+
+HTML;
+
+$id = 0;
+foreach ($prs_per_project as $name => $stats) {
+  $total_bugs = array_sum($stats[PATCH_BUGFIX]);
+  $total_feat = array_sum($stats[PATCH_FEATURE]);
+  $bugs       = $stats[PATCH_BUGFIX][1] ?? 0;
+  $feat       = $stats[PATCH_FEATURE][1] ?? 0;
+  $bugs_pc    = $total_bugs ? round(($bugs / $total_bugs) * 100.0, 0) : 0;
+  $feat_pc    = $total_feat ? round(($feat / $total_feat) * 100.0, 0) : 0;
+  $url        = $stats['url'];
+  echo <<<HTML
+{id: $id, name: "$name", url: "$url", bugs: $bugs, bugs_pc: "$bugs_pc%",
+ features: $feat, features_pc: "$feat_pc%"},
+
+HTML;
+  ++$id;
+}
+
+echo <<<HTML
+];
+var table = new Tabulator("#projects-table", {
+  height: 205,
+  data: tabledata,
+  layout: "fitColumns",
+  columns: [
+    {title: "Project", field:"name", formatter:"link", formatterParams:{
+      labelField: "name",
+      urlField: "url"
+    }},
+    {title: "Merged PRs bug fixes", field: "bugs"},
+    {title: "Merged PRs bug fixes %", field: "bugs_pc", sorter:"number"},
+    {title: "Merged PRs features", field: "features"},
+    {title: "Merged PRs features %", field: "features_pc", sorter:"number"},
+  ],
+});
 </script>
 
 HTML;
