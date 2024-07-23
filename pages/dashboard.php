@@ -4,6 +4,10 @@
 
 html_header('Dashboard');
 
+do_start_form('dashboard');
+$selected_year = do_year_selector();
+echo "</form>\n";
+
 foreach (db_get_merged_patch_stats() as $entry) {
   $years[]          = '"' . get_term_for($entry['year']) . '"';
   $patches[]        = $entry['patches'];
@@ -171,9 +175,8 @@ HTML;
 
 
 // stats of projects selected this year
-$current_year = db_get_group_years()[0]['year'];
 
-foreach (db_fetch_groups($current_year) as $group) {
+foreach (db_fetch_groups($selected_year) as $group) {
   if ($repo = $group->getValidRepository()) {
     if ($lang = $repo->language()) {
       @++$langs[(string)$lang];
@@ -182,9 +185,11 @@ foreach (db_fetch_groups($current_year) as $group) {
   }
 }
 
-foreach ($projs as $proj => $n) {
-  if ($n == 1)
-    unset($projs[$proj]);
+if (sizeof($projs) > 10) {
+  foreach ($projs as $proj => $n) {
+    if ($n == 1)
+      unset($projs[$proj]);
+  }
 }
 
 arsort($langs);
