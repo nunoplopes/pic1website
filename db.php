@@ -127,7 +127,7 @@ function db_fetch_groups($year) {
                        ->findByYear($year, ['group_number' => 'ASC']);
 }
 
-function db_fetch_group($year, $number, Shift $shift) : ?ProjGroup {
+function db_fetch_group($year, $number) : ?ProjGroup {
   global $entityManager;
   return $entityManager->getRepository('ProjGroup')
                        ->findOneBy(['year'=>$year, 'group_number'=> $number]);

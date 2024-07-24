@@ -110,7 +110,7 @@ function run_groups() {
       $number += $base_number;
 
       $shift = db_fetch_shift($year, $shift);
-      $group = db_fetch_group($year, $number, $shift);
+      $group = db_fetch_group($year, $number);
 
       if (!$students && (!$group || !$group->patches)) {
         db_delete($group);
@@ -119,6 +119,7 @@ function run_groups() {
 
       if (!$group)
         $group = db_create_group($year, $number, $shift);
+      $group->shift = $shift;
       $group->resetStudents();
       foreach ($students as $id => $name) {
         $group->addStudent(
