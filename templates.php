@@ -60,10 +60,17 @@ function quote($str) {
   return "'" . htmlspecialchars($str) . "'";
 }
 
-function link_patch(Patch $patch) {
- return 'https://' . $_SERVER['HTTP_HOST'] . '/index.php?page=editpatch&id=' .
-        $patch->id;
+function do_ext_link($page, $args = []) {
+  'https://' . $_SERVER['HTTP_HOST'] . '/' . dourl($page, $args);
 }
+
+function link_patch(Patch $patch) {
+ return do_ext_link('editpatch', ['id' => $patch->id]);
+}
+
+function link_group(ProjGroup $group) {
+  return do_ext_link('listproject',  ['id' => $group->id]);
+ }
 
 function dourl($page, $args = [], $separator = '&amp;') {
   $args['page'] = $page;
