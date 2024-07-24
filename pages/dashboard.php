@@ -199,7 +199,7 @@ if (sizeof($projs) > 10) {
 
 arsort($langs);
 arsort($projs);
-ksort($prs_per_project);
+ksort($prs_per_project, SORT_NATURAL | SORT_FLAG_CASE);
 
 $lang_x = implode(', ', array_map('quote', array_keys($langs)));
 $lang_y = implode(', ', $langs);
@@ -257,7 +257,7 @@ echo <<<HTML
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
 <p>&nbsp;</p>
 <h2>All projects</h2>
-<div id="projects-table" style="max-width: 1100px"></div>
+<div id="projects-table" style="max-width: 999px"></div>
 <script>
 var tabledata = [
 
@@ -265,8 +265,8 @@ HTML;
 
 $id = 0;
 foreach ($prs_per_project as $name => $stats) {
-  $total_bugs = array_sum($stats[PATCH_BUGFIX]);
-  $total_feat = array_sum($stats[PATCH_FEATURE]);
+  $total_bugs = @array_sum($stats[PATCH_BUGFIX]);
+  $total_feat = @array_sum($stats[PATCH_FEATURE]);
   $bugs       = $stats[PATCH_BUGFIX][1] ?? 0;
   $feat       = $stats[PATCH_FEATURE][1] ?? 0;
   $bugs_pc    = $total_bugs ? round(($bugs / $total_bugs) * 100.0, 0) : 0;
@@ -283,7 +283,7 @@ HTML;
 echo <<<HTML
 ];
 var table = new Tabulator("#projects-table", {
-  height: 205,
+  height: 250,
   data: tabledata,
   layout: "fitColumns",
   columns: [
