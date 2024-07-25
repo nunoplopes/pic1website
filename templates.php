@@ -61,7 +61,7 @@ function quote($str) {
 }
 
 function do_ext_link($page, $args = []) {
-  return 'https://' . $_SERVER['HTTP_HOST'] . '/' . dourl($page, $args);
+  return 'https://' . $_SERVER['HTTP_HOST'] . '/' . dourl($page, $args, '&');
 }
 
 function link_patch(Patch $patch) {
