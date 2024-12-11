@@ -236,5 +236,5 @@ function db_get_patch_stats() {
 
 function db_delete_cache() {
   global $connection;
-  $connection->executeStatement('DROP TABLE cache_items');
+  $connection->executeStatement('DROP TABLE IF EXISTS cache_items');
 }
