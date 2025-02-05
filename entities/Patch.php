@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 define('PATCH_WAITING_REVIEW', 0);
 define('PATCH_REVIEWED', 1);
@@ -31,6 +33,12 @@ define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
 
 
 /** @Entity
+ *  @Table(name="patches",
+ *    uniqueConstraints={
+ *      @UniqueConstraint(name="unique_issue_per_group", columns={"group_id", "issue_url"}),
+ *      @UniqueConstraint(name="unique_issue_per_group", columns={"group_id", "repo_branch"}),
+ *    }
+ *  )
  *  @InheritanceType("SINGLE_TABLE")
  *  @DiscriminatorColumn(name="platform", type="string")
  *  @DiscriminatorMap({"github" = "GitHub\GitHubPatch"})
