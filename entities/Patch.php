@@ -33,7 +33,7 @@ define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
 
 
 /** @Entity
- *  @Table(name="patches",
+ *  @Table(name="Patch",
  *    uniqueConstraints={
  *      @UniqueConstraint(name="unique_issue_per_group", columns={"group_id", "issue_url"}),
  *      @UniqueConstraint(name="unique_issue_per_group", columns={"group_id", "repo_branch"}),
