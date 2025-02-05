@@ -253,8 +253,8 @@ HTML;
 
 // Now a table with all projects
 echo <<<HTML
-<link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
-<script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.js"></script>
 <p>&nbsp;</p>
 <h2>All projects</h2>
 <div id="projects-table" style="max-width: 999px"></div>
