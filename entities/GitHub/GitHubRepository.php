@@ -18,7 +18,7 @@ class GitHubRepository implements \RepositoryInterface
 
   static private function stats($name) {
     [$org, $repo] = self::getRepo($name);
-    return $GLOBALS['github_client']->api('repo')->show($org, $repo);
+    return $GLOBALS['github_client_cached']->api('repo')->show($org, $repo);
   }
 
   static function isValid($name) : bool {
