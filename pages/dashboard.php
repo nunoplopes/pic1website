@@ -28,7 +28,7 @@ $lines_deleted  = implode(', ', $lines_deleted);
 $files_modified = implode(', ', $files_modified);
 
 echo <<<HTML
-<script src='https://cdn.plot.ly/plotly-2.30.0.min.js'></script>
+<script src='https://cdn.plot.ly/plotly-3.0.0.min.js'></script>
 <div id='plotdiv' style="max-width: 900px"></div>
 <script>
 xData = [$years];
