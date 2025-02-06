@@ -59,16 +59,18 @@ foreach ($patch->comments as $comment) {
     $author = $comment->user->shortName() . ' (' . $comment->user->id . ')';
     $photo  = $comment->user->getPhoto();
   } else {
-    $author = 'Bot';
-    $photo  = 'https://api.dicebear.com/9.x/bottts/svg?seed=Liliana&scale=70&baseColor=00acc1&eyes=roundFrame02&mouth=smile01&texture[]&top=antenna';
+    $author = '';
+    $photo  = 'https://api.dicebear.com/9.x/bottts/svg?seed=Liliana&baseColor=00acc1&eyes=roundFrame02&mouth=smile01&texture[]&top=antenna';
   }
-  $text = nl2br(htmlspecialchars($comment->text));
+  $text = nl2br(htmlspecialchars(wordwrap($comment->text, 80, "\n", true)));
 
   echo <<<HTML
 <tr>
-  <td><b>$author</b><br>
-  <img src="$photo" alt="Photo"><br>
-  {$comment->time->format('d/m/Y H:i:s')}</td>
+  <td>
+    <p><img src="$photo" alt="Photo" width="100px"></p>
+    <p><b>$author</b></p>
+    <p>{$comment->time->format('d/m/Y H:i:s')}</p>
+  </td>
   <td>$text</td>
 </tr>
 HTML;

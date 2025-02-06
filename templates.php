@@ -83,8 +83,7 @@ function dolink($page, $txt, $args = []) {
 }
 
 function mk_box_left_begin() {
-  echo '<div style="display: inline-block">',
-       '<div style="float: left; max-width: 900px">';
+  echo '<div style="display: inline-block"><div style="float: left">';
 }
 
 function mk_box_right_begin() {
