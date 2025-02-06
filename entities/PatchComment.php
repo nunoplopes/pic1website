@@ -15,7 +15,7 @@ class PatchComment
   /** @Id @Column @GeneratedValue */
   public int $id;
 
-  /** @ManyToOne
+  /** @ManyToOne(inversedBy="comments")
    *  @JoinColumn(nullable=false)
    */
   public Patch $patch;
