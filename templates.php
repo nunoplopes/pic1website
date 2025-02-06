@@ -83,7 +83,8 @@ function dolink($page, $txt, $args = []) {
 }
 
 function mk_box_left_begin() {
-  echo '<div style="display: inline-block"><div style="float: left">';
+  echo '<div style="display: inline-block">',
+       '<div style="float: left; max-width: 900px">';
 }
 
 function mk_box_right_begin() {
@@ -130,7 +131,7 @@ function print_table($table) {
 }
 
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
-                     $extra_buttons = null) {
+                     $extra_buttons = null, $flush_db = true) {
   $class = new ReflectionClass($obj);
   $docReader = new AnnotationReader();
 
@@ -169,7 +170,8 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       }
       echo "</ul></span><p>&nbsp;</p>\n";
     } else {
-      db_flush();
+      if ($flush_db)
+        db_flush();
       echo '<p style="color: green">Database updated!</p>';
     }
   }
@@ -286,7 +288,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       $key = $args[0];
       $value = $args[1];
       echo "<input type=\"submit\" value=\"$name\"",
-           " onclick=\"document.getElementById('$key').value = '$value'\">\n";
+           " onclick=\"this.form.$key.value='$value'\">\n";
     }
     echo "</p>\n";
   }

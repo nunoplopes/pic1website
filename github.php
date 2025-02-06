@@ -53,6 +53,15 @@ class MyHttpBuilder extends Github\HttpClient\Builder {
     }
   }
 
+  public function addHeaderValue(string $header, string $headerValue): void {
+    $this->plugins[] = new HeaderSetPlugin([$header => $headerValue]);
+    $this->client = null;
+  }
+
+  public function clearHeaders(): void {
+    $this->removePlugin(Plugin\HeaderAppendPlugin::class);
+  }
+
   public function getHttpClient(): HttpMethodsClientInterface {
     if (!$this->client) {
       $stream = Psr17FactoryDiscovery::findStreamFactory();
@@ -74,7 +83,8 @@ class MyHttpBuilder extends Github\HttpClient\Builder {
   }
 }
 
-$github_client = new \Github\Client(new MyHttpBuilder(2 * 60));
+$github_builder = new MyHttpBuilder(5 * 60);
+$github_client  = new \Github\Client($github_builder);
 $github_client->authenticate(GH_TOKEN, null, \Github\AuthMethod::ACCESS_TOKEN);
 
 $github_client_cached = new \Github\Client(new MyHttpBuilder(10*24*3600));

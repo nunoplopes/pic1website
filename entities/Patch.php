@@ -9,8 +9,11 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\InheritanceType;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\OrderBy;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 
@@ -47,7 +50,9 @@ abstract class Patch
   /** @Id @Column @GeneratedValue */
   public int $id;
 
-  /** @ManyToOne(inversedBy="patches") */
+  /** @ManyToOne(inversedBy="patches")
+   *  @JoinColumn(nullable=false)
+   */
   public ProjGroup $group;
 
   /** @Column */
@@ -59,17 +64,13 @@ abstract class Patch
   /** @Column */
   public string $issue_url = 'https://...';
 
-  /** @Column(length=2000) */
-  public string $description;
-
-  /** @Column(length=1000) */
-  public string $review = '';
+  /** @OneToMany(targetEntity="PatchComment", mappedBy="patch", cascade={"persist"})
+   *  @OrderBy({"id" = "ASC"})
+   */
+  public $comments;
 
   /** @ManyToMany(targetEntity="User") */
   public $students;
-
-  /** @ManyToOne */
-  public User $submitter;
 
   /** @Column */
   public int $lines_added;
@@ -89,11 +90,13 @@ abstract class Patch
       throw new ValidationException('Group has no repository yet');
 
     $p = GitHub\GitHubPatch::construct($url, $repo);
-    $p->group       = $group;
-    $p->type        = (int)$type;
-    $p->issue_url   = check_url($issue_url);
-    $p->description = trim($description);
-    $p->submitter   = $submitter;
+    $p->group     = $group;
+    $p->type      = (int)$type;
+    $p->issue_url = check_url($issue_url);
+
+    $description = trim($description);
+    $p->comments->add(
+      new PatchComment($p, "Patch submitted\n$description", $submitter));
 
     try {
       $p->updateStats();
@@ -102,7 +105,7 @@ abstract class Patch
     }
 
     try {
-      if (!$p->description)
+      if (!$description)
         throw new ValidationException("Empty description");
 
       if (empty($p->students))
@@ -175,13 +178,15 @@ abstract class Patch
     } catch (ValidationException $ex) {
       if (!$ignore_errors)
         throw $ex;
-      $p->description .= "\n\nFailed validation:\n" . $ex->getMessage();
+      $p->comments->add(
+        new PatchComment($p, "Failed validation:\n" . $ex->getMessage()));
     }
 
     return $p;
   }
 
   public function __construct() {
+    $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
     $this->students = new \Doctrine\Common\Collections\ArrayCollection();
   }
 
@@ -305,6 +310,10 @@ abstract class Patch
            $this->status == PATCH_MERGED_ILLEGAL;
   }
 
+  public function getSubmitter() : User {
+    return $this->comments[0]->user;
+  }
+
   public function set_status($status) {
     $status = (int)$status;
     if (!isset(self::get_status_options()[$status]))
@@ -320,6 +329,4 @@ abstract class Patch
   }
 
   public function set_issue_url($url) { $this->issue_url = check_url($url); }
-  public function set_description($txt) { $this->description = $txt; }
-  public function set_review($txt) { $this->review = $txt; }
 }
