@@ -252,7 +252,9 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       echo "</select>";
     }
     else if (method_exists($obj, "get_$name"."_options")) {
-      echo "<select name=\"$name\" id=\"$name\">\n";
+      if (in_array($name, $readonly))
+        $freeze = ' disabled';
+      echo "<select name=\"$name\" id=\"$name\"$freeze>\n";
 
       $method_name = "get_$name"."_options";
       foreach ($obj->$method_name() as $id => $name) {

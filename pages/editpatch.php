@@ -27,6 +27,13 @@ mk_box_left_begin();
 
 $prev_status = $patch->status;
 
+$new_comment = trim($_POST['text'] ?? '');
+if ($new_comment && get_user()->role == ROLE_STUDENT) {
+  if ($patch->status == PATCH_REVIEWED || $patch->status == PATCH_NOTMERGED) {
+    $patch->set_status(PATCH_WAITING_REVIEW);
+  }
+}
+
 handle_form($patch, [], $readonly, ['group', 'status', 'type', 'issue_url'],
             null, false);
 
@@ -36,20 +43,13 @@ if (auth_at_least(ROLE_PROF)) {
        "</p>\n";
 }
 
-$new_comment = trim($_POST['text'] ?? '');
 if ($new_comment) {
-  $user = get_user();
-  if ($user->role == ROLE_STUDENT) {
-    if ($patch->status == PATCH_REVIEWED || $patch->status == PATCH_NOTMERGED) {
-      $patch->set_status(PATCH_WAITING_REVIEW);
-    }
-  }
   if ($patch->status != $prev_status) {
     $old = Patch::get_status_options()[$prev_status];
     $new = Patch::get_status_options()[$patch->status];
     $new_comment = "Status changed: $old → $new\n\n$new_comment";
   }
-  $patch->comments->add(new PatchComment($patch, $new_comment, $user));
+  $patch->comments->add(new PatchComment($patch, $new_comment, get_user()));
 }
 db_flush();
 
