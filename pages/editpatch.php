@@ -25,7 +25,7 @@ if (!auth_at_least(ROLE_TA) &&
 echo "<p>&nbsp;</p>\n";
 mk_box_left_begin();
 
-$prev_status = $patch->status;
+$prev_status = $patch->getStatus();
 
 $new_comment = trim($_POST['text'] ?? '');
 if ($new_comment && get_user()->role == ROLE_STUDENT) {
@@ -44,10 +44,9 @@ if (auth_at_least(ROLE_PROF)) {
 }
 
 if ($new_comment) {
-  if ($patch->status != $prev_status) {
-    $old = Patch::get_status_options()[$prev_status];
-    $new = Patch::get_status_options()[$patch->status];
-    $new_comment = "Status changed: $old → $new\n\n$new_comment";
+  $new_status = $patch->getStatus();
+  if ($new_status != $prev_status) {
+    $new_comment = "Status changed: $prev_status → $new_status\n\n$new_comment";
   }
   $patch->comments->add(new PatchComment($patch, $new_comment, get_user()));
 }
@@ -103,7 +102,7 @@ HTML;
 mk_box_end();
 
 // notify students of the patch review
-if ($patch->status != $prev_status) {
+if ($patch->getStatus() != $prev_status) {
   $subject = null;
   $patchurl = $patch->getPatchURL();
   $pic1link = link_patch($patch);

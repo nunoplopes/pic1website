@@ -83,7 +83,7 @@ abstract class Patch
 
   static function factory(ProjGroup $group, string $url, $type,
                           string $issue_url, string $description,
-                          User $submitter,
+                          ?User $submitter,
                           bool $ignore_errors = false) : Patch {
     $repo = $group->getRepository();
     if (!$repo)

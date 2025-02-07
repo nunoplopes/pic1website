@@ -174,15 +174,19 @@ function run_patch_stats() {
       try {
         $oldstatus = $patch->getStatus();
         $patch->updateStats();
+        $newstatus = $patch->getStatus();
 
-        if ($patch->getStatus() != $oldstatus) {
+        if ($newstatus != $oldstatus) {
+          $patch->comments->add(
+            new PatchComment($patch,
+              "Status changed: $oldstatus → $newstatus"));
           email_ta($group,
                    "PIC1: Patch $patch->id status changed (group $group)",
                    "Patch $patch->id of group $group changed status from " .
-                   "$oldstatus to " . $patch->getStatus() . "\n" .
+                   "$oldstatus to $newstatus\n" .
                    link_patch($patch));
           echo "Patch $patch->id changed status from $oldstatus to ",
-               $patch->getStatus(), "\n";
+               $newstatus, "\n";
         } else {
           echo "Patch $patch->id status unchanged\n";
         }
@@ -251,6 +255,8 @@ function run_repository() {
             */
           } else {
             $patch->status = PATCH_PR_OPEN_ILLEGAL;
+            $patch->comments->add(
+              new PatchComment($patch, "PR opened without approval"));
             error_group($group,
                         "PIC1: PR opened without approval",
                         "PR $pr of group $group was opened ".
@@ -262,7 +268,7 @@ function run_repository() {
 
         if (!$processed) {
           $patch = Patch::factory($group, $pr->branchURL(), PATCH_BUGFIX, '',
-                                  'Automatically generated', $group->prof(),
+                                  'Automatically generated', null,
                                   /*ignore_errors=*/true);
           $patch->setPR($pr);
           $patch->status = PATCH_PR_OPEN_ILLEGAL;
