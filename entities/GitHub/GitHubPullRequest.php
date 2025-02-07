@@ -112,22 +112,37 @@ class GitHubPullRequest extends \PullRequest
     return $this->stats()['changed_files'];
   }
 
-  public function failedCIjobs() : array {
+  public function failedCIjobs(string $hash) : array {
     [$org, $repo] = GitHubRepository::getRepo($this->repository->name());
-    $pr     = $GLOBALS['github_client']->api('pr');
-    $checks = $GLOBALS['github_client']->api('repo')->checkRuns();
+    $status  = $GLOBALS['github_client']->api('repo')->statuses();
+    $actions = $GLOBALS['github_client']->api('repo')->workflowRuns();
+    $jobs    = $GLOBALS['github_client']->api('repo')->workflowJobs();
 
     $failed = [];
 
-    foreach ($pr->commits($org, $repo, $this->number) as $commit) {
-      $cks = $checks->allForReference($org, $repo, $commit['sha']);
-      foreach ($cks['check_runs'] as $check) {
-        if ($check['conclusion'] == 'failure') {
-          $failed[] = [
-            'name'   => $check['name'],
-            'commit' => $commit['sha'],
-            'time'   => github_parse_date($check['completed_at'])
-          ];
+    // get status of 3rd-party checks
+    foreach ($status->combined($org, $repo, $hash)['statuses'] as $check) {
+      if ($check['state'] == 'failure') {
+        $failed[] = [
+          'name' => $check['context'],
+          'time' => github_parse_date($check['updated_at'])
+        ];
+      }
+    }
+
+    // get status of GitHub Actions checks
+    $runs = $actions->all($org, $repo, ['head_sha' => $hash]);
+    foreach ($runs['workflow_runs'] as $check) {
+      if ($check['conclusion'] == 'failure') {
+        // Each action can have multiple jobs
+        // Fetch the names of the specific jobs that failed
+        foreach ($jobs->all($org, $repo, $check['id'])['jobs'] as $job) {
+          if ($job['conclusion'] == 'failure') {
+            $failed[] = [
+              'name' => $job['name'],
+              'time' => github_parse_date($job['completed_at'])
+            ];
+          }
         }
       }
     }
