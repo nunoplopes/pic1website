@@ -97,6 +97,7 @@ class GitHubPatch extends \Patch
       $commit['name']     = $commit['commit']['author']['name'];
       $commit['email']    = $commit['commit']['author']['email'];
       $commit['message']  = $commit['commit']['message'];
+      $commit['hash']     = $commit['sha'];
 
       $authors = [];
       preg_match_all('/^Co-authored-by: ([^<]+) <([^>]+)>$/Sm',
@@ -109,6 +110,14 @@ class GitHubPatch extends \Patch
       $commits[] = $commit;
     }
     return $commits;
+  }
+
+  protected function computeBranchHash() : string {
+    $hash = '';
+    foreach ($this->stats()['commits'] as $commit) {
+      $hash = $commit['sha'];
+    }
+    return $hash;
   }
 
   protected function computeLinesAdded() : int {

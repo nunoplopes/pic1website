@@ -173,8 +173,10 @@ function run_patch_stats() {
         continue;
       try {
         $oldstatus = $patch->getStatus();
+        $oldhash   = $patch->hash;
         $patch->updateStats();
         $newstatus = $patch->getStatus();
+        $newhash   = $patch->hash;
 
         if ($newstatus != $oldstatus) {
           $patch->comments->add(
@@ -187,9 +189,15 @@ function run_patch_stats() {
                    link_patch($patch));
           echo "Patch $patch->id changed status from $oldstatus to ",
                $newstatus, "\n";
-        } else {
-          echo "Patch $patch->id status unchanged\n";
         }
+
+        if ($newhash != $oldhash) {
+          $patch->comments->add(
+            new PatchComment($patch, "New branch hash: $newhash"));
+          echo "Patch $patch->id changed hash from $oldhash to $newhash\n";
+        }
+        echo "Updated patch $patch->id\n";
+
       } catch (ValidationException $ex) {
         error_ta($group, "Patch $patch->id is broken", <<< EOF
 Cron job failed to process patch $patch->id

@@ -72,6 +72,9 @@ abstract class Patch
   /** @ManyToMany(targetEntity="User") */
   public $students;
 
+  /** @Column(length=64) */
+  public string $hash = '';
+
   /** @Column */
   public int $lines_added;
 
@@ -94,15 +97,16 @@ abstract class Patch
     $p->type      = (int)$type;
     $p->issue_url = check_url($issue_url);
 
-    $description = trim($description);
-    $p->comments->add(
-      new PatchComment($p, "Patch submitted\n$description", $submitter));
-
     try {
       $p->updateStats();
     } catch (Exception $ex) {
       throw new ValidationException('Patch not found');
     }
+
+    $description = trim($description);
+    $p->comments->add(
+      new PatchComment($p, "Patch submitted; hash: {$p->hash}\n\n$description",
+                       $submitter));
 
     try {
       if (!$description)
@@ -154,7 +158,7 @@ abstract class Patch
                                             "the end\n$msg");
             }
           }
-      }
+        }
 
         check_reasonable_name($commit['name'], $group);
         check_wrapped_commit_text($msg, 72);
@@ -206,6 +210,7 @@ abstract class Patch
   abstract public function branch() : string;
   abstract public function origin() : string;
   abstract public function commits() : array;
+  abstract protected function computeBranchHash() : string;
   abstract protected function computeLinesAdded() : int;
   abstract protected function computeLinesDeleted() : int;
   abstract protected function computeFilesModified() : int;
@@ -214,6 +219,8 @@ abstract class Patch
   abstract public function getPR() : ?PullRequest;
 
   public function updateStats() {
+    $this->hash = $this->computeBranchHash();
+
     if ($pr = $this->getPR()) {
       $legal = $this->status == PATCH_PR_OPEN;
       if ($pr->wasMerged()) {
