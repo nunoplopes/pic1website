@@ -100,7 +100,7 @@ class GitHubPatch extends \Patch
 
       $authors = [];
       preg_match_all('/^Co-authored-by: ([^<]+) <([^>]+)>$/Sm',
-                     $commit['commit']['message'], $m, PREG_SET_ORDER);
+                     $commit['message'], $m, PREG_SET_ORDER);
       foreach ($m as $author) {
         $authors[] = ['', $author[1], $author[2]];
       }

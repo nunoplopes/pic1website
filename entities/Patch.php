@@ -136,16 +136,28 @@ abstract class Patch
           throw new ValidationException(
             'Invalid email used in commit: ' . $commit['email']);
 
-        if (str_starts_with($commit['message'], 'Merge branch '))
+        $msg = $commit['message'];
+        if (str_starts_with($msg, 'Merge branch '))
           throw new ValidationException('Merge commits are not allowed');
 
         if (empty($commit['co-authored']) &&
-            preg_match('/Co[- ]*authored[- ]*by\s*:.*/Si',
-                       $commit['commit']['message'], $m))
+            preg_match('/Co[- ]*authored[- ]*by\s*:.*/Si', $msg, $m))
           throw new ValidationException("Invalid Co-authored-by line:\n$m[0]");
 
+        if (!empty($commit['co-authored'])) {
+          $coauthor = false;
+          foreach (explode("\n", trim($msg)) as $line) {
+            if (str_starts_with($line, 'Co-authored-by:')) {
+              $coauthor = true;
+            } else if ($coauthor) {
+              throw new ValidationException("Co-authored-by lines must be at ".
+                                            "the end\n$msg");
+            }
+          }
+      }
+
         check_reasonable_name($commit['name'], $group);
-        check_wrapped_commit_text($commit['message'], 72);
+        check_wrapped_commit_text($msg, 72);
       }
 
       if ($url_exception = DONT_WANT_ISSUE_IN_COMMIT_MSG[$repo->id] ?? '') {
