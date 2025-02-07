@@ -127,6 +127,19 @@ function db_fetch_groups($year) {
                        ->findByYear($year, ['group_number' => 'ASC']);
 }
 
+function db_fetch_groups_by_repo($year, $repo) {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('ProjGroup', 'g')
+                       ->select('g')
+                       ->where('g.year = :year')
+                       ->andWhere('g.repository = :repo')
+                       ->setParameter('year', $year)
+                       ->setParameter('repo', $repo)
+                       ->getQuery()
+                       ->getArrayResult();
+}
+
 function db_fetch_group($year, $number) : ?ProjGroup {
   global $entityManager;
   return $entityManager->getRepository('ProjGroup')

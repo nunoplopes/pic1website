@@ -130,12 +130,23 @@ class ProjGroup
     return (string)$this->group_number;
   }
 
+  public function set_repository($url) {
+    $new_repo = $url ? Repository::factory($url) : '';
+    // max 5 groups per repo
+    if ($new_repo && $new_repo != $this->repository) {
+      if (sizeof(db_fetch_groups_by_repo($this->year, $new_repo)) >= 5) {
+        throw new ValidationException(
+          'Exceed the maximum number of groups per repository');
+      }
+    }
+    $this->repository = $new_repo;
+  }
+
   public function getstr_repository() { return $this->repository ? (string)$this->getRepository() : ''; }
   public function set_project_name($name) { $this->project_name = $name; }
   public function set_project_description($description) { $this->project_description = $description; }
   public function set_project_website($url) { $this->project_website = check_url($url); }
   public function set_major_users($users) { $this->major_users = $users; }
-  public function set_repository($url) { $this->repository = $url ? Repository::factory($url) : ''; }
   public function set_cla($cla) { $this->cla = (bool)$cla; }
   public function set_dco($dco) { $this->dco = (bool)$dco; }
   public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
