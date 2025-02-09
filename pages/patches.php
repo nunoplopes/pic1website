@@ -2,7 +2,6 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-require_once 'entities/Patch.php';
 require_once 'email.php';
 
 html_header("Patches");
@@ -25,7 +24,7 @@ if (isset($_POST['url'])) {
 
   try {
     $p = Patch::factory($group, $_POST['url'], $_POST['type'],
-                        $_POST['issue_url'], $_POST['description'], $user);
+                        $_POST['description'], $user);
     $group->patches->add($p);
     db_save($p);
 
@@ -75,6 +74,7 @@ foreach ($groups as $group) {
     }
 
     $pr = $patch->getPRURL();
+    $issue = $patch->getIssueURL();
 
     $table[] = [
       'id'        => dolink('editpatch', $patch->id, ['id' => $patch->id]),
@@ -82,6 +82,7 @@ foreach ($groups as $group) {
                             ['id' => $group->id]),
       'Status'    => $patch->getStatus(),
       'Type'      => $patch->getType(),
+      'Issue'     => $issue ? '<a href="'. $issue . '">link</a>' : '',
       'Patch'     => '<a href="'. $patch->getPatchURL() . '">link</a>',
       'PR'        => $pr ? '<a href="'. $pr . '">link</a>' : '',
       '+'         => $patch->lines_added,
@@ -101,11 +102,10 @@ if ($user->role == ROLE_STUDENT && $deadline->isPatchSubmissionActive()) {
   $feature = PATCH_FEATURE;
 
   if ($patch_accepted) {
-    $url = $issue_url = 'https://...';
+    $url = 'https://...';
     $description = $select_bugfix = $select_feature = '';
   } else {
     $url            = htmlspecialchars($_POST['url'] ?? 'https://...');
-    $issue_url      = htmlspecialchars($_POST['issue_url'] ?? 'https://...');
     $description    = htmlspecialchars($_POST['description'] ?? '');
     $type           = (int)($_POST['type'] ?? -1);
     $select_bugfix  = $type == $bugfix  ? ' selected' : '';
@@ -126,10 +126,6 @@ if ($user->role == ROLE_STUDENT && $deadline->isPatchSubmissionActive()) {
 <option value="$bugfix"$select_bugfix>Bug fix</option>
 <option value="$feature"$select_feature>Feature</option>
 </select>
-
-<br>
-<label for="issue_url">Issue URL:</label>
-<input type="text" id="issue_url" name="issue_url" value="$issue_url" size="50">
 
 <br>
 <label for="description">Description:</label>

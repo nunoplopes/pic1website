@@ -3,6 +3,7 @@
     "doctrine/orm": "*",
     "doctrine/annotations": "*",
     "knplabs/github-api": "*",
+    "mpratt/embera": "*",
     "nyholm/psr7": "*",
     "symfony/cache": "*",
     "symfony/http-client": "*",

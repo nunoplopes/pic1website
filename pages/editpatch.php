@@ -34,8 +34,7 @@ if ($new_comment && get_user()->role == ROLE_STUDENT) {
   }
 }
 
-handle_form($patch, [], $readonly, ['group', 'status', 'type', 'issue_url'],
-            null, false);
+handle_form($patch, [], $readonly, ['group', 'status', 'type'], null, false);
 
 if (auth_at_least(ROLE_PROF)) {
   $link = dolink('rmpatch', 'Delete', ['id' => $patch->id]);
@@ -61,7 +60,7 @@ foreach ($patch->comments as $comment) {
     $author = '';
     $photo  = 'https://api.dicebear.com/9.x/bottts/svg?seed=Liliana&baseColor=00acc1&eyes=roundFrame02&mouth=smile01&texture[]&top=antenna';
   }
-  $text = nl2br(htmlspecialchars(wordwrap($comment->text, 80, "\n", true)));
+  $text = format_text($comment->text);
 
   echo <<<HTML
 <tr>
@@ -177,6 +176,9 @@ if ($patch->isValid()) {
       '">Patch</a></li>';
   if ($pr = $patch->getPRURL()) {
     echo '<li><a style="color: white" href="', $pr, '">PR</a></li>';
+  }
+  if ($issue = $patch->getIssueURL()) {
+    echo '<li><a style="color: white" href="', $issue, '">Issue</a></li>';
   }
   echo "<li><b>All authors:</b> ", gen_authors($patch->allAuthors()), "</li>\n";
   echo '</ul>';

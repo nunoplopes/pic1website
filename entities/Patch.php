@@ -38,7 +38,7 @@ define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
 /** @Entity
  *  @Table(name="Patch",
  *    uniqueConstraints={
- *      @UniqueConstraint(name="unique_repo_per_group", columns={"group_id", "repo_branch"}),
+ *      @UniqueConstraint(name="unique_branch_per_group", columns={"group_id", "repo_branch"}),
  *    }
  *  )
  *  @InheritanceType("SINGLE_TABLE")
@@ -60,9 +60,6 @@ abstract class Patch
 
   /** @Column */
   public int $type;
-
-  /** @Column */
-  public string $issue_url = 'https://...';
 
   /** @OneToMany(targetEntity="PatchComment", mappedBy="patch", cascade={"persist"})
    *  @OrderBy({"id" = "ASC"})
@@ -90,17 +87,15 @@ abstract class Patch
   public int $files_modified;
 
   static function factory(ProjGroup $group, string $url, $type,
-                          string $issue_url, string $description,
-                          ?User $submitter,
+                          string $description, User $submitter,
                           bool $ignore_errors = false) : Patch {
     $repo = $group->getRepository();
     if (!$repo)
       throw new ValidationException('Group has no repository yet');
 
-    $p = GitHub\GitHubPatch::construct($url, $repo);
-    $p->group     = $group;
-    $p->type      = (int)$type;
-    $p->issue_url = check_url($issue_url);
+    $p        = GitHub\GitHubPatch::construct($url, $repo);
+    $p->group = $group;
+    $p->type  = (int)$type;
 
     try {
       $p->updateStats();
@@ -135,9 +130,6 @@ abstract class Patch
       foreach ($group->patches as $old_patch) {
         if ($p->origin() == $old_patch->origin())
           throw new ValidationException('Duplicated patch');
-        if ($p->issue_url && $p->issue_url == $old_patch->issue_url)
-          throw new ValidationException(
-            'There is already a patch for the same issue');
       }
 
       foreach ($commits as $commit) {
@@ -181,8 +173,6 @@ abstract class Patch
       }
 
       if ($p->type == PATCH_BUGFIX) {
-        if (!$p->issue_url)
-          throw new ValidationException('Issue field empty');
         if (count($commits) != 1)
           throw new ValidationException('Only 1 commit allowed');
 
@@ -191,10 +181,11 @@ abstract class Patch
             "Commit message doesn't reference the fixed issue properly:\n" .
             $commits[0]['message']);
 
-        if (!strstr($p->issue_url, $m[1]))
+        $issue_url = $p->getIssueURL();
+        if (!strstr($issue_url, $m[1]))
           throw new ValidationException(
             "Referenced issue #$m[1] doesn't match the specified issue URL: " .
-            $p->issue_url);
+            $issue_url);
       }
     } catch (ValidationException $ex) {
       if (!$ignore_errors)
@@ -287,6 +278,16 @@ abstract class Patch
     return $pr ? $pr->url() : null;
   }
 
+  public function getIssueURL() : string {
+    if ($this->type != PATCH_BUGFIX)
+      return '';
+
+    $bug = db_fetch_bug_user($this->group->year, $this->getSubmitter());
+    if ($bug === null)
+      throw new ValidationException('Patch does not have a bug associated');
+    return $bug->issue_url;
+  }
+
   /// returns (login, name, email)*
   public function allAuthors() {
     $authors = [];
@@ -335,13 +336,12 @@ abstract class Patch
            $this->status == PATCH_MERGED_ILLEGAL;
   }
 
-  public function getSubmitter() : ?User {
+  public function getSubmitter() : User {
     return $this->comments[0]->user;
   }
 
   public function getSubmitterName() : string {
-    $user = $this->getSubmitter();
-    return $user ? $user->shortName() : '(Bot)';
+    return $this->getSubmitter()->shortName();
   }
 
   public function getHashes() {
@@ -375,6 +375,4 @@ abstract class Patch
       throw new ValidationException('invalid type');
     $this->type = $type;
   }
-
-  public function set_issue_url($url) { $this->issue_url = check_url($url); }
 }

@@ -36,6 +36,7 @@ function html_footer() {
     ['dashboard', 'Statistics', ROLE_STUDENT],
     ['profile', 'Edit profile', ROLE_STUDENT],
     ['listprojects', 'Projects', ROLE_STUDENT],
+    ['bugs', 'Bugs', ROLE_STUDENT],
     ['patches', 'Patches', ROLE_STUDENT],
     ['shifts', 'Shifts', ROLE_PROF],
     ['deadlines', 'Deadlines', ROLE_PROF],
@@ -80,6 +81,10 @@ function dourl($page, $args = [], $separator = '&amp;') {
 
 function dolink($page, $txt, $args = []) {
   return '<a href="' . dourl($page, $args) . "\">$txt</a>";
+}
+
+function format_text($text) {
+  return nl2br(htmlspecialchars(wordwrap($text, 80, "\n", true)));
 }
 
 function mk_box_left_begin() {

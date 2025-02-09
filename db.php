@@ -214,6 +214,41 @@ function db_fetch_patch_id($id) : ?Patch {
   return $entityManager->find('Patch', $id);
 }
 
+function db_fetch_bug_issue(int $year, string $issue_url) : ?SelectedBug {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('SelectedBug', 'b')
+                       ->select('b')
+                       ->where('b.year = :year')
+                       ->andWhere('b.issue_url = :url')
+                       ->setParameter('year', $year)
+                       ->setParameter('url', $issue_url)
+                       ->getQuery()
+                       ->getOneOrNullResult();
+}
+
+function db_fetch_bug_user(int $year, User $user) : ?SelectedBug {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('SelectedBug', 'b')
+                       ->select('b')
+                       ->where('b.year = :year')
+                       ->andWhere('b.user = :user')
+                       ->setParameter('year', $year)
+                       ->setParameter('user', $user->id)
+                       ->getQuery()
+                       ->getOneOrNullResult();
+}
+
+function db_fetch_bugs_group(ProjGroup $group) : array {
+  $bugs = [];
+  foreach ($group->students as $student) {
+    if ($bug = db_fetch_bug_user($group->year, $student))
+      $bugs[] = $bug;
+  }
+  return $bugs;
+}
+
 function db_get_merged_patch_stats() {
   global $entityManager;
   return $entityManager->createQueryBuilder()
