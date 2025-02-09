@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -36,7 +37,9 @@ class SelectedBug
   /** @Column(length=4096) */
   public string $description;
 
-  /** @ManyToOne */
+  /** @ManyToOne
+   *  @JoinColumn(nullable=false)
+   */
   public User $user;
 
   static function factory(ProjGroup $group, User $user, string $description,
