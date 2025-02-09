@@ -76,6 +76,27 @@ HTML;
 }
 echo "</table>\n";
 
+$ci_failures = [];
+foreach ($patch->ci_failures as $ci) {
+  $ci_failures[$ci->hash][] = $ci->name;
+}
+
+if ($ci_failures) {
+  echo <<<HTML
+<p>&nbsp;</p>
+<p><b>CI Failures:</b></p>
+<table>
+  <tr><th>Commit hash</th><th>Failed CI jobs</th></tr>
+HTML;
+
+  foreach ($ci_failures as $hash => $names) {
+    echo "<tr><td>$hash</td><td>",
+         nl2br(htmlspecialchars(implode("\n", $names))),
+         "</td></tr>\n";
+  }
+  echo "</table>\n";
+}
+
 // Add approve/reject buttons to simplify the life of TAs
 $extra_buttons = '';
 if ($patch->status <= PATCH_REVIEWED && auth_at_least(ROLE_TA)) {

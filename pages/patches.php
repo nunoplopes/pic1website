@@ -87,7 +87,7 @@ foreach ($groups as $group) {
       '+'         => $patch->lines_added,
       '-'         => $patch->lines_deleted,
       'Files'     => $patch->files_modified,
-      'Submitter' => htmlspecialchars($patch->getSubmitter()->shortName()),
+      'Submitter' => htmlspecialchars($patch->getSubmitterName()),
       'Authors'   => implode(', ', $authors),
     ];
   }

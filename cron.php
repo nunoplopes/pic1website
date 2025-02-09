@@ -196,6 +196,16 @@ function run_patch_stats() {
             new PatchComment($patch, "New branch hash: $newhash"));
           echo "Patch $patch->id changed hash from $oldhash to $newhash\n";
         }
+
+        if ($pr = $patch->getPR()) {
+          foreach ($patch->getHashes() as $hash) {
+            $failed = $pr->failedCIjobs($hash);
+            foreach ($failed as $job) {
+              $patch->addCIError($hash, $job['name']);
+            }
+          }
+        }
+
         echo "Updated patch $patch->id\n";
 
       } catch (ValidationException $ex) {

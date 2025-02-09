@@ -69,6 +69,11 @@ abstract class Patch
    */
   public $comments;
 
+  /** @OneToMany(targetEntity="PatchCIError", mappedBy="patch", cascade={"persist"})
+   *  @OrderBy({"id" = "ASC"})
+   */
+  public $ci_failures;
+
   /** @ManyToMany(targetEntity="User") */
   public $students;
 
@@ -202,8 +207,9 @@ abstract class Patch
   }
 
   public function __construct() {
-    $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
-    $this->students = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->comments    = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->ci_failures = new \Doctrine\Common\Collections\ArrayCollection();
+    $this->students    = new \Doctrine\Common\Collections\ArrayCollection();
   }
 
   abstract public function isValid() : bool;
@@ -329,8 +335,31 @@ abstract class Patch
            $this->status == PATCH_MERGED_ILLEGAL;
   }
 
-  public function getSubmitter() : User {
+  public function getSubmitter() : ?User {
     return $this->comments[0]->user;
+  }
+
+  public function getSubmitterName() : string {
+    $user = $this->getSubmitter();
+    return $user ? $user->shortName() : '(Bot)';
+  }
+
+  public function getHashes() {
+    $hashes = [];
+    foreach ($this->comments as $comment) {
+      if (preg_match('/New branch hash: (\S+)/', $comment->text, $m))
+        $hashes[] = $m[1];
+    }
+    $hashes[] = $this->hash;
+    return $hashes;
+  }
+
+  public function addCIError($hash, $name) {
+    foreach ($this->ci_failures as $error) {
+      if ($error->hash == $hash && $error->name == $name)
+        return;
+    }
+    $this->ci_failures->add(new PatchCIError($this, $hash, $name));
   }
 
   public function set_status($status) {
