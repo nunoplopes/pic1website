@@ -182,6 +182,9 @@ abstract class Patch
             $commits[0]['message']);
 
         $issue_url = $p->getIssueURL();
+        if (!$issue_url)
+          throw new ValidationException('Patch does not have a bug associated');
+
         if (!strstr($issue_url, $m[1]))
           throw new ValidationException(
             "Referenced issue #$m[1] doesn't match the specified issue URL: " .
@@ -278,14 +281,12 @@ abstract class Patch
     return $pr ? $pr->url() : null;
   }
 
-  public function getIssueURL() : string {
+  public function getIssueURL() : ?string {
     if ($this->type != PATCH_BUGFIX)
-      return '';
+      return null;
 
     $bug = db_fetch_bug_user($this->group->year, $this->getSubmitter());
-    if ($bug === null)
-      throw new ValidationException('Patch does not have a bug associated');
-    return $bug->issue_url;
+    return $bug === null ? null : $bug->issue_url;
   }
 
   /// returns (login, name, email)*
