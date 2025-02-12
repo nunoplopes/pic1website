@@ -82,6 +82,12 @@ class ProjGroup
   /** @Column */
   public string $patch_submission = 'https://...';
 
+  /** @Column(length=40) */
+  public string $hash_proposal_file = '';
+
+  /** @Column */
+  public string $url_proposal = '';
+
   /** @Column */
   public DateTimeImmutable $allow_modifications_date;
 

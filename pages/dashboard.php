@@ -2,11 +2,7 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-html_header('Dashboard');
-
-do_start_form('dashboard');
-$selected_year = do_year_selector();
-echo "</form>\n";
+$selected_year = filter_by(['year']);
 
 foreach (db_get_merged_patch_stats() as $entry) {
   $years[]          = '"' . get_term_for($entry['year']) . '"';

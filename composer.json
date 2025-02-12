@@ -6,9 +6,14 @@
     "mpratt/embera": "*",
     "nyholm/psr7": "*",
     "symfony/cache": "*",
+    "symfony/form": "*",
     "symfony/http-client": "*",
+    "symfony/http-foundation": "*",
     "symfony/mailer": "*",
-    "symfony/mailgun-mailer": "*"
+    "symfony/mailgun-mailer": "*",
+    "symfony/translation": "*",
+    "symfony/twig-bridge": "*",
+    "twig/twig": "*"
   },
   "autoload": {
     "psr-4": {"": "entities"}
