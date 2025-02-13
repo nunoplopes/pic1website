@@ -37,7 +37,7 @@
 
 {% if error_message is defined and error_message %}
   <div class="alert alert-danger" role="alert">
-    {{ error_message }}
+    {{ error_message|nl2br }}
   </div>
 {% endif %}
 

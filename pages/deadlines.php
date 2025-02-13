@@ -4,11 +4,9 @@
 
 auth_require_at_least(ROLE_PROF);
 
-html_header("Deadlines");
-
 $year = get_current_year();
-$deadline = db_fetch_deadline($year);
+$obj = db_fetch_deadline($year);
 
-handle_form($deadline,
+handle_form($obj,
             /* hidden= */[],
             /* readonly= */['year']);

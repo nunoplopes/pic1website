@@ -8,7 +8,6 @@ if (auth_at_least(ROLE_TA)) {
   $groups = get_user()->groups;
 }
 
-echo "<p>Groups:</p>\n";
 $table = [];
 foreach ($groups as $group) {
   $students = [];

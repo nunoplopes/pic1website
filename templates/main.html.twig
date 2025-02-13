@@ -21,7 +21,7 @@
   </form>
 {% endif %}
 
-{% if deadline is defined %}
+{% if deadline is defined and deadline %}
   <div class="position-fixed top-50 end-0 translate-middle-y p-3 bg-primary text-white shadow rounded me-4">
     <h5 class="text-center">Deadline</h5>
     <p id="deadline" class="text-center fs-5">Loading...</p>
@@ -48,8 +48,27 @@
     }
 
     updateDeadline();
-    const interval = setInterval(updateDeadline, 1000);
+    const interval = setInterval(updateDeadline, 500);
   </script>
+{% endif %}
+
+{% if info_box is defined and info_box %}
+  <div class="position-fixed top-25 end-0 translate-middle-y p-3 bg-info text-white shadow rounded me-4 w-auto text-wrap" style="max-width: 400px">
+    <h5 class="text-center fw-bold">{{ info_box.title }}</h5>
+    <ul class="list-unstyled mb-0">
+      {% for label, value in info_box.rows %}
+        <li><b>{{ label }}:</b>
+          {% if value is iterable and value.url is defined %}
+            <a href="{{ value.url }}" class="text-light">{{ value.label }}</a>
+          {% elseif value is iterable and value.warn is defined %}
+            <span class="text-danger fw-bold">{{ value.data }}</span>
+          {% else %}
+            {{ value }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 {% endif %}
 
 {% if embed_file is defined and embed_file %}
@@ -91,21 +110,25 @@
 {% endif %}
 
 {% if form is defined %}
-  {{ form_start(form, {'attr': {'class': 'mt-3'}}) }}
-    {% for field in form %}
-      {% if field.vars.name not in ['_token', 'submit'] %}
-        {% if 'url' in field.vars.block_prefixes and field.vars.value %}
-          <label for="{{ field.vars.id }}">
-            <a href="{{ field.vars.value }}" target="_blank" class="text-decoration-none">{{ field.vars.label }}</a>
-          </label>
-          {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
-        {% else %}
-          {{ form_row(field, {'attr': {'class': 'form-control'}}) }}
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-    {{ form_row(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
-  {{ form_end(form) }}
+  <div class="card mb-4" style="max-width: 600px; margin: 0 auto">
+    <div class="card-body">
+      {{ form_start(form) }}
+        {% for field in form %}
+          {% if field.vars.name not in ['_token', 'submit'] %}
+            {% if 'url' in field.vars.block_prefixes and field.vars.value %}
+              <label for="{{ field.vars.id }}">
+                <a href="{{ field.vars.value }}" target="_blank" class="text-decoration-none">{{ field.vars.label }}</a>
+              </label>
+              {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+            {% else %}
+              {{ form_row(field, {'attr': {'class': 'form-control'}}) }}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {{ form_row(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+      {{ form_end(form) }}
+    </div>
+  </div>
 {% endif %}
 
 {% include 'footer.html.twig' %}

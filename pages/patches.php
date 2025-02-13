@@ -4,55 +4,59 @@
 
 require_once 'email.php';
 
-html_header("Patches");
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
 $user = get_user();
 $group = $user->getGroup();
 $deadline = db_fetch_deadline($group ? $group->year : get_current_year());
 
-mk_box_left_begin();
+if ($user->role === ROLE_STUDENT /*&& $deadline->isPatchSubmissionActive()*/) {
+  $form = $formFactory->createBuilder(FormType::class)
+    ->add('url', UrlType::class, ['label' => 'URL'])
+    ->add('type', ChoiceType::class, [
+      'label'   => 'Type',
+      'choices' => ['Bug fix' => PATCH_BUGFIX, 'Feature' => PATCH_FEATURE],
+    ])
+    ->add('description', TextareaType::class, ['label' => 'Description'])
+    ->add('submit', SubmitType::class, ['label' => 'Submit'])
+    ->getForm();
 
-$patch_accepted = false;
+  $form->handleRequest($request);
 
-if (isset($_POST['url'])) {
-  if ($user->role == ROLE_STUDENT &&
-      !$deadline->isPatchSubmissionActive())
-    die('Deadline expired');
+  if ($form->isSubmitted() && $form->isValid()) {
+    if (!$group)
+      die("Student's group not found");
 
-  if (!$group)
-    die("Student's group not found");
+    try {
+      $url = $form->get('url')->getData();
+      $type = $form->get('type')->getData();
+      $description = $form->get('description')->getData();
+      $p = Patch::factory($group, $url, $type, $description, $user);
+      $group->patches->add($p);
+      db_save($p);
 
-  try {
-    $p = Patch::factory($group, $_POST['url'], $_POST['type'],
-                        $_POST['description'], $user);
-    $group->patches->add($p);
-    db_save($p);
-
-    $patch_accepted = true;
-    $name = $user->shortName();
-    email_ta($group, 'PIC1: New patch',
-             "$name ($user) of group $group submitted a new patch\n\n" .
-             link_patch($p));
-  } catch (ValidationException $ex) {
-    echo "<p style=\"color: red\">Failed to validate all fields: ",
-         nl2br(htmlspecialchars($ex->getMessage())), "</p>\n";
+      $success_message = 'Patch submitted successfully!';
+      $patch_accepted = true;
+      $name = $user->shortName();
+      email_ta($group, 'PIC1: New patch',
+              "$name ($user) of group $group submitted a new patch\n\n" .
+              link_patch($p));
+    } catch (ValidationException $ex) {
+      terminate('Failed to validate all fields: ' . $ex->getMessage());
+    }
   }
 }
 
-
 if (auth_at_least(ROLE_TA)) {
-  do_start_form('patches');
-  $selected_year     = do_year_selector();
-  $only_needs_review = do_bool_selector('Show only patches that need review',
+  $groups = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo']);
+/*  $only_needs_review = do_bool_selector('Show only patches that need review',
                                         'needs_review');
   $only_open_patches = do_bool_selector('Show only non-merged patches',
-                                        'open_patches');
-  $own_shifts_only   = do_bool_selector('Show only own shifts', 'own_shifts');
-  $selected_shift    = do_shift_selector($selected_year, $own_shifts_only);
-  $selected_repo     = do_repo_selector($selected_year);
-  $groups            = do_group_selector($selected_year, $selected_shift,
-                                         $own_shifts_only, $selected_repo);
-  echo "</form><p>&nbsp;</p>\n";
+                                        'open_patches');*/
 } else {
   $groups = $user->groups;
 }
@@ -70,7 +74,7 @@ foreach ($groups as $group) {
 
     $authors = [];
     foreach ($patch->students as $author) {
-      $authors[] = htmlspecialchars($author->shortName());
+      $authors[] = $author->shortName();
     }
 
     $pr = $patch->getPRURL();
@@ -82,61 +86,16 @@ foreach ($groups as $group) {
                             ['id' => $group->id]),
       'Status'    => $patch->getStatus(),
       'Type'      => $patch->getType(),
-      'Issue'     => $issue ? '<a href="'. $issue . '">link</a>' : '',
-      'Patch'     => '<a href="'. $patch->getPatchURL() . '">link</a>',
-      'PR'        => $pr ? '<a href="'. $pr . '">link</a>' : '',
+      'Issue'     => $issue ? dolink_ext($issue, 'link') : '',
+      'Patch'     => dolink_ext($patch->getPatchURL(), 'link'),
+      'PR'        => $pr ? dolink_ext($pr, 'link') : '',
       '+'         => $patch->lines_added,
       '-'         => $patch->lines_deleted,
       'Files'     => $patch->files_modified,
-      'Submitter' => htmlspecialchars($patch->getSubmitterName()),
+      'Submitter' => $patch->getSubmitterName(),
       'Authors'   => implode(', ', $authors),
     ];
   }
 }
 
-print_table($table);
-
-
-if ($user->role == ROLE_STUDENT && $deadline->isPatchSubmissionActive()) {
-  $bugfix = PATCH_BUGFIX;
-  $feature = PATCH_FEATURE;
-
-  if ($patch_accepted) {
-    $url = 'https://...';
-    $description = $select_bugfix = $select_feature = '';
-  } else {
-    $url            = htmlspecialchars($_POST['url'] ?? 'https://...');
-    $description    = htmlspecialchars($_POST['description'] ?? '');
-    $type           = (int)($_POST['type'] ?? -1);
-    $select_bugfix  = $type == $bugfix  ? ' selected' : '';
-    $select_feature = $type == $feature ? ' selected' : '';
-  }
-
-  echo <<<EOF
-<p>&nbsp;</p>
-<p>Submit new patch:</p>
-<form action="index.php?page=patches" method="post">
-
-<label for="url">URL:</label>
-<input type="text" id="url" name="url" value="$url" size="50">
-
-<br>
-<label for="type">Type:</label>
-<select name="type" id="type">
-<option value="$bugfix"$select_bugfix>Bug fix</option>
-<option value="$feature"$select_feature>Feature</option>
-</select>
-
-<br>
-<label for="description">Description:</label>
-<textarea id="description" name="description" rows="5" cols="60">$description</textarea>
-
-<p><input type="submit"></p>
-</form>
-
-EOF;
-}
-mk_box_end();
-
-mk_deadline_box($deadline->patch_submission);
-mk_box_end();
+$deadline = $deadline->patch_submission;

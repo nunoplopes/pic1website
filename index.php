@@ -28,6 +28,7 @@ $embed_file = null;
 $success_message = null;
 $table = null;
 $deadline = null;
+$info_box = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
@@ -46,7 +47,7 @@ try {
 }
 
 function terminate($error_message = null) {
-  global $page, $deadline, $table, $form, $select_form, $embed_file,
+  global $page, $deadline, $table, $info_box, $form, $select_form, $embed_file,
          $success_message;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
@@ -112,6 +113,7 @@ function terminate($error_message = null) {
     'success_message' => $error_message ? '' : $success_message,
     'error_message'   => $error_message,
     'table'           => $table,
+    'info_box'        => $info_box,
     'deadline'        => $deadline ? $deadline->format('c') : null,
   ];
 

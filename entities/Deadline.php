@@ -56,9 +56,9 @@ class Deadline
     return new DateTimeImmutable() <= $this->final_report;
   }
 
-  public function set_proj_proposal($time) { $this->proj_proposal = new DateTimeImmutable($time); }
-  public function set_bug_selection($time) { $this->bug_selection = new DateTimeImmutable($time); }
-  public function set_feature_selection($time) { $this->feature_selection = new DateTimeImmutable($time); }
-  public function set_patch_submission($time) { $this->patch_submission = new DateTimeImmutable($time); }
-  public function set_final_report($time) { $this->final_report = new DateTimeImmutable($time); }
+  public function set_proj_proposal(DateTimeImmutable $time) { $this->proj_proposal = $time; }
+  public function set_bug_selection(DateTimeImmutable $time) { $this->bug_selection = $time; }
+  public function set_feature_selection(DateTimeImmutable $time) { $this->feature_selection = $time; }
+  public function set_patch_submission(DateTimeImmutable $time) { $this->patch_submission = $time; }
+  public function set_final_report(DateTimeImmutable $time) { $this->final_report = $time; }
 }

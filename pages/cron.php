@@ -4,8 +4,6 @@
 
 auth_require_at_least(ROLE_PROF);
 
-html_header('Run cron jobs');
-
 $argv = [];
 $max_exec_time = 9;
 $checkpoint_start = (int)@$_GET['checkpoint'];

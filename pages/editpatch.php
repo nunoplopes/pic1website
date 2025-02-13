@@ -2,7 +2,6 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-html_header('Patch Detail');
 require_once 'email.php';
 
 if (empty($_GET['id']))
@@ -21,9 +20,6 @@ if (!auth_at_least(ROLE_TA) &&
     !db_fetch_deadline($patch->group->year)->isPatchSubmissionActive()) {
   $readonly = array_keys(get_object_vars($patch));
 }
-
-echo "<p>&nbsp;</p>\n";
-mk_box_left_begin();
 
 $prev_status = $patch->getStatus();
 
@@ -53,6 +49,7 @@ db_flush();
 
 echo "<table>\n";
 foreach ($patch->comments as $comment) {
+  break;
   if ($comment->user) {
     $author = $comment->user->shortName() . ' (' . $comment->user->id . ')';
     $photo  = $comment->user->getPhoto();
@@ -119,8 +116,6 @@ echo <<<HTML
 </form>
 HTML;
 
-mk_box_end();
-
 // notify students of the patch review
 if ($patch->getStatus() != $prev_status) {
   $subject = null;
@@ -160,49 +155,37 @@ EOF);
   }
 }
 
-$authors = [];
-foreach ($patch->students as $author) {
-  $authors[] = $author->shortName() . ' (' . $author->id . ')';
-}
-
-mk_box_right_begin();
 if ($patch->isValid()) {
-  echo "<p>Statistics:</p><ul>";
-  echo "<li><b>Students:</b> ", implode(', ', $authors), "</li>\n";
-  echo "<li><b>Lines added:</b> ", $patch->lines_added, "</li>\n";
-  echo "<li><b>Lines removed:</b> ", $patch->lines_deleted, "</li>\n";
-  echo "<li><b>Files modified:</b> ", $patch->files_modified, "</li>\n";
-  echo '<li><a style="color: white" href="', $patch->getPatchURL(),
-      '">Patch</a></li>';
-  if ($pr = $patch->getPRURL()) {
-    echo '<li><a style="color: white" href="', $pr, '">PR</a></li>';
-  }
-  if ($issue = $patch->getIssueURL()) {
-    echo '<li><a style="color: white" href="', $issue, '">Issue</a></li>';
-  }
-  echo "<li><b>All authors:</b> ", gen_authors($patch->allAuthors()), "</li>\n";
-  echo '</ul>';
+  $info_box['title'] = 'Statistics';
+  $info_box['rows'] = [
+    'Lines added'    => $patch->lines_added,
+    'Lines removed'  => $patch->lines_deleted,
+    'Files modified' => $patch->files_modified,
+    'All authors'    => gen_authors($patch->allAuthors()),
+  ];
 } else {
-  echo '<p>The patch is no longer available!</p>';
-  echo '<p><a style="color: white" href="', $patch->getPatchURL(),
-       '">Patch</a></p>';
-  if ($pr = $patch->getPRURL()) {
-    echo '<p><a style="color: white" href="', $pr, '">PR</a></p>';
-  }
+  $info_box['title'] = 'The patch is no longer available!';
 }
-mk_box_end();
-mk_box_end();
+$info_box['rows']['Patch'] = dolink_ext($issue, 'link');
 
+if ($issue = $patch->getIssueURL()) {
+  $info_box['rows']['Issue'] = dolink_ext($issue, 'link');
+}
+if ($pr = $patch->getPRURL()) {
+  $info_box['rows']['PR'] = dolink_ext($pr, 'link');
+}
 
 function gen_authors($list) {
   $data = [];
+  $invalid = true;
   foreach ($list as $author) {
-    $name  = htmlspecialchars($author[1]);
-    $email = htmlspecialchars($author[2]);
+    $name  = $author[1];
+    $email = $author[2];
     if (!check_email($email))
-      $email = '<span style="color: red">' . $email . '</span>';
+      $invalid = true;
 
-    $data[] = "$name &lt;$email&gt;";
+    $data[] = "$name <$email>";
   }
-  return implode(', ', $data);
+  $data = implode(', ', $data);
+  return $invalid ? ["warn" => true, "data" => $data] : $data;
 }

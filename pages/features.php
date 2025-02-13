@@ -30,7 +30,7 @@ if (!empty($_GET['download'])) {
   }
 }
 
-if ($user->role === ROLE_STUDENT) {
+if ($user->role === ROLE_STUDENT && $deadline->isFeatureSelectionActive()) {
   $form = $formFactory->createBuilder(FormType::class)
     ->add('url', UrlType::class, [
       'label' => 'Issue URL (if applicable)',
@@ -47,10 +47,6 @@ if ($user->role === ROLE_STUDENT) {
   $form->handleRequest($request);
 
   if ($form->isSubmitted() && $form->isValid()) {
-    if (!$deadline->isFeatureSelectionActive()) {
-      terminate('Deadline expired');
-    }
-
     $file = $form->get('file')->getData();
     if ($file instanceof UploadedFile) {
       if ($file->getSize() > 5 * 1024 * 1024) {
@@ -82,7 +78,7 @@ if (auth_at_least(ROLE_TA)) {
     $table[] = [
       'Group'     => $group->group_number,
       'Issue URL' => $group->url_proposal
-                       ? ['label' => 'link', 'url' => $group->url_proposal] : '',
+                       ? dolink_ext($group->url_proposal, 'link') : '',
       'PDF' => $group->hash_proposal_file
                  ? dolink('features', 'link', ['download' => $group->id]) : '',
     ];

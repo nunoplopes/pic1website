@@ -3,6 +3,14 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
 function quote($str) {
   return "'" . htmlspecialchars($str) . "'";
@@ -26,8 +34,12 @@ function dourl($page, $args = []) {
   return "index.php?$q";
 }
 
+function dolink_ext($url, $txt) {
+  return ['label' => $txt, 'url' => $url];
+}
+
 function dolink($page, $txt, $args = []) {
-  return ['label' => $txt, 'url' => dourl($page, $args)];
+  return dolink_ext(dourl($page, $args), $txt);
 }
 
 function format_text($text) {
@@ -36,54 +48,11 @@ function format_text($text) {
 
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
                      $extra_buttons = null, $flush_db = true) {
+  global $form, $formFactory, $request, $success_message;
+  $form = $formFactory->createBuilder(FormType::class);
+
   $class = new ReflectionClass($obj);
   $docReader = new AnnotationReader();
-
-  if (!empty($_POST['submit'])) {
-    $errors = [];
-    foreach (get_object_vars($obj) as $name => $val) {
-      if (in_array($name, $hide_fields) ||
-          in_array($name, $readonly) ||
-          ($only_fields && !in_array($name, $only_fields)))
-        continue;
-
-      $set = "set_$name";
-
-      if (is_bool($val)) {
-        $obj->$set(isset($_POST[$name]));
-        continue;
-      }
-
-      if (!isset($_POST[$name]))
-        continue;
-
-      $set = "set_$name";
-      try {
-        $obj->$set(trim($_POST[$name]));
-      } catch (ValidationException $ex) {
-        $errors[$name] = $ex;
-      }
-    }
-
-    if ($errors) {
-      echo "<span style=\"color: red\">\n",
-           "<p>Failed to validate all fields:</p><ul>\n";
-      foreach ($errors as $name => $error) {
-        $print_name = strtr($name, '_', ' ');
-        echo "<li>$print_name: ", $error->getMessage(), "</li>\n";
-      }
-      echo "</ul></span><p>&nbsp;</p>\n";
-    } else {
-      if ($flush_db)
-        db_flush();
-      echo '<p style="color: green">Database updated!</p>';
-    }
-  }
-
-  echo '<form action="',htmlspecialchars($_SERVER['REQUEST_URI']),
-                    '" method="post">';
-  echo '<input type="hidden" name="submit" value="1">';
-  echo "<table>\n";
 
   $not_all_readonly = false;
 
@@ -109,94 +78,134 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
     $getter = "getstr_$name";
 
     if ($orig_value instanceof DateTimeInterface) {
-      $val = $orig_value->format('Y-m-d\TH:i:s');
+      // not used
     } elseif (is_object($orig_value) &&
               $orig_value instanceof \Doctrine\ORM\PersistentCollection) {
-      $val = array_map(function($e) { return htmlspecialchars($e); },
-                       $orig_value->toArray());
-      $val = implode(', ', $val);
+      $val = implode(', ', $orig_value->toArray());
     } elseif (method_exists($obj, $getter)) {
-      $val = htmlspecialchars($obj->$getter());
+      $val = $obj->$getter();
     } else {
-      $val = htmlspecialchars((string)$orig_value);
+      $val = (string)$orig_value;
     }
 
-    if (str_starts_with($val, 'https://'))
-      $print_name = "<a href=\"$val\">$print_name</a>";
-
-    $freeze = '';
+    $disabled = false;
     if (in_array($name, $readonly))
-      $freeze = ' readonly';
+      $disabled = true;
     else
       $not_all_readonly = true;
 
-    echo "<tr><td><label for=\"$name\">$print_name:</label></td><td>\n";
-    if (is_bool($orig_value)) {
-      $checked = '';
-      if ($val)
-        $checked = ' checked';
-      echo "<input type=\"checkbox\" id=\"$name\" name=\"$name\" ",
-           "value=\"true\"$checked>";
+    if (str_starts_with($val, 'https://')) {
+      $form->add($name, UrlType::class, [
+        'label'    => $print_name,
+        'data'     => $val,
+        'disabled' => $disabled,
+      ]);
     }
-    else if ($orig_value instanceof DateTimeInterface) {
-      echo "<input type=\"datetime-local\" id=\"$name\" name=\"$name\"",
-           " step=1 value=\"$val\">";
+    elseif (is_bool($orig_value)) {
+      $form->add($name, CheckboxType::class, [
+        'label'    => $print_name,
+        'data'     => $orig_value,
+        'disabled' => $disabled,
+      ]);
     }
-    else if (isset($annotations[1]->targetEntity)) {
+    elseif ($orig_value instanceof DateTimeInterface) {
+      $form->add($name, DateTimeType::class, [
+        'label'    => $print_name,
+        'data'     => $orig_value,
+        'input'    => 'datetime_immutable',
+        'widget'   => 'single_text',
+        'disabled' => $disabled,
+        'attr' => ['style' => 'width: 220px'],
+      ]);
+    }
+    elseif (isset($annotations[1]->targetEntity)) {
       $orderby = $annotations[1]->targetEntity::orderBy();
-      echo "<select name=\"$name\" id=\"$name\">\n";
-
       $entities = db_fetch_entity($annotations[1]->targetEntity, $orderby);
-      foreach ($entities as $entity) {
-        $selected = '';
-        if ($entity == $orig_value)
-          $selected = ' selected';
-        echo "<option value=\"", htmlspecialchars($entity->id), "\"$selected>",
-             htmlspecialchars((string)$entity), "</option>\n";
-      }
-      echo "</select>";
-    }
-    else if (method_exists($obj, "get_$name"."_options")) {
-      if (in_array($name, $readonly))
-        $freeze = ' disabled';
-      echo "<select name=\"$name\" id=\"$name\"$freeze>\n";
 
+      $vals = [];
+      foreach ($entities as $entity) {
+        $vals[(string)$entity] = $entity->id;
+      }
+      $form->add($name, ChoiceType::class, [
+        'label'    => $print_name,
+        'choices'  => $vals,
+        'data'     => $orig_value,
+        'disabled' => $disabled,
+      ]);
+    }
+    elseif (method_exists($obj, "get_$name"."_options")) {
+      $vals = [];
       $method_name = "get_$name"."_options";
       foreach ($obj->$method_name() as $id => $name) {
-        $selected = '';
-        if ($id == $orig_value)
-          $selected = ' selected';
-        echo "<option value=\"$id\"$selected>", htmlspecialchars($name),
-             "</option>\n";
+        $vals[$name] = $id;
       }
-      echo "</select>";
+      $form->add($name, ChoiceType::class, [
+        'label'    => $print_name,
+        'choices'  => $vals,
+        'data'     => $orig_value,
+        'disabled' => $disabled,
+      ]);
     }
     else {
       if ($length > 200) {
-        echo "<textarea id=\"$name\" name=\"$name\" rows=\"5\" cols=\"60\"",
-             "$freeze>$val</textarea>";
+        $form->add($name, TextareaType::class, [
+          'label'    => $print_name,
+          'data'     => $val,
+          'disabled' => $disabled,
+        ]);
       } else {
-        echo "<input type=\"text\" id=\"$name\" name=\"$name\" ",
-             "value=\"$val\" size=\"60\"$freeze>";
+        $form->add($name, TextType::class, [
+          'label'    => $print_name,
+          'data'     => $val,
+          'disabled' => $disabled,
+        ]);
       }
     }
-    echo "</td></tr>\n";
   }
-  echo "</table><p>";
 
   if ($not_all_readonly)
-    echo "<input type=\"submit\" value=\"Save changes\">";
-  echo "</p>\n";
+    $form->add('submit', SubmitType::class, ['label' => 'Save changes']);
 
   if ($extra_buttons) {
-    echo "<p>";
     foreach ($extra_buttons as $name => $args) {
       $key = $args[0];
       $value = $args[1];
       echo "<input type=\"submit\" value=\"$name\"",
            " onclick=\"this.form.$key.value='$value'\">\n";
     }
-    echo "</p>\n";
   }
-  echo "</form>\n";
+
+  $form = $form->getForm();
+  $form->handleRequest($request);
+
+  if ($form->isSubmitted() && $form->isValid()) {
+    $errors = [];
+    foreach (get_object_vars($obj) as $name => $val) {
+      if (in_array($name, $hide_fields) ||
+          in_array($name, $readonly) ||
+          ($only_fields && !in_array($name, $only_fields)))
+        continue;
+
+      $set = "set_$name";
+      $newval = $form->get($name)->getData();
+      try {
+        $obj->$set($newval);
+      } catch (ValidationException $ex) {
+        $errors[$name] = $ex;
+      }
+    }
+
+    if ($errors) {
+      $str = 'Failed to validate all fields:';
+      foreach ($errors as $name => $error) {
+        $print_name = strtr($name, '_', ' ');
+        $str .= "\n$print_name: " . $error->getMessage();
+      }
+      terminate($str);
+    } else {
+      if ($flush_db)
+        db_flush();
+      $success_message = 'Database updated!';
+    }
+  }
 }
