@@ -2,8 +2,6 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-html_header("Bugs");
-
 $user = get_user();
 $group = $user->getGroup();
 $year = $group ? $group->year : get_current_year();
@@ -35,14 +33,7 @@ if (isset($_POST['issue_url'])) {
 mk_box_left_begin();
 
 if (auth_at_least(ROLE_TA)) {
-  do_start_form('bugs');
-  $selected_year     = do_year_selector();
-  $own_shifts_only   = do_bool_selector('Show only own shifts', 'own_shifts');
-  $selected_shift    = do_shift_selector($selected_year, $own_shifts_only);
-  $selected_repo     = do_repo_selector($selected_year);
-  $groups            = do_group_selector($selected_year, $selected_shift,
-                                         $own_shifts_only, $selected_repo);
-  echo "</form><p>&nbsp;</p>\n";
+  $groups = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo']);
 } else {
   $groups = $user->groups;
 }
@@ -69,7 +60,6 @@ HTML;
     ];
   }
 }
-print_table($table);
 
 echo <<<HTML
 <script>
@@ -119,7 +109,4 @@ $description
 EOF;
 }
 
-mk_box_end();
-
-mk_deadline_box($deadline->bug_selection);
-mk_box_end();
+$deadline = $deadline->bug_selection;

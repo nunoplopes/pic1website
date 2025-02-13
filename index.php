@@ -27,6 +27,7 @@ $select_form = null;
 $embed_file = null;
 $success_message = null;
 $table = null;
+$deadline = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
@@ -45,7 +46,8 @@ try {
 }
 
 function terminate($error_message = null) {
-  global $page, $table, $form, $select_form, $embed_file, $success_message;
+  global $page, $deadline, $table, $form, $select_form, $embed_file,
+         $success_message;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -110,6 +112,7 @@ function terminate($error_message = null) {
     'success_message' => $error_message ? '' : $success_message,
     'error_message'   => $error_message,
     'table'           => $table,
+    'deadline'        => $deadline ? $deadline->format('c') : null,
   ];
 
   if ($form)
@@ -188,6 +191,25 @@ function filter_by($filters) {
       'label'   => 'Group',
       'choices' => $groups,
       'data'    => $selected_group,
+    ]);
+  }
+  if (in_array('repo', $filters)) {
+    $repos = [];
+    foreach (db_fetch_groups($selected_year) as $group) {
+      if (!has_group_permissions($group))
+        continue;
+
+      if ($repo = $group->getRepositoryId())
+        $repos[$repo] = true;
+    }
+    $repos = array_keys($repos);
+    natsort($repos);
+
+    $repos = ['All' => 'all'] + array_combine($repos, $repos);
+    $select_form->add('repo', ChoiceType::class, [
+      'label'   => 'Repository',
+      'choices' => $repos,
+      'data'    => $selected_repo,
     ]);
   }
   if (in_array('own_shifts', $filters)) {

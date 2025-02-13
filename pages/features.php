@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 $user = get_user();
 $group = $user->getGroup();
+$year = $group ? $group->year : get_current_year();
+$deadline = db_fetch_deadline($year);
+
 if (!$group && $user->role === ROLE_STUDENT) {
   terminate('Student is not in a group');
 }
@@ -44,6 +47,10 @@ if ($user->role === ROLE_STUDENT) {
   $form->handleRequest($request);
 
   if ($form->isSubmitted() && $form->isValid()) {
+    if (!$deadline->isFeatureSelectionActive()) {
+      terminate('Deadline expired');
+    }
+
     $file = $form->get('file')->getData();
     if ($file instanceof UploadedFile) {
       if ($file->getSize() > 5 * 1024 * 1024) {
@@ -77,9 +84,7 @@ if (auth_at_least(ROLE_TA)) {
       'Issue URL' => $group->url_proposal
                        ? ['label' => 'link', 'url' => $group->url_proposal] : '',
       'PDF' => $group->hash_proposal_file
-                 ? ['label' => 'link',
-                    'url' => dourl('features', ['download' => $group->id], '&')]
-                 : '',
+                 ? dolink('features', 'link', ['download' => $group->id]) : '',
     ];
   }
   if (sizeof($groups) === 1) {
@@ -88,5 +93,7 @@ if (auth_at_least(ROLE_TA)) {
 }
 
 if ($group && $group->hash_proposal_file) {
-  $embed_file = dourl('features', ['download' => $group->id], '&');
+  $embed_file = dourl('features', ['download' => $group->id]);
 }
+
+$deadline = $deadline->feature_selection;
