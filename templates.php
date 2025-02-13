@@ -47,7 +47,7 @@ function format_text($text) {
 }
 
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
-                     $extra_buttons = null, $flush_db = true) {
+                     $extra_buttons = null) {
   global $form, $formFactory, $request, $success_message;
   $form = $formFactory->createBuilder(FormType::class);
 
@@ -55,6 +55,11 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
   $docReader = new AnnotationReader();
 
   $not_all_readonly = false;
+
+  // get_object_vars doesn't trigger lazy loading; force it here
+  if (method_exists($obj, '__isInitialized') && !$obj->__isInitialized()) {
+    $obj->__load();
+  }
 
   foreach (get_object_vars($obj) as $name => $orig_value) {
     if (in_array($name, $hide_fields) ||
@@ -202,10 +207,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         $str .= "\n$print_name: " . $error->getMessage();
       }
       terminate($str);
-    } else {
-      if ($flush_db)
-        db_flush();
-      $success_message = 'Database updated!';
     }
+    $success_message = 'Database updated!';
   }
 }

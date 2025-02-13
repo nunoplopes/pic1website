@@ -30,7 +30,7 @@ if ($new_comment && get_user()->role == ROLE_STUDENT) {
   }
 }
 
-handle_form($patch, [], $readonly, ['group', 'status', 'type'], null, false);
+handle_form($patch, [], $readonly, ['group', 'status', 'type']);
 
 if (auth_at_least(ROLE_PROF)) {
   $link = dolink('rmpatch', 'Delete', ['id' => $patch->id]);

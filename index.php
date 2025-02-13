@@ -14,7 +14,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 $page = $_REQUEST['page'] ?? '';
-$file = "pages/$page.php";
 
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Forms;
@@ -33,16 +32,15 @@ $info_box = null;
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
 try {
+  $file = "pages/$page.php";
   if (ctype_alpha($page) && file_exists($file)) {
     require $file;
-  } else {
-    require 'pages/main.php';
   }
 } catch (PDOException $e) {
   if (IN_PRODUCTION) {
-    echo "<p>Error while accessing the DB</p>";
+    terminate('Error while accessing the DB');
   } else {
-    echo "<pre>", htmlspecialchars(print_r($e, true)), "</pre>";
+    terminate(print_r($e, true));
   }
 }
 
@@ -86,7 +84,7 @@ function terminate($error_message = null) {
     ['phpinfo', 'PHP Info', ROLE_PROF],
   ];
   $navbar = [];
-  $title = '';
+  $title = 'Welcome';
 
   foreach ($pages as $p) {
     if ($p[0] === $page)
@@ -147,6 +145,7 @@ function filter_by($filters) {
                           ? db_fetch_shift_id($selected_shift) : null;
 
   if (in_array('year', $filters)) {
+    $years = [];
     foreach (db_get_group_years() as $year) {
       $years[$year['year']] = $year['year'];
     }
