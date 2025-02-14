@@ -52,25 +52,6 @@
   </script>
 {% endif %}
 
-{% if info_box is defined and info_box %}
-  <div class="position-fixed top-25 end-0 translate-middle-y p-3 bg-info text-white shadow rounded me-4 w-auto text-wrap" style="max-width: 400px">
-    <h5 class="text-center fw-bold">{{ info_box.title }}</h5>
-    <ul class="list-unstyled mb-0">
-      {% for label, value in info_box.rows %}
-        <li><b>{{ label }}:</b>
-          {% if value is iterable and value.url is defined %}
-            <a href="{{ value.url }}" class="text-light">{{ value.label }}</a>
-          {% elseif value is iterable and value.warn is defined %}
-            <span class="text-danger fw-bold">{{ value.data }}</span>
-          {% else %}
-            {{ value }}
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  </div>
-{% endif %}
-
 {% if embed_file is defined and embed_file %}
   <div class="card my-3">
     <div class="card-header">
@@ -162,6 +143,14 @@
         {{ form_row(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
       {{ form_end(form) }}
     </div>
+  </div>
+{% endif %}
+
+{% if bottom_links is defined and bottom_links %}
+  <div class="mt-3 mb-3 bg-light py-3 container">
+    {% for line in bottom_links %}
+      <a href="{{ line.url }}" class="d-block text-decoration-none">{{line.label}}</a>
+    {% endfor %}
   </div>
 {% endif %}
 

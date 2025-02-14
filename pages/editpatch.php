@@ -70,7 +70,6 @@ foreach ($patch->comments as $comment) {
 </tr>
 HTML;
 }
-echo "</table>\n";
 
 $ci_failures = [];
 foreach ($patch->ci_failures as $ci) {
@@ -90,7 +89,6 @@ HTML;
          nl2br(htmlspecialchars(implode("\n", $names))),
          "</td></tr>\n";
   }
-  echo "</table>\n";
 }
 
 // Add approve/reject buttons to simplify the life of TAs

@@ -96,7 +96,6 @@ class RepositoryUser
       if ($v)
         $extra .= " [$k: $v]";
     }
-    return $this->platform() . ': <a href="' . $this->profileURL() . '">' .
-           $this->username() . '</a>' . $extra;
+    return $extra;
   }
 }

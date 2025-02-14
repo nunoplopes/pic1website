@@ -165,5 +165,5 @@ class ProjGroup
   public function set_testing_manual($url) { $this->testing_manual = check_url($url); }
   public function set_developers_mailing_list($url) { $this->developers_mailing_list = check_url($url); }
   public function set_patch_submission($url) { $this->patch_submission = check_url($url); }
-  public function set_allow_modifications_date($time) { $this->allow_modifications_date = new DateTimeImmutable($time); }
+  public function set_allow_modifications_date(DateTimeImmutable $time) { $this->allow_modifications_date = $time; }
 }

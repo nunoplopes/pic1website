@@ -43,7 +43,7 @@ function dolink($page, $txt, $args = []) {
 }
 
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
-                     $extra_buttons = null) {
+                     $extra_buttons = null, $in_required = null) {
   global $form, $formFactory, $request, $success_message;
   $form = $formFactory->createBuilder(FormType::class);
 
@@ -72,22 +72,8 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         break;
       }
     }
-    $length = $column ? $column->length : 0;
 
     $print_name = strtr($name, '_', ' ');
-
-    $getter = "getstr_$name";
-
-    if ($orig_value instanceof DateTimeInterface) {
-      // not used
-    } elseif (is_object($orig_value) &&
-              $orig_value instanceof \Doctrine\ORM\PersistentCollection) {
-      $val = implode(', ', $orig_value->toArray());
-    } elseif (method_exists($obj, $getter)) {
-      $val = $obj->$getter();
-    } else {
-      $val = (string)$orig_value;
-    }
 
     $disabled = false;
     if (in_array($name, $readonly))
@@ -95,17 +81,15 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
     else
       $not_all_readonly = true;
 
-    if (str_starts_with($val, 'https://')) {
-      $form->add($name, UrlType::class, [
-        'label'    => $print_name,
-        'data'     => $val,
-        'disabled' => $disabled,
-      ]);
-    }
-    elseif (is_bool($orig_value)) {
+    $required = true;
+    if ($in_required)
+      $required = in_array($name, $in_required);
+
+    if (is_bool($orig_value)) {
       $form->add($name, CheckboxType::class, [
         'label'    => $print_name,
         'data'     => $orig_value,
+        'required' => false,
         'disabled' => $disabled,
       ]);
     }
@@ -116,6 +100,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         'input'    => 'datetime_immutable',
         'widget'   => 'single_text',
         'disabled' => $disabled,
+        'required' => $required,
         'attr'     => ['style' => 'width: 220px'],
       ]);
     }
@@ -132,35 +117,42 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         'choices'  => $vals,
         'data'     => $orig_value,
         'disabled' => $disabled,
+        'required' => $required,
       ]);
     }
     elseif (method_exists($obj, "get_$name"."_options")) {
       $vals = [];
       $method_name = "get_$name"."_options";
-      foreach ($obj->$method_name() as $id => $name) {
-        $vals[$name] = $id;
+      foreach ($obj->$method_name() as $id => $str) {
+        $vals[$str] = $id;
       }
       $form->add($name, ChoiceType::class, [
         'label'    => $print_name,
         'choices'  => $vals,
         'data'     => $orig_value,
         'disabled' => $disabled,
+        'required' => $required,
       ]);
     }
     else {
-      if ($length > 200) {
-        $form->add($name, TextareaType::class, [
-          'label'    => $print_name,
-          'data'     => $val,
-          'disabled' => $disabled,
-        ]);
+      $getter = "getstr_$name";
+      if (method_exists($obj, $getter)) {
+        $val = $obj->$getter();
       } else {
-        $form->add($name, TextType::class, [
-          'label'    => $print_name,
-          'data'     => $val,
-          'disabled' => $disabled,
-        ]);
+        $val = (string)$orig_value;
       }
+      if (str_starts_with($val, 'https://')) {
+        $field_class = UrlType::class;
+      } else {
+        $length      = $column ? $column->length : 0;
+        $field_class = $length > 200 ? TextareaType::class : TextType::class;
+      }
+      $form->add($name, $field_class, [
+        'label'    => $print_name,
+        'data'     => $val,
+        'disabled' => $disabled,
+        'required' => $required,
+      ]);
     }
   }
 
@@ -188,7 +180,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         continue;
 
       $set = "set_$name";
-      $newval = $form->get($name)->getData();
+      $newval = $form->get($name)->getData() ?? '';
       try {
         $obj->$set($newval);
       } catch (ValidationException $ex) {

@@ -1,3 +1,26 @@
+</div>
+
+{% if info_box is defined and info_box %}
+  <div class="col-md-4 align-self-start p-3 bg-info text-white shadow rounded w-auto" style="max-width: 375px">
+    <h5 class="text-center fw-bold">{{ info_box.title }}</h5>
+    <ul class="list-unstyled mb-0">
+      {% for label, value in info_box.rows %}
+        <li><b>{{ label }}:</b>
+          {% if value is iterable and value.url is defined %}
+            <a href="{{ value.url }}" class="text-light">{{ value.label }}</a>
+          {% elseif value is iterable and value.warn is defined %}
+            <span class="text-danger fw-bold">{{ value.data }}</span>
+          {% else %}
+            {{ value }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+</div>
+
 <footer class="bg-body-secondary text-center p-2">
   &copy; Instituto Superior Técnico. All rights reserved.
 </footer>

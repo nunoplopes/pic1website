@@ -21,6 +21,7 @@ use Symfony\Component\Form\Forms;
 $formFactory = Forms::createFormFactoryBuilder()
   ->addExtension(new HttpFoundationExtension())
   ->getFormFactory();
+$custom_header = null;
 $form = null;
 $select_form = null;
 $embed_file = null;
@@ -29,8 +30,10 @@ $success_message = null;
 $table = null;
 $lists = null;
 $deadline = null;
+$top_box = null;
 $info_box = null;
 $monospace = null;
+$bottom_links = null;
 $refresh_url = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
@@ -48,11 +51,15 @@ try {
   }
 } catch (ValidationException $ex) {
   terminate('Failed to validate all fields: ' . $ex->getMessage());
+} catch (DateMalformedStringException $ex) {
+  terminate('Failed to parse date: ' . $ex->getMessage());
 }
 
-function terminate($error_message = null) {
-  global $page, $deadline, $table, $lists, $info_box, $form, $select_form,
-         $embed_file, $info_message, $success_message, $monospace, $refresh_url;
+function terminate($error_message = null, $template = 'main.html.twig',
+                   $extra_fields = []) {
+  global $page, $deadline, $table, $lists, $info_box, $form, $select_form;
+  global $embed_file, $info_message, $success_message, $monospace, $refresh_url;
+  global $custom_header, $bottom_links, $top_box;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -90,7 +97,7 @@ function terminate($error_message = null) {
     ['phpinfo', 'PHP Info', ROLE_PROF],
   ];
   $navbar = [];
-  $title = 'Welcome';
+  $title = $custom_header ?? 'Welcome';
 
   foreach ($pages as $p) {
     if ($p[0] === $page)
@@ -119,9 +126,11 @@ function terminate($error_message = null) {
     'error_message'   => $error_message,
     'table'           => $table,
     'lists'           => $lists,
+    'top_box'         => $top_box,
     'info_box'        => $info_box,
     'monospace'       => $monospace,
     'deadline'        => $deadline ? $deadline->format('c') : null,
+    'bottom_links'    => $bottom_links,
     'refresh_url'     => $refresh_url,
   ];
 
@@ -130,7 +139,7 @@ function terminate($error_message = null) {
   if ($select_form)
     $content['select_form'] = $select_form->createView();
 
-  echo $twig->render('main.html.twig', $content);
+  echo $twig->render($template, $content + $extra_fields);
   db_flush();
   exit();
 }

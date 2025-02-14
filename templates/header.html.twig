@@ -60,3 +60,44 @@
     }, 3000);
   </script>
 {% endif %}
+
+
+
+{% if top_box is defined and top_box %}
+  <div class="card mb-3">
+    <div class="card-header">
+      <h5 class="mb-0">{{ top_box.title }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        {% for row in top_box.rows %}
+          <div class="col-md-6 col-lg-4">
+            <div class="d-flex align-items-center p-2 border rounded">
+              <ul class="list-unstyled mb-0">
+                {% for item in row %}
+                  <li>
+                    {% if item is iterable %}
+                      {% if item.url is defined %}
+                        <a href="{{ item.url }}" class="text-decoration-none">{{ item.label }}</a>
+                      {% elseif item.type == 'photo' %}
+                        <img src="{{ item.data }}" class="rounded-circle me-2" width="100" height="100">
+                      {% elseif item.type == 'email' %}
+                        <i class="bi bi-envelope"></i>
+                        <a href="mailto:{{ item.data }}" class="text-decoration-none">{{ item.data }}</a>
+                      {% endif %}
+                    {% else %}
+                      {{ item }}
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<div class="container mt-4 row">
+  <div class="col-md-7">

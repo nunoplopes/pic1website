@@ -4,7 +4,7 @@
 
 auth_require_at_least(ROLE_PROF);
 
-html_header('Delete Patch');
+$custom_header = 'Delete Patch';
 
 if (empty($_GET['id']))
   die('Missing id');
