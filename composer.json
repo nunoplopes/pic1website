@@ -10,7 +10,7 @@
     "symfony/http-client": "*",
     "symfony/http-foundation": "*",
     "symfony/mailer": "*",
-    "symfony/mailgun-mailer": "*",
+    "symfony/messenger": "*",
     "symfony/translation": "*",
     "symfony/twig-bridge": "*",
     "twig/twig": "*"

@@ -2,37 +2,61 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\Event\MessageEvent;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+
+class MailLoggerSubscriber implements EventSubscriberInterface
+{
+  public static function getSubscribedEvents() {
+      return [ MessageEvent::class => 'onMessage' ];
+  }
+
+  public function onMessage(MessageEvent $event): void {
+    $message = $event->getMessage();
+    $to = array_map(function($x) { return $x->toString(); }, $message->getTo());
+    error_log(
+      "Sent email to: " . implode(', ', $to) .
+      "\nSubject: " . $message->getSubject() .
+      "\n\n" . $message->getTextBody());
+  }
+}
 
 function send_email($dsts, $subject, $msg) {
   $email = (new Email())
     ->from(new Address(EMAIL_FROM_ADDR, 'PIC1'))
     ->subject($subject);
 
-  if (IN_PRODUCTION) {
-    if (!is_array($dsts))
-      $dsts = [$dsts];
+  if (!is_array($dsts))
+    $dsts = [$dsts];
 
-    $has_email = false;
-    foreach ($dsts as $dst) {
-      if ($dst) {
-        $email->addTo($dst);
-        $has_email = true;
-      }
+  $has_email = false;
+  foreach ($dsts as $dst) {
+    if ($dst) {
+      $email->addTo($dst);
+      $has_email = true;
     }
-    if (!$has_email)
-      return;
-  } else {
-    $email->to(DEBUG_EMAIL_DST);
-    $msg = "PIC1 DEBUG MODE\nTo: " . implode(', ', $dsts) . "\n\n$msg";
   }
+  if (!$has_email)
+    return;
   $email->text($msg);
 
+  if (IN_PRODUCTION) {
+    $dispatcher = null;
+    $bus = null;
+  } else {
+    $dispatcher = new EventDispatcher();
+    $dispatcher->addSubscriber(new MailLoggerSubscriber());
+    $bus = new MessageBus();
+  }
+
   $transport = Transport::fromDsn(MAILER_DSN);
-  $mailer = new Mailer($transport);
+  $mailer = new Mailer($transport, $bus, $dispatcher);
   $mailer->send($email);
 }
 

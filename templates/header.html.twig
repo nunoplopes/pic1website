@@ -41,8 +41,22 @@
   </div>
 {% endif %}
 
+{% if info_message is defined and info_message %}
+  <div class="alert alert-info" role="alert">
+    {{ info_message }}
+  </div>
+{% endif %}
+
 {% if success_message is defined and success_message %}
   <div class="alert alert-success" role="alert">
     {{ success_message }}
   </div>
+{% endif %}
+
+{% if refresh_url is defined and refresh_url %}
+  <script>
+    setTimeout(function() {
+      window.location.replace("{{ refresh_url|e('js') }}");
+    }, 3000);
+  </script>
 {% endif %}

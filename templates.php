@@ -12,10 +12,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
-function quote($str) {
-  return "'" . htmlspecialchars($str) . "'";
-}
-
 function do_ext_link($page, $args = []) {
   return 'https://' . $_SERVER['HTTP_HOST'] . '/' . dourl($page, $args);
 }
@@ -38,12 +34,12 @@ function dolink_ext($url, $txt) {
   return ['label' => $txt, 'url' => $url];
 }
 
-function dolink($page, $txt, $args = []) {
-  return dolink_ext(dourl($page, $args), $txt);
+function dolink_group(ProjGroup $group, $txt) {
+  return dolink('listproject',  $txt, ['id' => $group->id]);
 }
 
-function format_text($text) {
-  return nl2br(htmlspecialchars(wordwrap($text, 80, "\n", true)));
+function dolink($page, $txt, $args = []) {
+  return dolink_ext(dourl($page, $args), $txt);
 }
 
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
@@ -120,7 +116,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         'input'    => 'datetime_immutable',
         'widget'   => 'single_text',
         'disabled' => $disabled,
-        'attr' => ['style' => 'width: 220px'],
+        'attr'     => ['style' => 'width: 220px'],
       ]);
     }
     elseif (isset($annotations[1]->targetEntity)) {

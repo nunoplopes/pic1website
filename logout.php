@@ -14,4 +14,4 @@ if (isset($_COOKIE['sessid'])) {
 
 setcookie('sessid', '', 1);
 
-echo "<p>Logged out!</p>\n";
+header('Location: https://fenix.tecnico.ulisboa.pt/logout', true, 302);

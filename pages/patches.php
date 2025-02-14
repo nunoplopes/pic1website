@@ -12,9 +12,10 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
 $user = get_user();
 $group = $user->getGroup();
-$deadline = db_fetch_deadline($group ? $group->year : get_current_year());
+$deadlines = db_fetch_deadline($group ? $group->year : get_current_year());
+$deadline = $deadlines->patch_submission;
 
-if ($user->role === ROLE_STUDENT /*&& $deadline->isPatchSubmissionActive()*/) {
+if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
   $form = $formFactory->createBuilder(FormType::class)
     ->add('url', UrlType::class, ['label' => 'URL'])
     ->add('type', ChoiceType::class, [
@@ -29,25 +30,21 @@ if ($user->role === ROLE_STUDENT /*&& $deadline->isPatchSubmissionActive()*/) {
 
   if ($form->isSubmitted() && $form->isValid()) {
     if (!$group)
-      die("Student's group not found");
+      terminate("Student is not in a group");
 
-    try {
-      $url = $form->get('url')->getData();
-      $type = $form->get('type')->getData();
-      $description = $form->get('description')->getData();
-      $p = Patch::factory($group, $url, $type, $description, $user);
-      $group->patches->add($p);
-      db_save($p);
+    $url = $form->get('url')->getData();
+    $type = $form->get('type')->getData();
+    $description = $form->get('description')->getData();
+    $p = Patch::factory($group, $url, $type, $description, $user);
+    $group->patches->add($p);
+    db_save($p);
 
-      $success_message = 'Patch submitted successfully!';
-      $patch_accepted = true;
-      $name = $user->shortName();
-      email_ta($group, 'PIC1: New patch',
-              "$name ($user) of group $group submitted a new patch\n\n" .
-              link_patch($p));
-    } catch (ValidationException $ex) {
-      terminate('Failed to validate all fields: ' . $ex->getMessage());
-    }
+    $success_message = 'Patch submitted successfully!';
+    $patch_accepted = true;
+    $name = $user->shortName();
+    email_ta($group, 'PIC1: New patch',
+            "$name ($user) of group $group submitted a new patch\n\n" .
+            link_patch($p));
   }
 }
 
@@ -97,5 +94,3 @@ foreach ($groups as $group) {
     ];
   }
 }
-
-$deadline = $deadline->patch_submission;

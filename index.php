@@ -24,10 +24,14 @@ $formFactory = Forms::createFormFactoryBuilder()
 $form = null;
 $select_form = null;
 $embed_file = null;
+$info_message = null;
 $success_message = null;
 $table = null;
+$lists = null;
 $deadline = null;
 $info_box = null;
+$monospace = null;
+$refresh_url = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
@@ -42,11 +46,13 @@ try {
   } else {
     terminate(print_r($e, true));
   }
+} catch (ValidationException $ex) {
+  terminate('Failed to validate all fields: ' . $ex->getMessage());
 }
 
 function terminate($error_message = null) {
-  global $page, $deadline, $table, $info_box, $form, $select_form, $embed_file,
-         $success_message;
+  global $page, $deadline, $table, $lists, $info_box, $form, $select_form,
+         $embed_file, $info_message, $success_message, $monospace, $refresh_url;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -108,11 +114,15 @@ function terminate($error_message = null) {
     'role'            => get_role_string(),
     'photo'           => $user->getPhoto(),
     'embed_file'      => $embed_file,
+    'info_message'    => $info_message,
     'success_message' => $error_message ? '' : $success_message,
     'error_message'   => $error_message,
     'table'           => $table,
+    'lists'           => $lists,
     'info_box'        => $info_box,
+    'monospace'       => $monospace,
     'deadline'        => $deadline ? $deadline->format('c') : null,
+    'refresh_url'     => $refresh_url,
   ];
 
   if ($form)

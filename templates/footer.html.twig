@@ -2,5 +2,18 @@
   &copy; Instituto Superior Técnico. All rights reserved.
 </footer>
 
+<script>
+function toggleVideo(button) {
+  let videoContainer = button.nextElementSibling;
+  if (videoContainer.style.display === "none" ) {
+    videoContainer.style.display = "block";
+    button.textContent = "Hide Video";
+  } else {
+    videoContainer.style.display = "none";
+    button.textContent = "Show Video";
+  }
+}
+</script>
+
 </body>
 </html>

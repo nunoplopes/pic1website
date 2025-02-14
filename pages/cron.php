@@ -9,37 +9,28 @@ $max_exec_time = 9;
 $checkpoint_start = (int)@$_GET['checkpoint'];
 
 if ($checkpoint_start)
-  echo "<p>Continuing with offset $checkpoint_start</p>\n";
+  $info_message = "Continuing with offset $checkpoint_start...";
 
 if (isset($_GET['task'])) {
   $run_tasks = [$_GET['task']];
-  echo "<p>Log:</p><pre>";
 } else {
   $run_tasks = [];
 }
 
+ob_start();
 try {
   require 'cron.php';
+  if ($run_tasks) {
+    $success_message = 'All done!';
+  }
 } catch (CheckPointException $e) {
-  $url = dourl('cron', ['task' => $run_tasks[0], 'checkpoint' => $e->idx], '&');
-  echo <<<HTML
-</pre>
-<script>
-  setTimeout(function() {
-    window.location.replace("$url");
-  }, 3000);
-</script>
-<p>Will continue with offset $e->idx...</p>
-</body></html>
-HTML;
-  exit();
+  $refresh_url
+    = dourl('cron', ['task' => $run_tasks[0], 'checkpoint' => $e->idx]);
+  $info_message = "Will continue with offset $e->idx...";
 }
+$monospace = ob_get_contents();
+ob_end_clean();
 
-if ($run_tasks)
-  echo "\nAll done!</pre><p>&nbsp;</p>\n";
-
-echo "<p>Run: </p><ul>";
 foreach ($tasks as $task => $desc) {
-  echo '<li>', dolink('cron', $desc, ['task' => $task]), "</li>\n";
+  $lists['Run'][] = dolink('cron', $desc, ['task' => $task]);
 }
-echo "</ul>";

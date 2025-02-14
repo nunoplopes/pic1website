@@ -10,31 +10,35 @@ if (isset($_GET['newrole'])) {
     die('Unknown role');
 
   $_SESSION['username'] = "ist0000$role";
+  $seed = [
+    'Jameson',
+    'Ryker',
+    'Adrian',
+    'Avery',
+  ][$role];
+
   auth_set_user(
-    db_fetch_or_add_user("ist0000$role", "Dummy $role", $role, '', '', true));
-  html_header('Impersonate');
+    db_fetch_or_add_user(
+      "ist0000$role", "Dummy $role", $role, "ist0000$role@example.org",
+      "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=$seed&lips=variant17",
+      true));
 }
 else if (isset($_GET['username'])) {
   $user = db_fetch_user($_GET['username']);
   if (!$user)
     die('Unknown user');
   auth_set_user($user);
-  html_header('Impersonate');
 }
 else {
-  html_header('Impersonate');
-  echo "<p>Switch to dummy:";
   foreach (get_all_roles(false) as $id => $name) {
-    echo " ", dolink('impersonate', $name, ['newrole' => $id]);
+    $lists["Switch to dummy"][]
+      = dolink('impersonate', $name, ['newrole' => $id]);
   }
-  echo "</p>\n";
 
-
-  echo "<p>Impersonate real users:<br>\n";
   foreach (db_get_all_users() as $user) {
-    $args = ['username' => $user->id];
     $role = $user->getRole();
-    echo dolink('impersonate', "$user->id: $user->name ($role)", $args),
-         "<br>\n";
+    $lists["Impersonate real users"][]
+      = dolink('impersonate', "$user->id: $user->name ($role)",
+               ['username' => $user->id]);
   }
 }

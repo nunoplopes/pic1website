@@ -82,31 +82,65 @@
   </div>
 {% endif %}
 
+{% if monospace is defined and monospace %}
+<div class="container mt-4">
+  <h4>Log Output</h4>
+  <div class="bg-dark text-light p-3 rounded overflow-auto" style="max-height: 400px">
+    <pre class="m-0">{{ monospace }}</pre>
+  </div>
+</div>
+{% endif %}
+
 {% if table is defined and table %}
-<table class="table table-striped table-bordered table-hover w-auto">
-  <thead class="table-primary sticky-top">
-    <tr>
-      {% for key in table|first|keys %}
-        <th>{{ key }}</th>
-      {% endfor %}
-  </tr>
-  </thead>
-  <tbody>
-    {% for row in table %}
+  <table class="table table-striped table-bordered table-hover w-auto">
+    <thead class="table-primary sticky-top">
       <tr>
-        {% for value in row %}
-          <td>
-          {% if value is iterable and value.url is defined %}
-            <a href="{{ value.url }}">{{ value.label }}</a>
-          {% else %}
-             {{ value|nl2br }}
-          {% endif %}
-          </td>
+        {% for key in table|first|keys %}
+          <th>{{ key }}</th>
         {% endfor %}
-      </tr>
+    </tr>
+    </thead>
+    <tbody>
+      {% for row in table %}
+        <tr>
+          {% for value in row %}
+            <td>
+            {% if value is iterable and value.url is defined %}
+              <a href="{{ value.url }}">{{ value.label }}</a>
+            {% elseif value is iterable and value.html is defined %}
+              {{ value.html|raw }}
+            {% else %}
+              {{ value|nl2br }}
+            {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+{% if lists is defined and lists %}
+  <div class="container mt-4">
+    {% for label, items in lists %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0">{{ label }}</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for value in items %}
+            <li class="list-group-item">
+              {% if value is iterable and value.url is defined %}
+                <a href="{{ value.url }}">{{ value.label }}</a>
+              {% else %}
+                {{ value }}
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
 {% endif %}
 
 {% if form is defined %}

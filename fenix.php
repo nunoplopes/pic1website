@@ -131,6 +131,8 @@ function get_groups($course) {
       foreach ($group->members as $m) {
         $students[$m->username] = $m->name;
       }
+      if (!$students)
+        continue;
       assert(empty($groups[$group->groupNumber]));
       $groups[$group->groupNumber] = [trim($group->shift), $students];
     }

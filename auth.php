@@ -37,7 +37,10 @@ function create_session($user) {
 
 if (isset($_GET['key']) &&
     password_verify('4X6EM' . $_GET['key'] . 'fgOGi', SUDO_HASH)) {
-  $user = db_fetch_or_add_user('ist00000', 'Sudo', ROLE_SUDO, '', '', true);
+  $user = db_fetch_or_add_user(
+    'ist00000', 'Sudo', ROLE_SUDO, 'sudo@example.org',
+    'https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Jameson&lips=variant17',
+    true);
   create_session($user);
 }
 

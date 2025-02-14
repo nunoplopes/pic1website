@@ -228,8 +228,8 @@ function run_repository() {
       continue;
 
     $group_repo = $group->getRepository();
-    if (!$group_repo || !($is_valid = $group_repo->isValid())) {
-      if (!$is_valid) {
+    if (!$group_repo || !$group_repo->isValid()) {
+      if ($group_repo) {
         email_group($group,
                     "PIC1: repository no longer exists",
                     "Repository no longer exists: " . $group_repo . "\n\n".
