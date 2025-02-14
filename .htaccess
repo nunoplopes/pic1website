@@ -1,7 +1,7 @@
 RewriteCond %{SERVER_PORT} ^80$
 RewriteRule ^(.*)$ https://pic1dei.tecnico.ulisboa.pt/$1 [L,R=301]
 
-<Files *>
+<Files *.*>
   Order Deny,Allow
   Deny from all
 </Files>

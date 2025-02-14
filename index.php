@@ -139,8 +139,10 @@ function terminate($error_message = null, $template = 'main.html.twig',
   if ($select_form)
     $content['select_form'] = $select_form->createView();
 
+  if (!$error_message) {
+    db_flush();
+  }
   echo $twig->render($template, $content + $extra_fields);
-  db_flush();
   exit();
 }
 
