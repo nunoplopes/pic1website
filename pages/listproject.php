@@ -11,7 +11,6 @@ $group = db_fetch_group_id($_GET['id']);
 if (!$group || !has_group_permissions($group))
   die('Permission error');
 
-$top_box['title'] = 'Students';
 foreach ($group->students as $s) {
   $data = [
     ['type' => 'photo', 'data' => $s->getPhoto()],
@@ -25,12 +24,15 @@ foreach ($group->students as $s) {
                          $repou->platform().':'.$repou->username());
     $data[] = $repou->description();
   }
-  $top_box['rows'][] = $data;
+  $top_box['Students'][] = $data;
 }
 
 if ($prof = $group->shift->prof) {
-  echo "<p>Professor: <a href=\"mailto:$prof->email\">",
-       $prof->shortName(), "</a></p>\n";
+  $top_box['Professor'][] = [
+    ['type' => 'photo', 'data' => $prof->getPhoto()],
+    $prof->shortName(),
+    ['type' => 'email', 'data' => $prof->email],
+  ];
 }
 
 $readonly = ['group_number', 'year', 'shift'];

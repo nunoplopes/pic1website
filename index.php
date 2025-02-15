@@ -132,12 +132,10 @@ function terminate($error_message = null, $template = 'main.html.twig',
     'deadline'        => $deadline ? $deadline->format('c') : null,
     'bottom_links'    => $bottom_links,
     'refresh_url'     => $refresh_url,
+    'form'            => $form === null ? null : $form->createView(),
+    'select_form'     => $select_form === null
+                           ? null : $select_form->createView(),
   ];
-
-  if ($form)
-    $content['form'] = $form->createView();
-  if ($select_form)
-    $content['select_form'] = $select_form->createView();
 
   if (!$error_message) {
     db_flush();

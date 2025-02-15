@@ -19,30 +19,10 @@ if (auth_at_least(ROLE_TA)) {
   $groups = $user->groups;
 }
 
-$table = [];
-foreach ($groups as $group) {
-  foreach (db_fetch_bugs_group($group) as $bug) {
-    $video = $bug->getVideoHTML();
-    if ($video) {
-      $video = <<<HTML
-<button class="btn btn-primary" onclick="toggleVideo(this)">Show Video</button>
-<div style="display: none; margin-top: 10px">$video</div>
-HTML;
-    }
-    $repo = $group->getRepository();
-    $table[] = [
-      'id'          => $bug->id,
-      'Group'       => dolink_group($group, $group),
-      'Project'     => $repo ? dolink_ext($repo, $repo->name()) : '',
-      'Student'     => $bug->user->shortName(),
-      'Issue'       => dolink_ext($bug->issue_url, 'link'),
-      'Description' => $bug->description,
-      'Video'       => ['html' => $video],
-    ];
-  }
-}
-
 if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
+  $info_message = "You can submit this form multiple times until the deadline.".
+                  " Only the last submission will be considered.";
+
   if ($bug = db_fetch_bug_user($year, $user)) {
     $issue_url = $bug->issue_url;
     $repro_url = $bug->repro_url;
@@ -54,11 +34,12 @@ if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
   $form = $formFactory->createBuilder(FormType::class)
     ->add('issue_url', UrlType::class, [
       'label' => 'Issue URL',
-      'data' => $issue_url,
+      'data'  => $issue_url,
     ])
     ->add('repro_url', UrlType::class, [
-      'label' => 'URL of video reproducing the issue',
-      'data' => $repro_url,
+      'label'    => 'URL of video reproducing the issue',
+      'data'     => $repro_url,
+      'required' => false,
     ])
     ->add('description', TextareaType::class, [
       'label'    => 'Description',
@@ -76,7 +57,7 @@ if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
     if ($bug = db_fetch_bug_user($year, $user)) {
       $bug->description = $form->get('description')->getData();
       $bug->set_issue_url($form->get('issue_url')->getData());
-      $bug->set_repro_url($form->get('repro_url')->getData());
+      $bug->set_repro_url($form->get('repro_url')->getData() ?? '');
     } else {
       $bug = SelectedBug::factory(
         $group, $user, $form->get('description')->getData(),
@@ -84,5 +65,29 @@ if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
         $form->get('repro_url')->getData());
       db_save($bug);
     }
+  }
+}
+
+$table = [];
+foreach ($groups as $group) {
+  foreach (db_fetch_bugs_group($group) as $bug) {
+    $video = $bug->getVideoHTML();
+    if ($video) {
+      $video = <<<HTML
+<button class="btn btn-primary" onclick="toggleVideo(this)">Show Video</button>
+<div style="display: none; margin-top: 10px">$video</div>
+HTML;
+    }
+    $repo = $group->getRepository();
+    $table[] = [
+      'id'           => $bug->id,
+      'Group'        => dolink_group($group, $group),
+      'Project'      => $repo ? dolink_ext($repo, $repo->name()) : '',
+      'Student'      => $bug->user->shortName(),
+      'Issue'        => dolink_ext($bug->issue_url, 'link'),
+      'Description'  => $bug->description,
+      'Video'        => ['html' => $video, 'width' => 100],
+      '_large_table' => true,
+    ];
   }
 }
