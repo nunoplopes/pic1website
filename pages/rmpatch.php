@@ -15,7 +15,7 @@ if (!$patch)
 
 if (!empty($_GET['sure'])) {
   db_delete($patch);
-  echo "<p>Patch deleted</p>";
+  $success_message = "Patch deleted";
 } else {
   $name = $patch->getSubmitter()->shortName();
   $link = dolink('rmpatch', "Yes, I'm sure",

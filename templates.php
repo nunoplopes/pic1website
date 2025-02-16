@@ -156,8 +156,10 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
     }
   }
 
-  if ($not_all_readonly)
-    $form->add('submit', SubmitType::class, ['label' => 'Save changes']);
+  $form->add('submit', SubmitType::class, [
+    'label'    => 'Save changes',
+    'disabled' => !$not_all_readonly,
+  ]);
 
   if ($extra_buttons) {
     foreach ($extra_buttons as $name => $args) {

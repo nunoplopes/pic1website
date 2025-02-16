@@ -91,6 +91,7 @@ foreach ($groups as $group) {
       'Files'     => $patch->files_modified,
       'Submitter' => $patch->getSubmitterName(),
       'Authors'   => implode(', ', $authors),
+      '_large_table' => true,
     ];
   }
 }

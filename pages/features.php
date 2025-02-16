@@ -62,9 +62,6 @@ if ($user->role === ROLE_STUDENT && $deadline->isFeatureSelectionActive()) {
       $file->move(__DIR__ . '/../uploads', $hash);
       $success_message = "File uploaded successfully!";
 
-      if ($group->hash_proposal_file && $group->hash_proposal_file !== $hash) {
-        unlink(__DIR__ . "/../uploads/{$group->hash_proposal_file}");
-      }
       $group->hash_proposal_file = $hash;
       $group->url_proposal = check_url($form->get('url')->getData());
     }
