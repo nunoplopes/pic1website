@@ -23,12 +23,21 @@ class PatchCIError
   /** @Column(length=64) */
   public string $hash;
 
-  /** @Column(length=128) */
+  /** @Column */
   public string $name;
 
-  public function __construct(Patch $patch, string $hash, string $name) {
+  /** @Column */
+  public string $url;
+
+  public function __construct(Patch $patch, string $hash, string $name,
+                              string $url) {
     $this->patch = $patch;
     $this->hash  = $hash;
     $this->name  = $name;
+    $this->url   = $url;
+  }
+
+  public function getCommitURL() : string {
+    return $this->patch->getCommitURL($this->hash);
   }
 }

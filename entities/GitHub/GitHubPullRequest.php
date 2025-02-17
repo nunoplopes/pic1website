@@ -125,6 +125,7 @@ class GitHubPullRequest extends \PullRequest
       if ($check['state'] == 'failure') {
         $failed[] = [
           'name' => $check['context'],
+          'url'  => $check['target_url'],
           'time' => github_parse_date($check['updated_at'])
         ];
       }
@@ -140,6 +141,7 @@ class GitHubPullRequest extends \PullRequest
           if ($job['conclusion'] == 'failure') {
             $failed[] = [
               'name' => $job['name'],
+              'url'  => $job['html_url'],
               'time' => github_parse_date($job['completed_at'])
             ];
           }

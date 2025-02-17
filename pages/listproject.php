@@ -54,7 +54,7 @@ if (is_deadline_current($deadline)) {
                   " Only the last submission will be considered.";
 }
 
-handle_form($group, $hidden, $readonly, null, null, ['repository']);
+handle_form($group, $hidden, $readonly, null, ['repository']);
 
 if ($repo = $group->getRepository()) {
   $info_box['title'] = 'Repository data';

@@ -49,11 +49,12 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
 }
 
 if (auth_at_least(ROLE_TA)) {
-  $groups = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo']);
-/*  $only_needs_review = do_bool_selector('Show only patches that need review',
-                                        'needs_review');
-  $only_open_patches = do_bool_selector('Show only non-merged patches',
-                                        'open_patches');*/
+  [$groups, $only_needs_review, $only_open_patches]
+    = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo'],
+                [
+                  'needs_review' => 'Show only patches that need review',
+                  'open_patches' => 'Show only non-merged patches',
+                ]);
 } else {
   $groups = $user->groups;
 }

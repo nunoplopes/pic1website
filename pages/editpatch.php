@@ -2,7 +2,15 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+
 require_once 'email.php';
+
+$custom_header = 'Patch';
+$user = get_user();
 
 if (empty($_GET['id']))
   die('Missing id');
@@ -12,7 +20,7 @@ if (!$patch || !has_group_permissions($patch->group))
   die('Permission error');
 
 $readonly = ['group'];
-if (get_user()->role == ROLE_STUDENT) {
+if ($user->role == ROLE_STUDENT) {
   $readonly[] = 'status';
 }
 
@@ -23,96 +31,80 @@ if (!auth_at_least(ROLE_TA) &&
 
 $prev_status = $patch->getStatus();
 
-$new_comment = trim($_POST['text'] ?? '');
-if ($new_comment && get_user()->role == ROLE_STUDENT) {
-  if ($patch->status == PATCH_REVIEWED || $patch->status == PATCH_NOTMERGED) {
+$comments_form = $formFactory->createNamedBuilder('comments', FormType::class)
+  ->add('id', HiddenType::class, [
+    'data' => $patch->id,
+  ])
+  ->add('text', TextareaType::class, [
+    'attr' => [
+      'rows' => 7,
+    ],
+  ])
+  ->add('submit', SubmitType::class, [
+    'label' => 'Add new comment',
+  ]);
+
+// Add approve/reject buttons to simplify the life of TAs
+if ($patch->status <= PATCH_REVIEWED && auth_at_least(ROLE_TA)) {
+  $comments_form->add('approve', SubmitType::class, [
+    'label' => 'Approve',
+  ]);
+  $comments_form->add('reject', SubmitType::class, [
+    'label' => 'Reject',
+  ]);
+}
+
+$comments_form = $comments_form->getForm();
+$comments_form->handleRequest($request);
+
+if ($comments_form->isSubmitted() && $comments_form->isValid()) {
+  if (auth_at_least(ROLE_TA)) {
+    if ($comments_form->has('approve') &&
+        $comments_form->get('approve')->isClicked()) {
+      $patch->set_status(PATCH_APPROVED);
+    } elseif ($comments_form->has('reject') &&
+              $comments_form->get('reject')->isClicked()) {
+      $patch->set_status(PATCH_REVIEWED);
+    }
+  }
+  elseif ($user->role == ROLE_STUDENT &&
+      ($patch->status == PATCH_REVIEWED || $patch->status == PATCH_NOTMERGED)) {
     $patch->set_status(PATCH_WAITING_REVIEW);
   }
+
+  $new_status  = $patch->getStatus();
+  $new_comment = $comments_form->get('text')->getData();
+  if ($new_status != $prev_status) {
+    $new_comment = "Status changed: $prev_status → $new_status\n\n$new_comment";
+  }
+  $patch->comments->add(new PatchComment($patch, $new_comment, $user));
 }
 
 handle_form($patch, [], $readonly, ['group', 'status', 'type']);
 
-if (auth_at_least(ROLE_PROF)) {
-  $link = dolink('rmpatch', 'Delete', ['id' => $patch->id]);
-  echo "<p>&nbsp;</p>\n<p>", dolink('rmpatch', 'Delete', ['id' => $patch->id]),
-       "</p>\n";
-}
-
-if ($new_comment) {
-  $new_status = $patch->getStatus();
-  if ($new_status != $prev_status) {
-    $new_comment = "Status changed: $prev_status → $new_status\n\n$new_comment";
-  }
-  $patch->comments->add(new PatchComment($patch, $new_comment, get_user()));
-}
-db_flush();
-
-echo "<table>\n";
 foreach ($patch->comments as $comment) {
-  break;
+  $data = [];
   if ($comment->user) {
-    $author = $comment->user->shortName() . ' (' . $comment->user->id . ')';
-    $photo  = $comment->user->getPhoto();
+    $data['author'] = $comment->user->shortName() . ' ('.$comment->user->id.')';
+    $data['photo']  = $comment->user->getPhoto();
   } else {
-    $author = '';
-    $photo  = 'https://api.dicebear.com/9.x/bottts/svg?seed=Liliana&baseColor=00acc1&eyes=roundFrame02&mouth=smile01&texture[]&top=antenna';
+    $data['author'] = '';
+    $data['photo']  = 'https://api.dicebear.com/9.x/bottts/svg?seed=Liliana&baseColor=00acc1&eyes=roundFrame02&mouth=smile01&texture[]&top=antenna';
   }
-  $text = format_text($comment->text);
-
-  echo <<<HTML
-<tr>
-  <td>
-    <p><img src="$photo" alt="Photo" width="100px"></p>
-    <p><b>$author</b></p>
-    <p>{$comment->time->format('d/m/Y H:i:s')}</p>
-  </td>
-  <td>$text</td>
-</tr>
-HTML;
+  $data['date'] = $comment->time;
+  $data['text'] = $comment->text;
+  $comments[] = $data;
 }
 
 $ci_failures = [];
 foreach ($patch->ci_failures as $ci) {
-  $ci_failures[$ci->hash][] = $ci->name;
+  $ci_failures[$ci->hash]['url'] = $ci->getCommitURL();
+  $ci_failures[$ci->hash]['failed'][$ci->name] = $ci->url;
 }
 
-if ($ci_failures) {
-  echo <<<HTML
-<p>&nbsp;</p>
-<p><b>CI Failures:</b></p>
-<table>
-  <tr><th>Commit hash</th><th>Failed CI jobs</th></tr>
-HTML;
-
-  foreach ($ci_failures as $hash => $names) {
-    echo "<tr><td>$hash</td><td>",
-         nl2br(htmlspecialchars(implode("\n", $names))),
-         "</td></tr>\n";
-  }
+if (auth_at_least(ROLE_PROF)) {
+  $bottom_links[] = dolink('rmpatch', 'Delete patch', ['id' => $patch->id]);
 }
-
-// Add approve/reject buttons to simplify the life of TAs
-$extra_buttons = '';
-if ($patch->status <= PATCH_REVIEWED && auth_at_least(ROLE_TA)) {
-  $app = PATCH_APPROVED;
-  $rej = PATCH_REVIEWED;
-  $extra_buttons = <<<HTML
-  <input type="hidden" name="status" value="{$patch->status}">
-  <input type="submit" value="Approve" onclick="this.form.status.value='$app'">
-  <input type="submit" value="Reject" onclick="this.form.status.value='$rej'">
-HTML;
-}
-
-echo <<<HTML
-<p>&nbsp;</p>
-<form method="post">
-  <input type="hidden" name="submit" value="1">
-  <input type="hidden" name="id" value="{$patch->id}">
-  <textarea name="text" rows="5" cols="80"></textarea><br>
-  <input type="submit" value="Add comment">
-  $extra_buttons
-</form>
-HTML;
 
 // notify students of the patch review
 if ($patch->getStatus() != $prev_status) {
@@ -132,15 +124,14 @@ if ($patch->getStatus() != $prev_status) {
     email_group($patch->group, $subject, <<<EOF
 $line
 
-Review:
 $new_comment
 
 Patch: $patchurl
 $pic1link
 EOF);
   }
-} elseif ($new_comment) {
-  if (get_user()->role == ROLE_STUDENT) {
+} elseif (isset($new_comment)) {
+  if ($user->role == ROLE_STUDENT) {
     $name = $user->shortName();
     email_ta($patch->group, 'PIC1: new patch comment',
              "$name ($user) added a new comment:\n" .
@@ -164,18 +155,18 @@ if ($patch->isValid()) {
 } else {
   $info_box['title'] = 'The patch is no longer available!';
 }
-$info_box['rows']['Patch'] = dolink_ext($issue, 'link');
+$info_box['rows']['Patch'] = dolink_ext($patch->getPatchURL(), 'link');
 
-if ($issue = $patch->getIssueURL()) {
-  $info_box['rows']['Issue'] = dolink_ext($issue, 'link');
-}
 if ($pr = $patch->getPRURL()) {
   $info_box['rows']['PR'] = dolink_ext($pr, 'link');
+}
+if ($issue = $patch->getIssueURL()) {
+  $info_box['rows']['Issue'] = dolink_ext($issue, 'link');
 }
 
 function gen_authors($list) {
   $data = [];
-  $invalid = true;
+  $invalid = false;
   foreach ($list as $author) {
     $name  = $author[1];
     $email = $author[2];

@@ -1,24 +1,27 @@
 {% include 'header.html.twig' %}
 
 {% if select_form %}
-  <form method="GET">
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="row g-3">
-          {% for field in select_form %}
-            {% if 'hidden' in field.vars.block_prefixes %}
-              {{ form_widget(field) }}
-            {% else %}
-              <div class="col-md-2">
-                {{ form_row(field, {'attr': {'class': 'form-control',
-                                             'onchange': 'this.form.submit()'}}) }}
-              </div>
-            {% endif %}
-          {% endfor %}
+  </div>
+  <div class="col-md-12">
+    <form method="GET">
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row g-3">
+            {% for field in select_form %}
+              {% if 'hidden' in field.vars.block_prefixes %}
+                {{ form_widget(field) }}
+              {% else %}
+                <div class="col-md-2">
+                  {{ form_row(field, {'attr': {'class': 'form-control',
+                                              'onchange': 'this.form.submit()'}}) }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
         </div>
       </div>
-    </div>
-  </form>
+    </form>
+  <div class="col-md-7">
 {% endif %}
 
 {% if deadline %}
@@ -93,15 +96,20 @@
           <tr>
             {% for key, value in row %}
               {% if key != '_large_table' %}
-                <td style="
                 {% if value is iterable and value.width is defined %}
-                  min-width: {{ value.width }}px;
+                  <td style="min-width: {{ value.width }}px">
+                {% elseif value is iterable and value.longdata is defined %}
+                  <td style="word-break: break-word">
+                {% else %}
+                  <td>
                 {% endif %}
-                word-break: break-word">
+
                 {% if value is iterable and value.url is defined %}
                   <a href="{{ value.url }}">{{ value.label }}</a>
                 {% elseif value is iterable and value.html is defined %}
                   {{ value.html|raw }}
+                {% elseif value is iterable and value.longdata is defined %}
+                  {{ value.longdata|nl2br }}
                 {% else %}
                   {{ value|nl2br }}
                 {% endif %}
@@ -160,6 +168,77 @@
         {{ form_row(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
       {{ form_end(form) }}
     </div>
+  </div>
+{% endif %}
+
+{% if comments %}
+  <div class="container mb-3">
+    <h2 class="my-4">Comments</h2>
+    <div class="list-group">
+      {% for comment in comments %}
+        <div class="list-group-item d-flex align-items-start">
+          <div class="d-flex flex-column align-items-center me-4">
+            <img src="{{ comment.photo }}" alt="Photo" class="rounded-circle mb-2"
+                 style="width: 100px; height: 100px; object-fit: cover; border: 4px solid #ddd">
+            <span class="font-weight-bold">{{ comment.author }}</span>
+            <small class="text-muted">{{ comment.date|date('d/m/Y H:i:s') }}</small>
+          </div>
+          <div class="flex-grow-1">
+            <p class="mb-0">{{ comment.text|nl2br }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% if comments_form %}
+  <div class="card mb-4" style="max-width: 600px; margin: 0 auto">
+    <div class="card-body">
+      {{ form_start(comments_form) }}
+        {% for field in comments_form %}
+          {{ form_row(field) }}
+        {% endfor %}
+      {{ form_end(comments_form) }}
+    </div>
+  </div>
+{% endif %}
+
+{% if ci_failures %}
+  <div class="card border-danger mb-3">
+  <div class="card-header bg-danger text-white">
+    CI Failures
+  </div>
+  <div class="card-body">
+    {% for hash, data in ci_failures %}
+      <div class="mb-3">
+        <h5><a class="text-danger" href="{{ data.url }}" style="text-decoration: none">{{ hash }}</a></h5>
+        <div class="d-flex flex-wrap">
+          {% for name, url in data.failed %}
+            <div class="badge bg-warning m-1">
+              <a class="text-dark" href="{{ url }}" style="text-decoration: none">{{ name }}</a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if confirm %}
+  <div class="container mt-4">
+    {% for question, link in confirm %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="card-title">Confirm</h5>
+        </div>
+        <div class="card-body">
+          {{ question }}<br><br>
+          <a href="{{ link.url }}" class="btn btn-danger">{{ link.label }}</a>
+        </div>
+      </div>
+    {% endfor %}
   </div>
 {% endif %}
 

@@ -85,7 +85,7 @@ HTML;
       'Project'      => $repo ? dolink_ext($repo, $repo->name()) : '',
       'Student'      => $bug->user->shortName(),
       'Issue'        => dolink_ext($bug->issue_url, 'link'),
-      'Description'  => $bug->description,
+      'Description'  => ['longdata' => $bug->description],
       'Video'        => ['html' => $video, 'width' => 100],
       '_large_table' => true,
     ];

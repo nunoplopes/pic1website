@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -43,7 +44,7 @@ function dolink($page, $txt, $args = []) {
 }
 
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
-                     $extra_buttons = null, $in_required = null) {
+                     $in_required = null) {
   global $form, $formFactory, $request, $success_message;
   $form = $formFactory->createBuilder(FormType::class);
 
@@ -126,6 +127,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       foreach ($obj->$method_name() as $id => $str) {
         $vals[$str] = $id;
       }
+      assert(in_array($orig_value, $vals));
       $form->add($name, ChoiceType::class, [
         'label'    => $print_name,
         'choices'  => $vals,
@@ -135,6 +137,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       ]);
     }
     else {
+      $extra_attrs = [];
       $getter = "getstr_$name";
       if (method_exists($obj, $getter)) {
         $val = $obj->$getter();
@@ -146,13 +149,14 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       } else {
         $length      = $column ? $column->length : 0;
         $field_class = $length > 200 ? TextareaType::class : TextType::class;
+        $extra_attrs = ['attr' => ['rows' => 5]];
       }
       $form->add($name, $field_class, [
         'label'    => $print_name,
         'data'     => $val,
         'disabled' => $disabled,
         'required' => $required,
-      ]);
+      ] + $extra_attrs);
     }
   }
 
@@ -160,15 +164,6 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
     'label'    => 'Save changes',
     'disabled' => !$not_all_readonly,
   ]);
-
-  if ($extra_buttons) {
-    foreach ($extra_buttons as $name => $args) {
-      $key = $args[0];
-      $value = $args[1];
-      echo "<input type=\"submit\" value=\"$name\"",
-           " onclick=\"this.form.$key.value='$value'\">\n";
-    }
-  }
 
   $form = $form->getForm();
   $form->handleRequest($request);
@@ -200,4 +195,117 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
     }
     $success_message = 'Database updated!';
   }
+}
+
+function filter_by($filters, $extra_filters = []) {
+  global $page, $request, $formFactory, $select_form;
+  $select_form = $formFactory->createNamedBuilder('', FormType::class);
+
+  $select_form->add('page', HiddenType::class, [
+    'data' => $page,
+  ]);
+
+  $selected_year   = $request->query->get('year', db_get_group_years()[0]['year']);
+  $selected_shift  = $request->query->get('shift', null);
+  $own_shifts_only = $request->query->get('own_shifts', false) ? true : false;
+  $selected_group  = $request->query->get('group', 'all');
+  $selected_repo   = $request->query->get('repo', 'all');
+  $return = null;
+
+  $selected_shift_obj = $selected_shift && $selected_shift != 'all'
+                          ? db_fetch_shift_id($selected_shift) : null;
+
+  if (in_array('year', $filters)) {
+    $years = [];
+    foreach (db_get_group_years() as $year) {
+      $years[$year['year']] = $year['year'];
+    }
+    $select_form->add('year', ChoiceType::class, [
+      'label'   => 'Year',
+      'choices' => $years,
+      'data'    => $selected_year,
+    ]);
+    $return = $selected_year;
+  }
+  if (in_array('shift', $filters)) {
+    $shifts = ['All' => 'all'];
+    foreach (db_fetch_shifts($selected_year) as $shift) {
+      if (!has_shift_permissions($shift))
+        continue;
+      if ($own_shifts_only && $shift->prof != get_user())
+        continue;
+      $shifts[$shift->name] = $shift->id;
+    }
+    $select_form->add('shift', ChoiceType::class, [
+      'label'   => 'Shift',
+      'choices' => $shifts,
+      'data'    => $selected_shift,
+    ]);
+  }
+  if (in_array('group', $filters)) {
+    $groups = ['All' => 'all'];
+    $return = [];
+    foreach (db_fetch_groups($selected_year) as $group) {
+      if (!has_group_permissions($group))
+        continue;
+      if ($own_shifts_only && $group->prof() != get_user())
+        continue;
+      if ($selected_shift_obj && $group->shift != $selected_shift_obj)
+        continue;
+      if ($selected_repo != 'all' && $group->getRepositoryId() != $selected_repo)
+        continue;
+
+      if ($selected_group == 'all' || $group->id == $selected_group)
+        $return[] = $group;
+      $groups[$group->group_number] = $group->id;
+    }
+    $select_form->add('group', ChoiceType::class, [
+      'label'   => 'Group',
+      'choices' => $groups,
+      'data'    => $selected_group,
+    ]);
+  }
+  if (in_array('repo', $filters)) {
+    $repos = [];
+    foreach (db_fetch_groups($selected_year) as $group) {
+      if (!has_group_permissions($group))
+        continue;
+
+      if ($repo = $group->getRepositoryId())
+        $repos[$repo] = true;
+    }
+    $repos = array_keys($repos);
+    natsort($repos);
+
+    $repos = ['All' => 'all'] + array_combine($repos, $repos);
+    $select_form->add('repo', ChoiceType::class, [
+      'label'   => 'Repository',
+      'choices' => $repos,
+      'data'    => $selected_repo,
+    ]);
+  }
+  if (in_array('own_shifts', $filters)) {
+    $select_form->add('own_shifts', CheckboxType::class, [
+      'label' => 'Show only own shifts',
+      'data'  => $own_shifts_only,
+      'required' => false,
+    ]);
+  }
+
+  if ($extra_filters) {
+    $return = [$return];
+    foreach ($extra_filters as $var => $label) {
+      $value = $request->query->get($var, false) ? true : false;
+      $select_form->add($var, CheckboxType::class, [
+        'label'    => $label,
+        'data'     => $value,
+        'required' => false,
+      ]);
+      $return[] = $value;
+    }
+  }
+
+  $select_form = $select_form->getForm();
+  $select_form->handleRequest($request);
+  return $return;
 }

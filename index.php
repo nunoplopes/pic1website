@@ -9,10 +9,6 @@ require 'auth.php';
 require 'github.php';
 require 'validation.php';
 
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-
 $page = $_REQUEST['page'] ?? '';
 
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
@@ -24,6 +20,7 @@ $formFactory = Forms::createFormFactoryBuilder()
 $custom_header = null;
 $form = null;
 $select_form = null;
+$comments_form = null;
 $embed_file = null;
 $info_message = null;
 $success_message = null;
@@ -35,6 +32,9 @@ $info_box = null;
 $monospace = null;
 $bottom_links = null;
 $refresh_url = null;
+$confirm = null;
+$comments = null;
+$ci_failures = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
@@ -59,7 +59,8 @@ function terminate($error_message = null, $template = 'main.html.twig',
                    $extra_fields = []) {
   global $page, $deadline, $table, $lists, $info_box, $form, $select_form;
   global $embed_file, $info_message, $success_message, $monospace, $refresh_url;
-  global $custom_header, $bottom_links, $top_box;
+  global $custom_header, $bottom_links, $top_box, $confirm, $comments;
+  global $comments_form, $ci_failures;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -129,12 +130,17 @@ function terminate($error_message = null, $template = 'main.html.twig',
     'top_box'         => $top_box,
     'info_box'        => $info_box,
     'monospace'       => $monospace,
+    'confirm'         => $confirm,
+    'comments'        => $comments,
+    'ci_failures'     => $ci_failures,
     'deadline'        => $deadline ? $deadline->format('c') : null,
     'bottom_links'    => $bottom_links,
     'refresh_url'     => $refresh_url,
     'form'            => $form === null ? null : $form->createView(),
     'select_form'     => $select_form === null
                            ? null : $select_form->createView(),
+    'comments_form'   => $comments_form === null
+                           ? null : $comments_form->createView(),
   ];
 
   if (!$error_message) {
@@ -142,105 +148,6 @@ function terminate($error_message = null, $template = 'main.html.twig',
   }
   echo $twig->render($template, $content + $extra_fields);
   exit();
-}
-
-function filter_by($filters) {
-  global $page, $request, $formFactory, $select_form;
-  $select_form = $formFactory->createNamedBuilder('',
-    Symfony\Component\Form\Extension\Core\Type\FormType::class);
-
-  $select_form->add('page', HiddenType::class, [
-    'data' => $page,
-  ]);
-
-  $selected_year   = $request->query->get('year', db_get_group_years()[0]['year']);
-  $selected_shift  = $request->query->get('shift', null);
-  $own_shifts_only = $request->query->get('own_shifts', false) ? true : false;
-  $selected_group  = $request->query->get('group', 'all');
-  $selected_repo   = $request->query->get('repo', 'all');
-  $return = null;
-
-  $selected_shift_obj = $selected_shift && $selected_shift != 'all'
-                          ? db_fetch_shift_id($selected_shift) : null;
-
-  if (in_array('year', $filters)) {
-    $years = [];
-    foreach (db_get_group_years() as $year) {
-      $years[$year['year']] = $year['year'];
-    }
-    $select_form->add('year', ChoiceType::class, [
-      'label'   => 'Year',
-      'choices' => $years,
-      'data'    => $selected_year,
-    ]);
-    $return = $selected_year;
-  }
-  if (in_array('shift', $filters)) {
-    $shifts = ['All' => 'all'];
-    foreach (db_fetch_shifts($selected_year) as $shift) {
-      if (!has_shift_permissions($shift))
-        continue;
-      if ($own_shifts_only && $shift->prof != get_user())
-        continue;
-      $shifts[$shift->name] = $shift->id;
-    }
-    $select_form->add('shift', ChoiceType::class, [
-      'label'   => 'Shift',
-      'choices' => $shifts,
-      'data'    => $selected_shift,
-    ]);
-  }
-  if (in_array('group', $filters)) {
-    $groups = ['All' => 'all'];
-    $return = [];
-    foreach (db_fetch_groups($selected_year) as $group) {
-      if (!has_group_permissions($group))
-        continue;
-      if ($own_shifts_only && $group->prof() != get_user())
-        continue;
-      if ($selected_shift_obj && $group->shift != $selected_shift_obj)
-        continue;
-      if ($selected_repo != 'all' && $group->getRepositoryId() != $selected_repo)
-        continue;
-
-      if ($selected_group == 'all' || $group->id == $selected_group)
-        $return[] = $group;
-      $groups[$group->group_number] = $group->id;
-    }
-    $select_form->add('group', ChoiceType::class, [
-      'label'   => 'Group',
-      'choices' => $groups,
-      'data'    => $selected_group,
-    ]);
-  }
-  if (in_array('repo', $filters)) {
-    $repos = [];
-    foreach (db_fetch_groups($selected_year) as $group) {
-      if (!has_group_permissions($group))
-        continue;
-
-      if ($repo = $group->getRepositoryId())
-        $repos[$repo] = true;
-    }
-    $repos = array_keys($repos);
-    natsort($repos);
-
-    $repos = ['All' => 'all'] + array_combine($repos, $repos);
-    $select_form->add('repo', ChoiceType::class, [
-      'label'   => 'Repository',
-      'choices' => $repos,
-      'data'    => $selected_repo,
-    ]);
-  }
-  if (in_array('own_shifts', $filters)) {
-    $select_form->add('own_shifts', CheckboxType::class, [
-      'label' => 'Show only own shifts',
-      'data'  => $own_shifts_only,
-    ]);
-  }
-  $select_form = $select_form->getForm();
-  $select_form->handleRequest($request);
-  return $return;
 }
 
 terminate();

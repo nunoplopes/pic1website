@@ -61,12 +61,12 @@ abstract class Patch
   /** @Column */
   public int $type;
 
-  /** @OneToMany(targetEntity="PatchComment", mappedBy="patch", cascade={"persist"})
+  /** @OneToMany(targetEntity="PatchComment", mappedBy="patch", cascade={"persist", "remove"})
    *  @OrderBy({"id" = "ASC"})
    */
   public $comments;
 
-  /** @OneToMany(targetEntity="PatchCIError", mappedBy="patch", cascade={"persist"})
+  /** @OneToMany(targetEntity="PatchCIError", mappedBy="patch", cascade={"persist", "remove"})
    *  @OrderBy({"id" = "ASC"})
    */
   public $ci_failures;
@@ -215,6 +215,7 @@ abstract class Patch
   abstract protected function computeLinesDeleted() : int;
   abstract protected function computeFilesModified() : int;
   abstract public function getPatchURL() : string;
+  abstract public function getCommitURL(string $hash) : string;
   abstract public function setPR(PullRequest $pr);
   abstract public function getPR() : ?PullRequest;
 

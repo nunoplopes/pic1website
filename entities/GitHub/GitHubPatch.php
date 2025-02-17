@@ -148,6 +148,11 @@ class GitHubPatch extends \Patch
             urlencode($this->repo_branch);
   }
 
+  public function getCommitURL(string $hash) : string {
+    $repo = $this->group->getRepository();
+    return 'https://github.com/' . $repo->name() . '/commit/' . $hash;
+  }
+
   public function setPR(\PullRequest $pr) {
     $this->pr_number = $pr->getNumber();
   }
