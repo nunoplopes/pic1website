@@ -356,12 +356,12 @@ abstract class Patch
     return $hashes;
   }
 
-  public function addCIError($hash, $name) {
+  public function addCIError($hash, $name, $url) {
     foreach ($this->ci_failures as $error) {
       if ($error->hash == $hash && $error->name == $name)
         return;
     }
-    $this->ci_failures->add(new PatchCIError($this, $hash, $name));
+    $this->ci_failures->add(new PatchCIError($this, $hash, $name, $url));
   }
 
   public function set_status($status) {
