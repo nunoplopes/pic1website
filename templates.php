@@ -205,7 +205,9 @@ function filter_by($filters, $extra_filters = []) {
     'data' => $page,
   ]);
 
-  $selected_year   = $request->query->get('year', db_get_group_years()[0]['year']);
+  $all_years = db_get_group_years();
+
+  $selected_year   = $request->query->get('year', $all_years[0]['year']);
   $selected_shift  = $request->query->get('shift', null);
   $own_shifts_only = $request->query->get('own_shifts', false) ? true : false;
   $selected_group  = $request->query->get('group', 'all');
@@ -217,7 +219,7 @@ function filter_by($filters, $extra_filters = []) {
 
   if (in_array('year', $filters)) {
     $years = [];
-    foreach (db_get_group_years() as $year) {
+    foreach ($all_years as $year) {
       $years[$year['year']] = $year['year'];
     }
     $select_form->add('year', ChoiceType::class, [
