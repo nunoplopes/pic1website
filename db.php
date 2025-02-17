@@ -282,6 +282,22 @@ function db_get_patch_stats() {
                        ->getArrayResult();
 }
 
+function db_get_pr_stats($year) {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('Patch', 'p')
+                       ->select(['p.status',
+                                 'p.type',
+                                 'g.repository',
+                                 'COUNT(p.status) AS count'])
+                       ->join('p.group', 'g')
+                       ->where('g.year = :year')
+                       ->groupBy('p.status, p.type, g.repository')
+                       ->setParameter('year', $year)
+                       ->getQuery()
+                       ->getArrayResult();
+}
+
 function db_delete_cache() {
   global $connection;
   $connection->executeStatement('DROP TABLE IF EXISTS cache_items');

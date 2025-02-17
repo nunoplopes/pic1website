@@ -73,10 +73,14 @@ foreach (db_fetch_groups($selected_year) as $group) {
     @++$projs[$repo->name()];
 
     $prs_per_project[$repo->name()]['url'] = (string)$repo;
-    foreach ($group->patches as $patch) {
-      @++$prs_per_project[$repo->name()][$patch->type][$patch->wasMerged()];
-    }
   }
+}
+
+foreach (db_get_pr_stats($selected_year) as $data) {
+  $repo   = (new Repository($data['repository']))->name();
+  $merged = $data['status'] == PATCH_MERGED ||
+            $data['status'] == PATCH_MERGED_ILLEGAL;
+  @$prs_per_project[$repo][$data['type']][$merged] += $data['count'];
 }
 
 if (sizeof($projs) > 10) {
