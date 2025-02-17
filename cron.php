@@ -97,6 +97,7 @@ function get_courses() {
 
 function run_prune_cache() {
   db_delete_cache();
+  `rm -fr .cache`;
 }
 
 // Update student's group information

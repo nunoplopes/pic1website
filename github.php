@@ -12,7 +12,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Cache\Adapter\PdoAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class MyJournal implements \Http\Client\Common\Plugin\Journal {
   public function addSuccess(RequestInterface $request,
@@ -65,7 +65,8 @@ class MyHttpBuilder extends Github\HttpClient\Builder {
   public function getHttpClient(): HttpMethodsClientInterface {
     if (!$this->client) {
       $stream = Psr17FactoryDiscovery::findStreamFactory();
-      $pool = new PdoAdapter(DB_DSN, 'cache', $this->timeout);
+      //$pool = new PdoAdapter(DB_DSN, 'cache', $this->timeout);
+      $pool = new FilesystemAdapter('github', $this->timeout, '.cache');
       $config = ['respect_response_cache_directives' => [],
                  'default_ttl' => $this->timeout];
       $plugins = $this->plugins;
