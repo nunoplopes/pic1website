@@ -65,6 +65,10 @@ $fields['pcmerged_feat'] = @$pcmerged_y[PATCH_FEATURE];
 
 
 // 3rd plot: stats of projects selected this year
+$projs = [];
+$langs = [];
+$prs_per_project = [];
+
 foreach (db_fetch_groups($selected_year) as $group) {
   if ($repo = $group->getValidRepository()) {
     if ($lang = $repo->language()) {
