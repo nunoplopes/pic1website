@@ -11,7 +11,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 $user = get_user();
 $group = $user->getGroup();
 $year = $group ? $group->year : get_current_year();
-$deadline = db_fetch_deadline($year);
+$deadlines = db_fetch_deadline($year);
+$deadline = $deadlines->feature_selection;
 
 if (!$group && $user->role === ROLE_STUDENT) {
   terminate('Student is not in a group');
@@ -30,7 +31,7 @@ if (!empty($_GET['download'])) {
   }
 }
 
-if ($user->role === ROLE_STUDENT && $deadline->isFeatureSelectionActive()) {
+if ($user->role === ROLE_STUDENT && $deadlines->isFeatureSelectionActive()) {
   $form = $formFactory->createBuilder(FormType::class)
     ->add('url', UrlType::class, [
       'label' => 'Issue URL (if applicable)',
@@ -88,5 +89,3 @@ if (auth_at_least(ROLE_TA)) {
 if ($group && $group->hash_proposal_file) {
   $embed_file = dourl('features', ['download' => $group->id]);
 }
-
-$deadline = $deadline->feature_selection;
