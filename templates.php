@@ -209,10 +209,19 @@ function filter_by($filters, $extra_filters = []) {
 
   $selected_year   = $request->query->get('year', $all_years[0]['year']);
   $selected_shift  = $request->query->get('shift', null);
-  $own_shifts_only = $request->query->get('own_shifts', false) ? true : false;
+  $all_shifts      = $request->query->get('all_shifts', false) ? true : false;
   $selected_group  = $request->query->get('group', 'all');
   $selected_repo   = $request->query->get('repo', 'all');
+  $own_shifts_only = !$all_shifts;
   $return = null;
+
+  if ($selected_group !== 'all' && !$request->query->has('year')) {
+    $group = db_fetch_group_id($selected_group);
+    if (!$group) {
+      die('Invalid group');
+    }
+    $selected_year = $group->year;
+  }
 
   $selected_shift_obj = $selected_shift && $selected_shift != 'all'
                           ? db_fetch_shift_id($selected_shift) : null;
@@ -287,9 +296,9 @@ function filter_by($filters, $extra_filters = []) {
     ]);
   }
   if (in_array('own_shifts', $filters)) {
-    $select_form->add('own_shifts', CheckboxType::class, [
-      'label' => 'Show only own shifts',
-      'data'  => $own_shifts_only,
+    $select_form->add('all_shifts', CheckboxType::class, [
+      'label'    => 'Show all shifts',
+      'data'     => $all_shifts,
       'required' => false,
     ]);
   }

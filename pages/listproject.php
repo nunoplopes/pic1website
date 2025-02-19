@@ -76,7 +76,8 @@ if ($repo = $group->getRepository()) {
 }
 
 $bottom_links[]
-  = dolink('patches', 'Submitted patches', ['group' => $group->id]);
+  = dolink('patches', 'Submitted patches',
+           ['group' => $group->id, 'all_shifts' => 1]);
 
 function check_min($txt, $val, $min) {
   if ($val >= $min)
