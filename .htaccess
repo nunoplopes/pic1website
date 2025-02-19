@@ -1,22 +1,10 @@
 RewriteCond %{SERVER_PORT} ^80$
 RewriteRule ^(.*)$ https://pic1dei.tecnico.ulisboa.pt/$1 [L,R=301]
 
-<Files *.*>
-  Order Deny,Allow
-  Deny from all
-</Files>
-
-<Files index.php>
-  Order Allow,Deny
-  Allow from all
-</Files>
-
-<Files logout.php>
-  Order Allow,Deny
-  Allow from all
-</Files>
-
-<Files favicon.ico>
-  Order Allow,Deny
-  Allow from all
-</Files>
+RewriteCond %{REQUEST_URI} !^/~pic1dei.daemon/$
+RewriteCond %{REQUEST_URI} !^/~pic1dei.daemon/index\.php$
+RewriteCond %{REQUEST_URI} !^/~pic1dei.daemon/login\.php$
+RewriteCond %{REQUEST_URI} !^/~pic1dei.daemon/logout\.php$
+RewriteCond %{REQUEST_URI} !^/~pic1dei.daemon/favicon\.ico$
+RewriteCond %{REQUEST_URI} !^/~pic1dei.daemon/assets/public/
+RewriteRule ^ - [F,L]
