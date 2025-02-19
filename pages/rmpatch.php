@@ -18,7 +18,6 @@ if (!empty($_GET['sure'])) {
   $success_message = "Patch deleted";
 } else {
   $name = $patch->getSubmitter()->shortName();
-  $link = dolink('rmpatch', "Yes, I'm sure", ['id' => $patch->id, 'sure' => 1]);
   $confirm["Are you sure you want to delete patch $patch->id of $name?"]
-    = $link;
+    = dolink('rmpatch', "Yes, I'm sure", ['id' => $patch->id, 'sure' => 1]);
 }
