@@ -115,7 +115,7 @@ function run_groups() {
 
       if (!$students) {
         if ($group) {
-          if (!$group->patches) {
+          if ($group->patches->isEmpty()) {
             db_delete($group);
           } else {
             $group->resetStudents();
