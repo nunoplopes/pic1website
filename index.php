@@ -141,6 +141,7 @@ function terminate($error_message = null, $template = 'main.html.twig',
                            ? null : $select_form->createView(),
     'comments_form'   => $comments_form === null
                            ? null : $comments_form->createView(),
+    'dependecies'     => get_webpack_deps(),
   ];
 
   if (!$error_message) {
@@ -148,6 +149,18 @@ function terminate($error_message = null, $template = 'main.html.twig',
   }
   echo $twig->render($template, $content + $extra_fields);
   exit();
+}
+
+function get_webpack_deps() {
+  $json = json_decode(file_get_contents('assets/public/entrypoints.json'));
+  $html = '';
+  foreach ($json->entrypoints->app->css as $entrypoint) {
+    $html .= "<link rel='stylesheet' href='$entrypoint'>\n";
+  }
+  foreach ($json->entrypoints->app->js as $entrypoint) {
+    $html .= "<script src='$entrypoint'></script>\n";
+  }
+  return $html;
 }
 
 terminate();

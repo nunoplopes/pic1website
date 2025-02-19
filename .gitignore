@@ -4,6 +4,8 @@ config.php
 *-journal
 composer.phar
 composer.lock
+package-lock.json
+node_modules
 vendor
 .proxies
 .cache

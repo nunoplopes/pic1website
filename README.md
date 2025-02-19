@@ -22,6 +22,11 @@ php doctrine.php orm:generate-proxies
 
 4) Setup cronjob (cron.php)
 
+5) Update bundled assets (optional)
+```shell
+npm update
+npx encore production
+```
 
 ## Development
 Spawn a web server:
