@@ -20,7 +20,7 @@ if (!$group && $user->role === ROLE_STUDENT) {
 
 if (!empty($_GET['download'])) {
   $group = db_fetch_group_id($_GET['download']);
-  if (has_group_permissions($group)) {
+  if (has_group_permissions($group) && $group->hash_proposal_file) {
     header('Content-Type: application/pdf');
     header('Content-Disposition: inline; filename="feature_proposal_' .
            $group->group_number . '.pdf"');
