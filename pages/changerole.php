@@ -7,8 +7,6 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
-auth_require_at_least(ROLE_PROF);
-
 $form = $formFactory->createBuilder(FormType::class)
 ->add('username', TextType::class, [
   'label' => 'Username',

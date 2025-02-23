@@ -40,9 +40,33 @@ $ci_failures = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
+$all_pages = [
+  'dashboard'    => ['Statistics', ROLE_STUDENT],
+  'grades'       => ['Grades', ROLE_STUDENT],
+  'profile'      => ['Edit profile', ROLE_STUDENT],
+  'listprojects' => ['Projects', ROLE_STUDENT],
+  'bugs'         => ['Bugs', ROLE_STUDENT],
+  'features'     => ['Features', ROLE_STUDENT],
+  'patches'      => ['Patches', ROLE_STUDENT],
+  'shifts'       => ['Shifts', ROLE_PROF],
+  'deadlines'    => ['Deadlines', ROLE_PROF],
+  'grading'      => ['Grading System', ROLE_PROF],
+  'changerole'   => ['Change Role', ROLE_PROF],
+  'impersonate'  => ['Impersonate', ROLE_SUDO],
+  'cron'         => ['Cron', ROLE_PROF],
+  'phpinfo'      => ['PHP Info', ROLE_PROF],
+  'editpatch'    => ['Patch', ROLE_STUDENT, true],
+  'listproject' =>  ['Project Detail', ROLE_STUDENT, true],
+  'rmpatch'      => ['Delete Patch', ROLE_PROF, true],
+];
+
 try {
-  $file = "pages/$page.php";
-  if (ctype_alpha($page) && file_exists($file)) {
+  if ($page !== '') {
+    if (empty($all_pages[$page])) {
+      die('Invalid page');
+    }
+    auth_require_at_least($all_pages[$page][1]);
+    $file = "pages/$page.php";
     require $file;
   }
 } catch (PDOException $e) {
@@ -61,8 +85,8 @@ function terminate($error_message = null, $template = 'main.html.twig',
                    $extra_fields = []) {
   global $page, $deadline, $table, $lists, $info_box, $form, $select_form;
   global $embed_file, $info_message, $success_message, $monospace, $refresh_url;
-  global $custom_header, $bottom_links, $top_box, $confirm, $comments;
-  global $large_video, $comments_form, $ci_failures;
+  global $bottom_links, $top_box, $confirm, $comments;
+  global $large_video, $comments_form, $ci_failures, $all_pages;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -85,31 +109,17 @@ function terminate($error_message = null, $template = 'main.html.twig',
   $twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension());
   $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension());
 
-  $pages = [
-    ['dashboard', 'Statistics', ROLE_STUDENT],
-    ['profile', 'Edit profile', ROLE_STUDENT],
-    ['listprojects', 'Projects', ROLE_STUDENT],
-    ['bugs', 'Bugs', ROLE_STUDENT],
-    ['features', 'Features', ROLE_STUDENT],
-    ['patches', 'Patches', ROLE_STUDENT],
-    ['shifts', 'Shifts', ROLE_PROF],
-    ['deadlines', 'Deadlines', ROLE_PROF],
-    ['changerole', 'Change Role', ROLE_PROF],
-    ['impersonate', 'Impersonate', ROLE_SUDO],
-    ['cron', 'Cron', ROLE_PROF],
-    ['phpinfo', 'PHP Info', ROLE_PROF],
-  ];
   $navbar = [];
-  $title = $custom_header ?? 'Welcome';
+  $title = 'Welcome';
 
-  foreach ($pages as $p) {
-    if ($p[0] === $page)
-      $title = $p[1];
+  foreach ($all_pages as $tag => $p) {
+    if ($tag === $page)
+      $title = $p[0];
 
-    if (auth_at_least($p[2]))
+    if (auth_at_least($p[1]) && empty($p[2]))
       $navbar[] = [
-        'url' => dourl($p[0]),
-        'name' => $p[1]
+        'url' => dourl($tag),
+        'name' => $p[0]
       ];
   }
 

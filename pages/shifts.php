@@ -6,8 +6,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-auth_require_at_least(ROLE_PROF);
-
 $year = get_current_year();
 $shifts = db_fetch_shifts($year);
 

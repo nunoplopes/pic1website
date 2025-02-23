@@ -179,7 +179,11 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       $set = "set_$name";
       $newval = $form->get($name)->getData() ?? '';
       try {
-        $obj->$set($newval);
+        if (method_exists($obj, $set)) {
+          $obj->$set($newval);
+        } else {
+          $obj->$name = $newval;
+        }
       } catch (ValidationException $ex) {
         $errors[$name] = $ex;
       }

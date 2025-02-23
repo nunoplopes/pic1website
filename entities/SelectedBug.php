@@ -5,7 +5,6 @@
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -19,10 +18,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
  */
 class SelectedBug
 {
-  /** @Id
-   *  @ManyToOne
-   *  @JoinColumn(nullable=false)
-   */
+  /** @Id @ManyToOne */
   public User $user;
 
   /** @Id @Column */

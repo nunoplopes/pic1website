@@ -77,6 +77,19 @@ function db_get_all_users() {
   return db_fetch_entity('User', 'id');
 }
 
+function db_fetch_users_year($year) {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('User', 'u')
+                       ->select('u')
+                       ->join('u.groups', 'g')
+                       ->where('g.year = :year')
+                       ->setParameter('year', $year)
+                       ->orderBy('u.id')
+                       ->getQuery()
+                       ->getResult();
+}
+
 function db_get_all_profs($include_tas = false) {
   global $entityManager;
   $roles = [ROLE_SUDO, ROLE_PROF];
@@ -296,6 +309,34 @@ function db_get_pr_stats($year) {
                        ->setParameter('year', $year)
                        ->getQuery()
                        ->getArrayResult();
+}
+
+function db_get_final_grade($year) : ?FinalGrade {
+  global $entityManager;
+  return $entityManager->find('FinalGrade', $year);
+}
+
+function db_get_all_grades($year) {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('Grade', 'g')
+                       ->select('g')
+                       ->join('g.milestone', 'm')
+                       ->where('m.year = :year')
+                       ->setParameter('year', $year)
+                       ->getQuery()
+                       ->getResult();
+}
+
+function db_get_all_milestones($year) {
+  global $entityManager;
+  return $entityManager->getRepository('Milestone')
+                       ->findByYear($year);
+}
+
+function db_fetch_milestone_id($id) : ?Milestone {
+  global $entityManager;
+  return $entityManager->find('Milestone', $id);
 }
 
 function db_delete_cache() {

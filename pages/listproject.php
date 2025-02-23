@@ -2,8 +2,6 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-$custom_header = 'Project Detail';
-
 if (empty($_GET['id']))
   die('Missing id');
 

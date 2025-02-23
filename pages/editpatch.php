@@ -9,7 +9,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 require_once 'email.php';
 
-$custom_header = 'Patch';
 $user = get_user();
 
 if (empty($_GET['id']))
