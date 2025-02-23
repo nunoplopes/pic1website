@@ -80,7 +80,18 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
   $patch->comments->add(new PatchComment($patch, $new_comment, $user));
 }
 
-handle_form($patch, [], $readonly, ['group', 'status', 'type']);
+$old_video_url = $patch->video_url;
+handle_form($patch, [], $readonly, ['group', 'status', 'type', 'video_url'],
+            ['group', 'status', 'type']);
+
+if ($patch->video_url != $old_video_url) {
+  $new_comment = "Video URL changed: $old_video_url → {$patch->video_url}";
+  $patch->comments->add(new PatchComment($patch, $new_comment, $user));
+}
+
+if ($patch->video_url) {
+  $large_video = get_video_html($patch->video_url, false);
+}
 
 foreach ($patch->comments as $comment) {
   $data = [];

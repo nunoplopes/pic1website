@@ -171,6 +171,17 @@
   </div>
 {% endif %}
 
+{% if large_video %}
+  <div class="container my-5">
+    <div class="card border-primary shadow">
+      <div class="card-header bg-primary text-white">Demo</div>
+      <div class="card-body">
+        {{ large_video|raw }}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
 {% if comments %}
   <div class="container mb-3">
     <h2 class="my-4">Comments</h2>

@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-require 'video.php';
 
 /** @Entity
  *  @Table(name="SelectedBug",
@@ -51,12 +50,6 @@ class SelectedBug
     $bug->description = trim($description);
     $bug->user = $user;
     return $bug;
-  }
-
-  function getVideoHTML() {
-    return
-      $this->repro_url
-        ? get_video_info($this->repro_url)['html_pre_responsive'] : '';
   }
 
   function set_issue_url(string $url) {

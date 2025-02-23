@@ -19,11 +19,14 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
   $form = $formFactory->createBuilder(FormType::class)
     ->add('url', UrlType::class, ['label' => 'URL'])
     ->add('type', ChoiceType::class, [
-      'label'   => 'Type',
       'choices' => ['Bug fix' => PATCH_BUGFIX, 'Feature' => PATCH_FEATURE],
     ])
-    ->add('description', TextareaType::class, ['label' => 'Description'])
-    ->add('submit', SubmitType::class, ['label' => 'Submit'])
+    ->add('video_url', UrlType::class, [
+      'label' => 'URL of video demonstrating the bug fix/feature',
+      'required' => false
+    ])
+    ->add('description', TextareaType::class)
+    ->add('submit', SubmitType::class)
     ->getForm();
 
   $form->handleRequest($request);
@@ -35,7 +38,8 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
     $url = $form->get('url')->getData();
     $type = $form->get('type')->getData();
     $description = $form->get('description')->getData();
-    $p = Patch::factory($group, $url, $type, $description, $user);
+    $video_url = $form->get('video_url', '')->getData();
+    $p = Patch::factory($group, $url, $type, $description, $user, $video_url);
     $group->patches->add($p);
     db_save($p);
 
@@ -92,6 +96,7 @@ foreach ($groups as $group) {
       'Files'     => $patch->files_modified,
       'Submitter' => $patch->getSubmitterName(),
       'Authors'   => implode(', ', $authors),
+      'Video'     => get_video_html($patch->video_url),
       '_large_table' => true,
     ];
   }

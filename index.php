@@ -8,6 +8,7 @@ require 'db.php';
 require 'auth.php';
 require 'github.php';
 require 'validation.php';
+require 'video.php';
 
 $page = $_REQUEST['page'] ?? '';
 
@@ -33,6 +34,7 @@ $monospace = null;
 $bottom_links = null;
 $refresh_url = null;
 $confirm = null;
+$large_video = null;
 $comments = null;
 $ci_failures = null;
 
@@ -60,7 +62,7 @@ function terminate($error_message = null, $template = 'main.html.twig',
   global $page, $deadline, $table, $lists, $info_box, $form, $select_form;
   global $embed_file, $info_message, $success_message, $monospace, $refresh_url;
   global $custom_header, $bottom_links, $top_box, $confirm, $comments;
-  global $comments_form, $ci_failures;
+  global $large_video, $comments_form, $ci_failures;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -131,6 +133,7 @@ function terminate($error_message = null, $template = 'main.html.twig',
     'info_box'        => $info_box,
     'monospace'       => $monospace,
     'confirm'         => $confirm,
+    'large_video'     => $large_video,
     'comments'        => $comments,
     'ci_failures'     => $ci_failures,
     'deadline'        => $deadline ? $deadline->format('c') : null,

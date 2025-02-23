@@ -13,16 +13,16 @@ function get_video_info($url, $maxwidth = 500, $maxheight = 500) {
 
   $embera = new Embera([
     'fake_responses' => Embera::DISABLE_FAKE_RESPONSES,
-    'user_agent' => USERAGENT,
-    'https_only' => true,
-    'responsive' => true,
-    'maxheight' => $maxheight,
-    'maxwidth' => $maxwidth,
+    'user_agent'     => USERAGENT,
+    'https_only'     => true,
+    'responsive'     => true,
+    'maxheight'      => $maxheight,
+    'maxwidth'       => $maxwidth,
   ], null, $cache);
 
   $data = $embera->getUrlData($url);
   if (!$data) {
-    throw new ValidationException('Unrecognized video provider');
+    throw new ValidationException('Video not found or URL not recognized');
   }
   $data = $data[$url];
 
@@ -30,4 +30,19 @@ function get_video_info($url, $maxwidth = 500, $maxheight = 500) {
     throw new ValidationException('URL is not a video ');
   }
   return $data;
+}
+
+
+function get_video_html($url, $hidden = true) {
+  if (!$url)
+    return '';
+
+  $video = get_video_info($url)['html_pre_responsive'];
+  if (!$hidden)
+    return $video;
+
+  return ['html' => <<<HTML
+<button class="btn btn-primary" onclick="toggleVideo(this)">Show Video</button>
+<div style="display: none; margin-top: 10px">$video</div>
+HTML, 'width' => 100];
 }

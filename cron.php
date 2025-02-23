@@ -295,7 +295,7 @@ function run_repository() {
           $patch = Patch::factory($group, $pr->branchURL(), PATCH_BUGFIX,
             "This patch entry was automatically generated.\n".
             "The PR was opened without permission!",
-            $user, /*ignore_errors=*/true);
+            $user, '', /*ignore_errors=*/true);
           $patch->setPR($pr);
           $patch->status = PATCH_PR_OPEN_ILLEGAL;
           $group->patches->add($patch);

@@ -42,8 +42,7 @@ if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
       'required' => false,
     ])
     ->add('description', TextareaType::class, [
-      'label'    => 'Description',
-      'data'     => $description,
+      'data' => $description,
     ])
     ->add('submit', SubmitType::class)
     ->getForm();
@@ -71,13 +70,6 @@ if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
 $table = [];
 foreach ($groups as $group) {
   foreach (db_fetch_bugs_group($group) as $bug) {
-    $video = $bug->getVideoHTML();
-    if ($video) {
-      $video = <<<HTML
-<button class="btn btn-primary" onclick="toggleVideo(this)">Show Video</button>
-<div style="display: none; margin-top: 10px">$video</div>
-HTML;
-    }
     $repo = $group->getRepository();
     $table[] = [
       'id'           => $bug->id,
@@ -86,7 +78,7 @@ HTML;
       'Student'      => $bug->user->shortName(),
       'Issue'        => dolink_ext($bug->issue_url, 'link'),
       'Description'  => ['longdata' => $bug->description],
-      'Video'        => ['html' => $video, 'width' => 100],
+      'Video'        => get_video_html($bug->repro_url),
       '_large_table' => true,
     ];
   }

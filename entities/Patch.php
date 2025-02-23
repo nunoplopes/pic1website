@@ -78,6 +78,9 @@ abstract class Patch
   public string $hash = '';
 
   /** @Column */
+  public string $video_url = 'https://...';
+
+  /** @Column */
   public int $lines_added;
 
   /** @Column */
@@ -88,6 +91,7 @@ abstract class Patch
 
   static function factory(ProjGroup $group, string $url, $type,
                           string $description, User $submitter,
+                          string $video_url= '',
                           bool $ignore_errors = false) : Patch {
     $repo = $group->getRepository();
     if (!$repo)
@@ -109,6 +113,8 @@ abstract class Patch
                        $submitter));
 
     try {
+      $p->set_video_url($video_url);
+
       if (!$description)
         throw new ValidationException("Empty description");
 
@@ -376,5 +382,12 @@ abstract class Patch
     if (!isset(self::get_type_options()[$type]))
       throw new ValidationException('invalid type');
     $this->type = $type;
+  }
+
+  function set_video_url(string $url) {
+    if ($url && !get_video_info($url)) {
+      throw new ValidationException('Video URL not recognized as a video');
+    }
+    $this->video_url = check_url($url);
   }
 }
