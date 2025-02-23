@@ -34,13 +34,13 @@ if (!empty($_GET['download'])) {
 if ($user->role === ROLE_STUDENT && $deadlines->isFeatureSelectionActive()) {
   $form = $formFactory->createBuilder(FormType::class)
     ->add('url', UrlType::class, [
-      'label' => 'Issue URL (if applicable)',
+      'label'    => 'Issue URL (if applicable)',
       'required' => false,
-      'data' => $group->url_proposal,
+      'data'     => $group->url_proposal,
     ])
     ->add('file', FileType::class, [
       'label' => 'Upload PDF',
-      'attr' => ['accept' => '.pdf'],
+      'attr'  => ['accept' => '.pdf'],
     ])
     ->add('submit', SubmitType::class, ['label' => 'Upload'])
     ->getForm();
