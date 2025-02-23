@@ -72,7 +72,6 @@ foreach ($groups as $group) {
   foreach (db_fetch_bugs_group($group) as $bug) {
     $repo = $group->getRepository();
     $table[] = [
-      'id'           => $bug->id,
       'Group'        => dolink_group($group, $group),
       'Project'      => $repo ? dolink_ext($repo, $repo->name()) : '',
       'Student'      => $bug->user->shortName(),

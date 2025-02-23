@@ -21,10 +21,13 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
  */
 class SelectedBug
 {
-  /** @Id @Column @GeneratedValue */
-  public int $id;
+  /** @Id
+   *  @ManyToOne
+   *  @JoinColumn(nullable=false)
+   */
+  public User $user;
 
-  /** @Column */
+  /** @Id @Column */
   public int $year;
 
   /** @Column */
@@ -35,11 +38,6 @@ class SelectedBug
 
   /** @Column(length=4096) */
   public string $description;
-
-  /** @ManyToOne
-   *  @JoinColumn(nullable=false)
-   */
-  public User $user;
 
   static function factory(ProjGroup $group, User $user, string $description,
                           string $issue_url, string $repro_url) {
