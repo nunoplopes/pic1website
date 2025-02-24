@@ -19,7 +19,7 @@ Encore
       ]
     };
   })
-  .enableSingleRuntimeChunk()
+  .disableSingleRuntimeChunk()
   .cleanupOutputBeforeBuild()
   .enableVersioning(Encore.isProduction());
 
