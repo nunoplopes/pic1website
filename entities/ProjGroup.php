@@ -149,21 +149,13 @@ class ProjGroup
   }
 
   public function getstr_repository() { return $this->repository ? (string)$this->getRepository() : ''; }
-  public function set_project_name($name) { $this->project_name = $name; }
-  public function set_project_description($description) { $this->project_description = $description; }
   public function set_project_website($url) { $this->project_website = check_url($url); }
-  public function set_major_users($users) { $this->major_users = $users; }
-  public function set_cla($cla) { $this->cla = (bool)$cla; }
-  public function set_dco($dco) { $this->dco = (bool)$dco; }
-  public function set_lines_of_code($number) { $this->lines_of_code = (int)$number; }
   public function set_coding_style($url) { $this->coding_style = check_url($url); }
   public function set_bugs_for_beginners($url) { $this->bugs_for_beginners = check_url($url); }
   public function set_project_ideas($url) { $this->project_ideas = check_url($url); }
-  public function set_student_programs($programs) { $this->student_programs = $programs; }
   public function set_getting_started_manual($url) { $this->getting_started_manual = check_url($url); }
   public function set_developers_manual($url) { $this->developers_manual = check_url($url); }
   public function set_testing_manual($url) { $this->testing_manual = check_url($url); }
   public function set_developers_mailing_list($url) { $this->developers_mailing_list = check_url($url); }
   public function set_patch_submission($url) { $this->patch_submission = check_url($url); }
-  public function set_allow_modifications_date(DateTimeImmutable $time) { $this->allow_modifications_date = $time; }
 }

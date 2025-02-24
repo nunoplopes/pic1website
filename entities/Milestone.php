@@ -28,6 +28,9 @@ class Milestone
   public string $name;
 
   /** @Column */
+  public string $page = '';
+
+  /** @Column */
   public string $field1 = '';
 
   /** @Column */
@@ -63,9 +66,8 @@ class Milestone
   /** @Column */
   public int $range4 = 0;
 
-  public function __construct(int $year, int $milestone, string $name) {
+  public function __construct(int $year, string $name) {
     $this->year = $year;
-    $this->milestone = $milestone;
     $this->name = $name;
   }
 }

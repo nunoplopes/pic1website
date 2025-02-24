@@ -55,10 +55,4 @@ class Deadline
   public function isFinalReportActive() {
     return new DateTimeImmutable() <= $this->final_report;
   }
-
-  public function set_proj_proposal(DateTimeImmutable $time) { $this->proj_proposal = $time; }
-  public function set_bug_selection(DateTimeImmutable $time) { $this->bug_selection = $time; }
-  public function set_feature_selection(DateTimeImmutable $time) { $this->feature_selection = $time; }
-  public function set_patch_submission(DateTimeImmutable $time) { $this->patch_submission = $time; }
-  public function set_final_report(DateTimeImmutable $time) { $this->final_report = $time; }
 }

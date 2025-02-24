@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -147,9 +148,15 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       if (str_starts_with($val, 'https://')) {
         $field_class = UrlType::class;
       } else {
-        $length      = $column ? $column->length : 0;
-        $field_class = $length > 200 ? TextareaType::class : TextType::class;
-        $extra_attrs = ['attr' => ['rows' => 5]];
+        if ($class->getProperty($name)->getType()->getName() === 'int') {
+          $field_class = IntegerType::class;
+          $extra_attrs['empty_data'] = 0;
+        } else if ($column && $column->length > 200) {
+          $field_class = TextareaType::class;
+          $extra_attrs['attr'] = ['rows' => 5];
+         } else {
+          $field_class = TextType::class;
+        }
       }
       $form->add($name, $field_class, [
         'label'    => $print_name,
@@ -170,7 +177,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
 
   if ($form->isSubmitted() && $form->isValid()) {
     $errors = [];
-    foreach (get_object_vars($obj) as $name => $val) {
+    foreach ($obj as $name => $val) {
       if (in_array($name, $hide_fields) ||
           in_array($name, $readonly) ||
           ($only_fields && !in_array($name, $only_fields)))

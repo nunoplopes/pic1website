@@ -4,7 +4,6 @@
 
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
@@ -35,15 +34,13 @@ if (isset($_GET['final'])) {
 
 if (empty($_GET['id'])) {
   $form = $formFactory->createBuilder(FormType::class)
-    ->add('milestone', NumberType::class)
     ->add('name', TextType::class)
     ->add('submit', SubmitType::class)
     ->getForm();
 
   $form->handleRequest($request);
   if ($form->isSubmitted() && $form->isValid()) {
-    db_save(new Milestone($year, $form->get('milestone')->getData(),
-                          $form->get('name')->getData()));
+    db_save(new Milestone($year, $form->get('name')->getData()));
   }
 } else {
   $milestone = db_fetch_milestone_id($_GET['id']);
@@ -54,17 +51,14 @@ if (empty($_GET['id'])) {
 }
 
 foreach (db_get_all_milestones($year) as $milestone) {
-  $table[] = [
-    'name'    => dolink('grading', $milestone->name, ['id' => $milestone->id]),
-    'field1'  => $milestone->field1,
-    'points1' => $milestone->points1,
-    'range1'  => $milestone->range1,
-    'field2'  => $milestone->field2,
-    'points2' => $milestone->points2,
-    'range2'  => $milestone->range2,
-    'field3'  => $milestone->field3,
-    'points3' => $milestone->points3,
-    'range3'  => $milestone->range3,
+  $data = [
+    'name' => dolink('grading', $milestone->name, ['id' => $milestone->id]),
     '_large_table' => true,
   ];
+  foreach ($milestone as $key => $value) {
+    if (!in_array($key, ['id', 'year', 'name'])) {
+      $data[$key] = $value;
+    }
+  }
+  $table[] = $data;
 }
