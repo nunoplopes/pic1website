@@ -2,7 +2,9 @@
   "name": "pic",
   "version": "1.0.0",
   "devDependencies": {
-    "@symfony/webpack-encore": "^5.0.1"
+    "@fullhuman/postcss-purgecss": "^7.0.2",
+    "@symfony/webpack-encore": "^5.0.1",
+    "postcss-loader": "^8.1.1"
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
