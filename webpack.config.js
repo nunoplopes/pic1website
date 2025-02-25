@@ -11,6 +11,7 @@ Encore
         ...(Encore.isProduction() ? [
           purgecss.default({
             content: [
+              'vendor/symfony/twig-bridge/Resources/views/Form/*.html.twig',
               'templates/**/*.html.twig',
               'assets/**/*.js',
             ]

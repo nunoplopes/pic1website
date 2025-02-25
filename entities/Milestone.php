@@ -31,6 +31,9 @@ class Milestone
   public string $page = '';
 
   /** @Column */
+  public bool $individual = false;
+
+  /** @Column */
   public string $field1 = '';
 
   /** @Column */
