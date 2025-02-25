@@ -1,6 +1,17 @@
 import Plotly from 'plotly.js-dist';
 import { TabulatorFull as Tabulator } from 'tabulator-tables';
+import { createPopper } from '@popperjs/core';
+import * as bootstrap from 'bootstrap';
 import './styles/app.css';
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function () {
+  var tooltipTriggerList = [].slice.call(
+    document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+});
 
 window.Tabulator = Tabulator;
 

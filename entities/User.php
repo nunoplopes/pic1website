@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\OrderBy;
 
 /** @Entity */
 class User
@@ -26,7 +27,9 @@ class User
   // TODO: switch to enum with PHP 8
   public int $role;
 
-  /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"}) */
+  /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"})
+   *  @OrderBy({"year" = "DESC"})
+  */
   public $groups;
 
   /** @Column */
@@ -62,7 +65,14 @@ class User
       if ($group->year == get_current_year())
         return $group;
     }
+    if (!$this->groups->isEmpty())
+      return $this->groups[0];
     return null;
+  }
+
+  public function getYear() : ?int {
+    $group = $this->getGroup();
+    return $group ? $group->year : null;
   }
 
   function getRole() {

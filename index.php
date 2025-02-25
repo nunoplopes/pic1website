@@ -22,6 +22,7 @@ $custom_header = null;
 $form = null;
 $select_form = null;
 $comments_form = null;
+$eval_forms = [];
 $embed_file = null;
 $info_message = null;
 $success_message = null;
@@ -37,6 +38,7 @@ $confirm = null;
 $large_video = null;
 $comments = null;
 $ci_failures = null;
+$display_formula = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
@@ -85,8 +87,8 @@ function terminate($error_message = null, $template = 'main.html.twig',
                    $extra_fields = []) {
   global $page, $deadline, $table, $lists, $info_box, $form, $select_form;
   global $embed_file, $info_message, $success_message, $monospace, $refresh_url;
-  global $bottom_links, $top_box, $confirm, $comments;
-  global $large_video, $comments_form, $ci_failures, $all_pages;
+  global $bottom_links, $top_box, $confirm, $comments, $display_formula;
+  global $large_video, $comments_form, $ci_failures, $all_pages, $eval_forms;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -148,13 +150,18 @@ function terminate($error_message = null, $template = 'main.html.twig',
     'ci_failures'     => $ci_failures,
     'deadline'        => $deadline ? $deadline->format('c') : null,
     'bottom_links'    => $bottom_links,
+    'display_formula' => $display_formula,
     'refresh_url'     => $refresh_url,
     'form'            => $form === null ? null : $form->createView(),
     'select_form'     => $select_form === null
                            ? null : $select_form->createView(),
     'comments_form'   => $comments_form === null
                            ? null : $comments_form->createView(),
-    'dependecies'     => get_webpack_deps(),
+    'eval_forms'      => array_map(function ($f) {
+        $f['fields'] = $f['fields']->createView();
+        return $f;
+      }, $eval_forms),
+    'dependencies'    => get_webpack_deps(),
   ];
 
   if (!$error_message) {

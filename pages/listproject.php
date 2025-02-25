@@ -77,6 +77,8 @@ $bottom_links[]
   = dolink('patches', 'Submitted patches',
            ['group' => $group->id, 'all_shifts' => 1]);
 
+mk_eval_box($group->year, 'project', null, $group);
+
 function check_min($txt, $val, $min) {
   if ($val >= $min)
     return $txt;

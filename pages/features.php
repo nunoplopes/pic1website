@@ -10,8 +10,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 $user = get_user();
 $group = $user->getGroup();
-$year = $group ? $group->year : get_current_year();
-$deadlines = db_fetch_deadline($year);
+$deadlines = db_fetch_deadline($user->getYear() ?? get_current_year());
 $deadline = $deadlines->feature_selection;
 
 if (!$group && $user->role === ROLE_STUDENT) {
@@ -88,4 +87,8 @@ if (auth_at_least(ROLE_TA)) {
 
 if ($group && $group->hash_proposal_file) {
   $embed_file = dourl('features', ['download' => $group->id]);
+}
+
+if ($group) {
+  mk_eval_box($group->year, 'feature', null, $group);
 }

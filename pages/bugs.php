@@ -9,7 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
 $user = get_user();
 $group = $user->getGroup();
-$year = $group ? $group->year : get_current_year();
+$year = $user->getYear() ?? get_current_year();
 $deadlines = db_fetch_deadline($year);
 $deadline = $deadlines->bug_selection;
 
@@ -81,4 +81,9 @@ foreach ($groups as $group) {
       '_large_table' => true,
     ];
   }
+}
+
+if (sizeof($groups) == 1) {
+  $group = $groups[0];
+  mk_eval_box($group->year, 'bugs', null, $group);
 }

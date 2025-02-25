@@ -328,15 +328,26 @@ function db_get_all_grades($year) {
                        ->getResult();
 }
 
+function db_get_grade(Milestone $m, User $u) : ?Grade {
+  global $entityManager;
+  return $entityManager->getRepository('Grade')
+                       ->findOneBy(['milestone' => $m->id, 'user' => $u->id]);
+}
+
 function db_get_all_milestones($year) {
   global $entityManager;
-  return $entityManager->getRepository('Milestone')
-                       ->findByYear($year);
+  return $entityManager->getRepository('Milestone')->findByYear($year);
 }
 
 function db_fetch_milestone_id($id) : ?Milestone {
   global $entityManager;
   return $entityManager->find('Milestone', $id);
+}
+
+function db_get_milestone(int $year, string $page) {
+  global $entityManager;
+  return $entityManager->getRepository('Milestone')
+                       ->findBy(['year' => $year, 'page' => $page]);
 }
 
 function db_delete_cache() {

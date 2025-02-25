@@ -188,3 +188,7 @@ function gen_authors($list) {
   $data = implode(', ', $data);
   return $invalid ? ["warn" => true, "data" => $data] : $data;
 }
+
+$type = $patch->getType();
+mk_eval_box($patch->group->year, 'patch-' . $type, $patch->getSubmitter(),
+            $type == 'feature' ? $patch->group : null);

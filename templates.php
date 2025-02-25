@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -330,4 +331,90 @@ function filter_by($filters, $extra_filters = []) {
   $select_form = $select_form->getForm();
   $select_form->handleRequest($request);
   return $return;
+}
+
+function mk_eval_box(int $year, string $page, ?User $student,
+                     ?ProjGroup $group) {
+  if (!auth_at_least(ROLE_TA))
+    return;
+  if ($group && !has_group_permissions($group))
+    return;
+  if ($student && $student->getGroup() &&
+      !has_group_permissions($student->getGroup()))
+    return;
+
+  if ($group) {
+    $students = $group->students;
+  } else {
+    $students = [$student];
+  }
+  $id = 0;
+
+  foreach (db_get_milestone($year, $page) as $milestone) {
+    if (!$milestone->individual) {
+      $form = mk_eval_form($milestone, $students[0], 'Group grade', $id++);
+      if ($form->isSubmitted() && $form->isValid()) {
+        foreach ($students as $student) {
+          set_grade($milestone, $student, $form);
+        }
+      }
+    }
+
+    foreach ($students as $student) {
+      $form = mk_eval_form($milestone, $student, $student->shortName(), $id++);
+      if ($form->isSubmitted() && $form->isValid()) {
+        set_grade($milestone, $student, $form);
+      }
+    }
+  }
+}
+
+function mk_eval_form($milestone, $student, $name, $id) {
+  global $formFactory, $request, $eval_forms;
+
+  $grade = db_get_grade($milestone, $student);
+  $form = $formFactory->createNamedBuilder('eval'.$id++, FormType::class);
+
+  $form->add('name', TextType::class, [
+    'data'     => $name,
+    'disabled' => true,
+  ]);
+
+  for ($i = 1; $i <= 4; ++$i) {
+    if ($milestone->{"field$i"}) {
+      $form->add('field'.$i, RangeType::class, [
+        'label'    => $milestone->{"field$i"},
+        'data'     => $grade ? $grade->{"field$i"} : 0,
+        'required' => false,
+        'attr'     => [
+          'min' => 0,
+          'max' => $milestone->{"range$i"},
+        ],
+      ]);
+    }
+  }
+
+  $form->add('submit', SubmitType::class, ['label' => 'Save']);
+  $form = $form->getForm();
+  $eval_forms[] = ['title' => $milestone->description, 'fields' => $form];
+  $form->handleRequest($request);
+
+  return $form;
+}
+
+function set_grade($milestone, $student, $form) {
+  global $success_message;
+
+  $grade = db_get_grade($milestone, $student);
+  if (!$grade) {
+    $grade = new Grade();
+    $grade->milestone = $milestone;
+    $grade->user = $student;
+  }
+  for ($i = 1; $i <= 4; ++$i) {
+    if ($milestone->{"field$i"})
+      $grade->{"field$i"} = (int)$form->get('field'.$i, 0)->getData();
+  }
+  db_save($grade);
+  $success_message = 'Database updated!';
 }

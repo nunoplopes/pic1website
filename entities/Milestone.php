@@ -28,6 +28,9 @@ class Milestone
   public string $name;
 
   /** @Column */
+  public string $description = '';
+
+  /** @Column */
   public string $page = '';
 
   /** @Column */

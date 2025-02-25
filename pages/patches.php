@@ -12,7 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
 $user = get_user();
 $group = $user->getGroup();
-$deadlines = db_fetch_deadline($group ? $group->year : get_current_year());
+$deadlines = db_fetch_deadline($user->getYear() ?? get_current_year());
 $deadline = $deadlines->patch_submission;
 
 if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
