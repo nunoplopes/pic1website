@@ -333,7 +333,7 @@ function filter_by($filters, $extra_filters = []) {
   return $return;
 }
 
-function mk_eval_box(int $year, string $page, ?User $student,
+function mk_eval_box(int $year, ?string $page, ?User $student,
                      ?ProjGroup $group) {
   if (!auth_at_least(ROLE_TA))
     return;

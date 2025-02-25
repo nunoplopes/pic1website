@@ -39,6 +39,7 @@ $large_video = null;
 $comments = null;
 $ci_failures = null;
 $display_formula = null;
+$plots = null;
 
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
@@ -89,6 +90,7 @@ function terminate($error_message = null, $template = 'main.html.twig',
   global $embed_file, $info_message, $success_message, $monospace, $refresh_url;
   global $bottom_links, $top_box, $confirm, $comments, $display_formula;
   global $large_video, $comments_form, $ci_failures, $all_pages, $eval_forms;
+  global $plots;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -151,6 +153,7 @@ function terminate($error_message = null, $template = 'main.html.twig',
     'deadline'        => $deadline ? $deadline->format('c') : null,
     'bottom_links'    => $bottom_links,
     'display_formula' => $display_formula,
+    'plots'           => $plots,
     'refresh_url'     => $refresh_url,
     'form'            => $form === null ? null : $form->createView(),
     'select_form'     => $select_form === null

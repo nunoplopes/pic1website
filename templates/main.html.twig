@@ -322,4 +322,43 @@
   </div>
 {% endif %}
 
+{% if plots %}
+</div>
+<div class="col-md-12">
+  <div class="card my-3">
+    <div class="card-body">
+      <div class="row g-3">
+        {% for title, plot in plots %}
+          <div class="col-md-4">
+            <div class="p-3 border rounded">
+              <h6>{{ title }}</h6>
+              <div id="plot{{ loop.index }}"></div>
+            </div>
+          </div>
+<script>
+var data = [
+  {
+    x: [{{ plot|keys|join(',') }}],
+    y: [{{ plot|join(',') }}],
+    type: 'bar'
+  }
+];
+var layout = {
+  margin: { l: 25, r: 10, t: 10, b: 20 },
+  height: 250
+};
+config = {
+  displayModeBar: false,
+  responsive: true
+};
+Plotly.newPlot('plot{{ loop.index }}', data, layout, config);
+</script>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-md-7">
+{% endif %}
+
 {% include 'footer.html.twig' %}

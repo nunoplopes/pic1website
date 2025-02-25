@@ -345,10 +345,13 @@ function db_fetch_milestone_id($id) : ?Milestone {
   return $entityManager->find('Milestone', $id);
 }
 
-function db_get_milestone(int $year, string $page) {
+function db_get_milestone(int $year, ?string $page) {
   global $entityManager;
-  return $entityManager->getRepository('Milestone')
-                       ->findBy(['year' => $year, 'page' => $page]);
+  $cond['year'] = $year;
+  if ($page !== null){
+    $cond['page'] = $page;
+  }
+  return $entityManager->getRepository('Milestone')->findBy($cond);
 }
 
 function db_delete_cache() {
