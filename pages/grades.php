@@ -63,7 +63,7 @@ foreach (db_fetch_users_year($year) as $user) {
 
     foreach ($grades[$user->id][$milestone] ?? [] as $i => $grade) {
       if ($descr = $ms->{"field$i"}) {
-        $data[$milestone]['tooltip'] .= "\n$descr: $grade";
+        $data[$milestone]['tooltip'] .= "\n$descr: " . number_format($grade, 2);
       }
     }
   }
@@ -120,7 +120,8 @@ function gen_formula_data(Node $node, $precedence = 0) {
       $title = $milestone->description;
       for ($i = 1; $i <= 4; ++$i) {
         if ($milestone->{"field$i"}) {
-          $title .= "\n{$milestone->{"field$i"}}: {$milestone->{"points$i"}}";
+          $points = number_format($milestone->{"points$i"} / 10, 2);
+          $title .= "\n{$milestone->{"field$i"}}: $points";
         }
       }
     } else {
