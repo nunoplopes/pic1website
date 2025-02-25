@@ -336,7 +336,8 @@ function db_get_grade(Milestone $m, User $u) : ?Grade {
 
 function db_get_all_milestones($year) {
   global $entityManager;
-  return $entityManager->getRepository('Milestone')->findByYear($year);
+  return $entityManager->getRepository('Milestone')
+                       ->findByYear($year, ['name' => 'ASC']);
 }
 
 function db_fetch_milestone_id($id) : ?Milestone {
