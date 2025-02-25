@@ -58,7 +58,7 @@ foreach (db_fetch_users_year($year) as $user) {
     $ms = get_milestone($milestone);
     $num = $grades_milestones[$user->id][$milestone] ?? 0;
     $values[$milestone] = $num;
-    $data[$milestone]['text']    = $num;
+    $data[$milestone]['text']    = number_format($num, 2);
     $data[$milestone]['tooltip'] = $ms ? $ms->description : '';
 
     foreach ($grades[$user->id][$milestone] ?? [] as $i => $grade) {
