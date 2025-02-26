@@ -10,7 +10,12 @@ use Symfony\Component\ExpressionLanguage\Node\NameNode;
 if (auth_at_least(ROLE_TA)) {
   $groups = filter_by(['group', 'year', 'shift', 'own_shifts']);
 } else {
-  $groups = [get_user()->getGroup()];
+  $group = get_user()->getGroup();
+  if ($group !== null) {
+    $groups = [$group];
+  } else {
+    $groups = [];
+  }
 }
 
 if ($groups) {

@@ -41,10 +41,12 @@ class Grade
    */
   public function validateFields() {
     for ($i = 1; $i <= 4; ++$i) {
-      $field = $this->{"field$i"};
-      $max = $this->milestone->{"range$i"};
-      if ($field !== null && ($field < 0 || $field > $max)) {
-        throw new ValidationException("Field $i exceeds allowed range");
+      if ($this->milestone->{"field$i"} !== '') {
+        $field = $this->{"field$i"};
+        $max = $this->milestone->{"range$i"};
+        if ($field !== null && ($field < 0 || $field > $max)) {
+          throw new ValidationException("Field $i exceeds allowed range");
+        }
       }
     }
   }
