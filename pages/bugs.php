@@ -61,7 +61,7 @@ if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
       $bug = SelectedBug::factory(
         $group, $user, $form->get('description')->getData(),
         $form->get('issue_url')->getData(),
-        $form->get('repro_url')->getData());
+        $form->get('repro_url')->getData() ?? '');
       db_save($bug);
     }
   }
