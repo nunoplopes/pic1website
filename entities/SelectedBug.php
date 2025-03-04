@@ -25,10 +25,10 @@ class SelectedBug
   public int $year;
 
   /** @Column */
-  public string $issue_url = 'https://...';
+  public string $issue_url = '';
 
   /** @Column */
-  public string $repro_url = 'https://...';
+  public string $repro_url = '';
 
   /** @Column(length=4096) */
   public string $description;

@@ -146,7 +146,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       } else {
         $val = (string)$orig_value;
       }
-      if (str_starts_with($val, 'https://')) {
+      if (str_starts_with($val, 'https://') || str_contains($name, 'url')) {
         $field_class = UrlType::class;
       } else {
         if ($class->getProperty($name)->getType()->getName() === 'int') {

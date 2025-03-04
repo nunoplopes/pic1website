@@ -38,7 +38,7 @@ class ProjGroup
   public string $project_description = '';
 
   /** @Column */
-  public string $project_website = 'https://...';
+  public string $project_website = 'https://example.org';
 
   /** @Column(length=150) */
   public string $repository = '';
@@ -56,31 +56,31 @@ class ProjGroup
   public int $lines_of_code = 0;
 
   /** @Column */
-  public string $coding_style = 'https://...';
+  public string $coding_style = 'https://example.org';
 
   /** @Column */
-  public string $bugs_for_beginners = 'https://...';
+  public string $bugs_for_beginners = 'https://example.org';
 
   /** @Column */
-  public string $project_ideas = 'https://...';
+  public string $project_ideas = 'https://example.org';
 
   /** @Column(length=1000) */
   public string $student_programs = '';
 
   /** @Column */
-  public string $getting_started_manual = 'https://...';
+  public string $getting_started_manual = 'https://example.org';
 
   /** @Column */
-  public string $developers_manual = 'https://...';
+  public string $developers_manual = 'https://example.org';
 
   /** @Column */
-  public string $testing_manual = 'https://...';
+  public string $testing_manual = 'https://example.org';
 
   /** @Column */
-  public string $developers_mailing_list = 'https://...';
+  public string $developers_mailing_list = 'https://example.org';
 
   /** @Column */
-  public string $patch_submission = 'https://...';
+  public string $patch_submission = 'https://example.org';
 
   /** @Column(length=40) */
   public string $hash_proposal_file = '';

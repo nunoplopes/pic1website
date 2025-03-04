@@ -78,7 +78,7 @@ abstract class Patch
   public string $hash = '';
 
   /** @Column */
-  public string $video_url = 'https://...';
+  public string $video_url = '';
 
   /** @Column */
   public int $lines_added;
