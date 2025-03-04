@@ -3,7 +3,6 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
@@ -31,9 +30,6 @@ if (!auth_at_least(ROLE_TA) &&
 $prev_status = $patch->getStatus();
 
 $comments_form = $formFactory->createNamedBuilder('comments', FormType::class)
-  ->add('id', HiddenType::class, [
-    'data' => $patch->id,
-  ])
   ->add('text', TextareaType::class, [
     'attr' => [
       'rows' => 7,
@@ -77,6 +73,7 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
     $new_comment = "Status changed: $prev_status → $new_status\n\n$new_comment";
   }
   $patch->comments->add(new PatchComment($patch, $new_comment, $user));
+  terminate_redirect();
 }
 
 $old_video_url = $patch->video_url;

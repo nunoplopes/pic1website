@@ -14,6 +14,7 @@ $page = $_REQUEST['page'] ?? '';
 
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Forms;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 $formFactory = Forms::createFormFactoryBuilder()
   ->addExtension(new HttpFoundationExtension())
@@ -171,6 +172,12 @@ function terminate($error_message = null, $template = 'main.html.twig',
     db_flush();
   }
   echo $twig->render($template, $content + $extra_fields);
+  exit();
+}
+
+function terminate_redirect() {
+  db_flush();
+  (new RedirectResponse($_SERVER['REQUEST_URI']))->send();
   exit();
 }
 
