@@ -10,31 +10,35 @@ jobs:
     strategy:
       matrix:
         os:         [ubuntu-24.04]
-        phpversion: [""]
+        phpversion: ["7.4", "8.0", "8.1", "8.2", "8.3", "8.4"]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          wget https://getcomposer.org/installer -O composer-setup.php
-          php${{ matrix.phpversion }} composer-setup.php
-          rm composer-setup.php
-          php${{ matrix.phpversion }} composer.phar update
-          cp config.php.in config.php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+            php-version: ${{ matrix.phpversion }}
+            coverage: none
+
+      - name: Install Composer
+        uses: ramsey/composer-install@v3
+
+      - name: Copy config
+        run: cp config.php.in config.php
+
+      - name: Show PHP version
+        run: php -v
 
       - name: Syntax checker
         run: ./.github/scripts/syntax-check.sh
 
       - name: Run Install script
-        run: php${{ matrix.phpversion }} doctrine.php orm:schema-tool:create
+        run: php doctrine.php orm:schema-tool:create
 
       - name: Generate proxies
-        run: php${{ matrix.phpversion }} doctrine.php orm:generate-proxies
+        run: php doctrine.php orm:generate-proxies
 
       - name: Check ORM mapping
-        run: php${{ matrix.phpversion }} doctrine.php orm:validate-schema |& grep "The mapping files are correct"
-
-    env:
-      PHP_VERSION: ${{ matrix.phpversion }}
+        run: php doctrine.php orm:validate-schema |& grep "The mapping files are correct"
