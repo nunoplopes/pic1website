@@ -182,19 +182,21 @@ abstract class Patch
         if (count($commits) != 1)
           throw new ValidationException('Only 1 commit allowed');
 
-        if (!preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m))
-          throw new ValidationException(
-            "Commit message doesn't reference the fixed issue properly:\n" .
-            $commits[0]['message']);
-
         $issue_url = $p->getIssueURL();
         if (!$issue_url)
           throw new ValidationException('Patch does not have a bug associated');
 
-        if (!strstr($issue_url, $m[1]))
-          throw new ValidationException(
-            "Referenced issue #$m[1] doesn't match the specified issue URL: " .
-            $issue_url);
+        if (preg_match('/\d/', $issue_url)) {
+          if (!preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m))
+            throw new ValidationException(
+              "Commit message doesn't reference the fixed issue properly:\n" .
+              $commits[0]['message']);
+
+          if (!str_contains($issue_url, $m[1]))
+            throw new ValidationException(
+              "Referenced issue #$m[1] doesn't match the specified issue URL: ".
+              $issue_url);
+        }
       }
     } catch (ValidationException $ex) {
       if (!$ignore_errors)
