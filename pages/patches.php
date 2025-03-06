@@ -38,7 +38,7 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
     $url = $form->get('url')->getData();
     $type = $form->get('type')->getData();
     $description = $form->get('description')->getData();
-    $video_url = $form->get('video_url', '')->getData();
+    $video_url = $form->get('video_url')->getData() ?? '';
     $p = Patch::factory($group, $url, $type, $description, $user, $video_url);
     $group->patches->add($p);
     db_save($p);
