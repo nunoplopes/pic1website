@@ -21,7 +21,7 @@ function get_video_info($url, $maxwidth = 500, $maxheight = 500) {
   ], null, $cache);
 
   $data = $embera->getUrlData($url);
-  if (!$data) {
+  if (empty($data[$url])) {
     throw new ValidationException('Video not found or URL not recognized');
   }
   $data = $data[$url];
