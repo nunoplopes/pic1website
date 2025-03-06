@@ -4,7 +4,6 @@
 
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -12,29 +11,31 @@ use Doctrine\ORM\Mapping\ManyToOne;
 /** @Entity */
 class PatchCIError
 {
-  /** @Id @Column @GeneratedValue */
-  public int $id;
-
-  /** @ManyToOne(inversedBy="ci_failures")
+  /** @Id
+   *  @ManyToOne(inversedBy="ci_failures")
    *  @JoinColumn(nullable=false)
    */
   public Patch $patch;
 
-  /** @Column(length=64) */
+  /** @Id @Column(length=64) */
   public string $hash;
 
-  /** @Column */
+  /** @Id @Column */
   public string $name;
 
   /** @Column */
   public string $url;
 
+  /** @Column */
+  public DateTimeImmutable $time;
+
   public function __construct(Patch $patch, string $hash, string $name,
-                              string $url) {
+                              string $url, DateTimeImmutable $time) {
     $this->patch = $patch;
     $this->hash  = $hash;
     $this->name  = $name;
     $this->url   = $url;
+    $this->time  = $time;
   }
 
   public function getCommitURL() : string {

@@ -67,7 +67,7 @@ abstract class Patch
   public $comments;
 
   /** @OneToMany(targetEntity="PatchCIError", mappedBy="patch", cascade={"persist", "remove"})
-   *  @OrderBy({"id" = "ASC"})
+   *  @OrderBy({"time" = "ASC"})
    */
   public $ci_failures;
 

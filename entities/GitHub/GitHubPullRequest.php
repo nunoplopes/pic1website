@@ -134,7 +134,7 @@ class GitHubPullRequest extends \PullRequest
     // get status of GitHub Actions checks
     $runs = $actions->all($org, $repo, ['head_sha' => $hash]);
     foreach ($runs['workflow_runs'] as $check) {
-      if ($check['conclusion'] == 'failure') {
+      if ($check['conclusion'] !== 'success') {
         // Each action can have multiple jobs
         // Fetch the names of the specific jobs that failed
         foreach ($jobs->all($org, $repo, $check['id'])['jobs'] as $job) {
