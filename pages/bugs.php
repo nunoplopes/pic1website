@@ -13,13 +13,17 @@ $year = $user->getYear() ?? get_current_year();
 $deadlines = db_fetch_deadline($year);
 $deadline = $deadlines->bug_selection;
 
+if ($group !== null)
+  $deadline = $deadline > $group->allow_modifications_date
+                ? $deadline : $group->allow_modifications_date;
+
 if (auth_at_least(ROLE_TA)) {
   $groups = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo']);
 } else {
   $groups = $user->groups;
 }
 
-if ($user->role == ROLE_STUDENT && $deadlines->isBugSelectionActive()) {
+if ($user->role == ROLE_STUDENT && is_deadline_current($deadline)) {
   $info_message = "You can submit this form multiple times until the deadline.".
                   " Only the last submission will be considered.";
 
