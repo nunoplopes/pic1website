@@ -24,6 +24,10 @@ if ($groups) {
   $year = get_current_year();
 }
 
+if (auth_at_least(ROLE_TA) && sizeof($groups) == 1) {
+  mk_eval_box($year, null, null, $groups[0]);
+}
+
 $milestones = db_get_all_milestones($year);
 
 $final_grade = db_get_final_grade($year);
@@ -76,13 +80,10 @@ foreach ($groups as $group) {
         }
       }
     }
-    $data['Final'] = (int)round($lang->evaluate($final_grade, $values), 0);
+    $data['Final']
+      = max((int)round($lang->evaluate($final_grade, $values), 0), 0);
     $table[] = $data;
   }
-}
-
-if (auth_at_least(ROLE_TA) && sizeof($groups) == 1) {
-  mk_eval_box($year, null, null, $groups[0]);
 }
 
 if (auth_at_least(ROLE_PROF) && $table !== null) {
@@ -100,8 +101,10 @@ if (auth_at_least(ROLE_PROF) && $table !== null) {
   }
 
   $plots['Overall'] = $hist;
-  foreach ($hist_groups as $loc => $hist) {
-    $plots["Group $loc"] = $hist;
+  if (sizeof($hist_groups) > 1) {
+    foreach ($hist_groups as $loc => $hist) {
+      $plots["Group $loc"] = $hist;
+    }
   }
 }
 
