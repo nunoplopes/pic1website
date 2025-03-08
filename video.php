@@ -15,7 +15,6 @@ function get_video_info($url, $maxwidth = 500, $maxheight = 500) {
     'fake_responses' => Embera::DISABLE_FAKE_RESPONSES,
     'user_agent'     => USERAGENT,
     'https_only'     => true,
-    'responsive'     => true,
     'maxheight'      => $maxheight,
     'maxwidth'       => $maxwidth,
   ], null, $cache);
@@ -37,7 +36,7 @@ function get_video_html($url, $hidden = true) {
   if (!$url)
     return '';
 
-  $video = get_video_info($url)['html_pre_responsive'];
+  $video = get_video_info($url)['html'];
   if (!$hidden)
     return $video;
 
