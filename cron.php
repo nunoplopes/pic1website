@@ -198,7 +198,7 @@ function run_patch_stats() {
                $newstatus, "\n";
         }
 
-        if ($newhash != $oldhash) {
+        if ($newhash != $oldhash && $newhash) {
           $patch->comments->add(
             new PatchComment($patch, "New branch hash: $newhash"));
           echo "Patch $patch->id changed hash from $oldhash to $newhash\n";

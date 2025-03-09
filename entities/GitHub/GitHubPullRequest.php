@@ -120,33 +120,37 @@ class GitHubPullRequest extends \PullRequest
 
     $failed = [];
 
-    // get status of 3rd-party checks
-    foreach ($status->combined($org, $repo, $hash)['statuses'] as $check) {
-      if ($check['state'] == 'failure') {
-        $failed[] = [
-          'name' => $check['context'],
-          'url'  => $check['target_url'],
-          'time' => github_parse_date($check['updated_at'])
-        ];
+    try {
+      // get status of 3rd-party checks
+      foreach ($status->combined($org, $repo, $hash)['statuses'] as $check) {
+        if ($check['state'] == 'failure') {
+          $failed[] = [
+            'name' => $check['context'],
+            'url'  => $check['target_url'],
+            'time' => github_parse_date($check['updated_at'])
+          ];
+        }
       }
-    }
 
-    // get status of GitHub Actions checks
-    $runs = $actions->all($org, $repo, ['head_sha' => $hash]);
-    foreach ($runs['workflow_runs'] as $check) {
-      if ($check['conclusion'] !== 'success') {
-        // Each action can have multiple jobs
-        // Fetch the names of the specific jobs that failed
-        foreach ($jobs->all($org, $repo, $check['id'])['jobs'] as $job) {
-          if ($job['conclusion'] == 'failure') {
-            $failed[] = [
-              'name' => $job['name'],
-              'url'  => $job['html_url'],
-              'time' => github_parse_date($job['completed_at'])
-            ];
+      // get status of GitHub Actions checks
+      $runs = $actions->all($org, $repo, ['head_sha' => $hash]);
+      foreach ($runs['workflow_runs'] as $check) {
+        if ($check['conclusion'] !== 'success') {
+          // Each action can have multiple jobs
+          // Fetch the names of the specific jobs that failed
+          foreach ($jobs->all($org, $repo, $check['id'])['jobs'] as $job) {
+            if ($job['conclusion'] == 'failure') {
+              $failed[] = [
+                'name' => $job['name'],
+                'url'  => $job['html_url'],
+                'time' => github_parse_date($job['completed_at'])
+              ];
+            }
           }
         }
       }
+    } catch (\Github\Exception\RuntimeException) {
+      // ignore; may be a temporary error
     }
     return $failed;
   }
