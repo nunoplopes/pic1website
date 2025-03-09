@@ -149,7 +149,7 @@ class GitHubPullRequest extends \PullRequest
           }
         }
       }
-    } catch (\Github\Exception\RuntimeException) {
+    } catch (\Github\Exception\RuntimeException $ex) {
       // ignore; may be a temporary error
     }
     return $failed;
