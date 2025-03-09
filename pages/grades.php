@@ -24,7 +24,7 @@ if ($groups) {
   $year = get_current_year();
 }
 
-if (auth_at_least(ROLE_TA) && sizeof($groups) == 1) {
+if (sizeof($groups) == 1) {
   mk_eval_box($year, null, null, $groups[0]);
 }
 
@@ -55,8 +55,12 @@ foreach (db_get_all_grades($year) as $grade) {
         = compute_grade($grade, $i);
     }
   }
+  $sum = array_sum($grades[$grade->user->id][$grade->milestone->name]);
+  if ($grade->late_days > 0) {
+    $sum *= $grade->late_days <= 5 ? 0.75 : 0.50;
+  }
   $grades_milestones[$grade->user->id][$grade->milestone->name]
-    = array_sum($grades[$grade->user->id][$grade->milestone->name]);
+    = [$sum, $grade->late_days];
 }
 
 foreach ($groups as $group) {
@@ -69,7 +73,7 @@ foreach ($groups as $group) {
     $values = [];
     foreach ($vars as $milestone) {
       $ms = get_milestone($milestone);
-      $num = $grades_milestones[$user->id][$milestone] ?? 0;
+      [$num, $days] = $grades_milestones[$user->id][$milestone] ?? [0, 0];
       $values[$milestone] = $num;
       $data[$milestone]['text']    = number_format($num, 2);
       $data[$milestone]['tooltip'] = $ms ? $ms->description : '';
@@ -78,6 +82,9 @@ foreach ($groups as $group) {
         if ($descr = $ms->{"field$i"}) {
           $data[$milestone]['tooltip'] .= "\n$descr: ".number_format($grade, 2);
         }
+      }
+      if ($days > 0) {
+        $data[$milestone]['tooltip'] .= "\nLate days: $days";
       }
     }
     $data['Final']

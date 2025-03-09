@@ -49,5 +49,8 @@ class Grade
         }
       }
     }
+    if ($this->late_days < 0) {
+      throw new ValidationException("Late days cannot be negative");
+    }
   }
 }

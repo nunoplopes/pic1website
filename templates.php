@@ -351,7 +351,7 @@ function mk_eval_box(int $year, ?string $page, ?User $student,
   $id = 0;
 
   foreach (db_get_milestone($year, $page) as $milestone) {
-    if (!$milestone->individual) {
+    if (!$milestone->individual && sizeof($students) > 1) {
       $form = mk_eval_form($milestone, $students[0], 'Group grade', $id++);
       if ($form->isSubmitted() && $form->isValid()) {
         foreach ($students as $student) {
@@ -385,7 +385,6 @@ function mk_eval_form($milestone, $student, $name, $id) {
       $form->add('field'.$i, RangeType::class, [
         'label'    => $milestone->{"field$i"},
         'data'     => $grade ? $grade->{"field$i"} : 0,
-        'required' => false,
         'attr'     => [
           'min' => 0,
           'max' => $milestone->{"range$i"},
@@ -394,6 +393,10 @@ function mk_eval_form($milestone, $student, $name, $id) {
     }
   }
 
+  $form->add('late', IntegerType::class, [
+    'label' => 'Late Days',
+    'data'  => $grade ? $grade->late_days : 0,
+  ]);
   $form->add('submit', SubmitType::class, ['label' => 'Save']);
   $form = $form->getForm();
   $eval_forms[] = ['title' => $milestone->description, 'fields' => $form];
@@ -413,8 +416,9 @@ function set_grade($milestone, $student, $form) {
   }
   for ($i = 1; $i <= 4; ++$i) {
     if ($milestone->{"field$i"})
-      $grade->{"field$i"} = (int)$form->get('field'.$i, 0)->getData();
+      $grade->{"field$i"} = (int)$form->get('field'.$i)->getData();
   }
+  $grade->late_days = (int)$form->get('late')->getData();
   db_save($grade);
   $success_message = 'Database updated!';
 }
