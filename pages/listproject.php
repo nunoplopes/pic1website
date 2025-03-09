@@ -73,9 +73,13 @@ if ($repo = $group->getRepository()) {
   }
 }
 
-$bottom_links[]
-  = dolink('patches', 'Submitted patches',
-           ['group' => $group->id, 'all_shifts' => 1]);
+if (auth_at_least(ROLE_TA)) {
+  $bottom_links = [
+    dolink('patches', 'Patches', ['group' => $group->id, 'all_shifts' => 1]),
+    dolink('bugs', 'Bugs', ['group' => $group->id, 'all_shifts' => 1]),
+    dolink('features', 'Feature', ['group' => $group->id, 'all_shifts' => 1]),
+  ];
+}
 
 mk_eval_box($group->year, 'project', null, $group);
 

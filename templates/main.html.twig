@@ -281,10 +281,20 @@
 {% endif %}
 
 {% if bottom_links %}
-  <div class="my-3 bg-light py-3 container">
-    {% for line in bottom_links %}
-      <a href="{{ line.url }}" class="d-block text-decoration-none">{{line.label}}</a>
-    {% endfor %}
+  <div class="bg-light container my-2 py-3">
+    <div class="row">
+      {% for line in bottom_links %}
+        <div class="col-auto">
+          <a href="{{ line.url }}" class="text-decoration-none">
+            <div class="card p-2 shadow-sm text-center" style="min-width: 150px">
+              <div class="card-body p-2">
+                <span class="fw-bold">{{ line.label }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 {% endif %}
 
