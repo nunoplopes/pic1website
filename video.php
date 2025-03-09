@@ -9,7 +9,7 @@ use Embera\Http\HttpClientCache;
 
 function get_video_info($url, $maxwidth = 500, $maxheight = 500) {
   $cache = new HttpClientCache(new HttpClient());
-  $cache->setCachingEngine(new Filesystem('.cache', 8 * 3600));
+  $cache->setCachingEngine(new Filesystem('.cache', 9 * 24 * 3600));
 
   $embera = new Embera([
     'fake_responses' => Embera::DISABLE_FAKE_RESPONSES,
