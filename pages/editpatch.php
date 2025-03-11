@@ -73,6 +73,40 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
     $new_comment = "Status changed: $prev_status → $new_status\n\n$new_comment";
   }
   $patch->comments->add(new PatchComment($patch, $new_comment, $user));
+
+  $pic1link = link_patch($patch);
+
+  // notify students of the patch review
+  if ($new_status != $prev_status) {
+    $subject = null;
+    if ($patch->status == PATCH_APPROVED) {
+      $subject = 'PIC1: Patch approved';
+      $line = 'Congratulations! Your patch was approved. You can now open a PR.';
+    } else if ($patch->status == PATCH_REVIEWED) {
+      $subject = 'PIC1: Patch reviewed';
+      $line = 'Your patch was reviewed, but it needs further changes.';
+    }
+
+    if ($subject) {
+      $patchurl = $patch->getPatchURL();
+      email_group($patch->group, $subject, <<<EOF
+$line
+
+$new_comment
+
+Patch: $patchurl
+$pic1link
+EOF);
+    }
+  } elseif ($user->role == ROLE_STUDENT) {
+    $name = $user->shortName();
+    email_ta($patch->group, 'PIC1: new patch comment',
+             "$name ($user) added a new comment:\n" .
+             "\n$new_comment\n\n$pic1link");
+  } else {
+    email_group($patch->group, 'PIC1: new patch comment',
+                "$new_comment\n\n$pic1link");
+  }
   terminate_redirect();
 }
 
@@ -111,44 +145,6 @@ foreach ($patch->ci_failures as $ci) {
 
 if (auth_at_least(ROLE_PROF)) {
   $bottom_links[] = dolink('rmpatch', 'Delete patch', ['id' => $patch->id]);
-}
-
-// notify students of the patch review
-if ($patch->getStatus() != $prev_status) {
-  $subject = null;
-  $patchurl = $patch->getPatchURL();
-  $pic1link = link_patch($patch);
-
-  if ($patch->status == PATCH_APPROVED) {
-    $subject = 'PIC1: Patch approved';
-    $line = 'Congratulations! Your patch was approved. You can now open a PR.';
-  } else if ($patch->status == PATCH_REVIEWED) {
-    $subject = 'PIC1: Patch reviewed';
-    $line = 'Your patch was reviewed, but it needs further changes.';
-  }
-
-  if ($subject) {
-    email_group($patch->group, $subject, <<<EOF
-$line
-
-$new_comment
-
-Patch: $patchurl
-$pic1link
-EOF);
-  }
-} elseif (isset($new_comment)) {
-  if ($user->role == ROLE_STUDENT) {
-    $name = $user->shortName();
-    email_ta($patch->group, 'PIC1: new patch comment',
-             "$name ($user) added a new comment:\n" .
-             "\n$new_comment\n\n" .
-             link_patch($patch));
-  } else {
-    email_group($patch->group, 'PIC1: new patch comment',
-                "$new_comment\n\n" .
-                link_patch($patch));
-  }
 }
 
 if ($patch->isValid()) {
