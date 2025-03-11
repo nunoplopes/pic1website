@@ -11,10 +11,12 @@
     "symfony/http-client": "*",
     "symfony/http-foundation": "*",
     "symfony/mailer": "*",
-    "symfony/messenger": "*",
     "symfony/translation": "*",
     "symfony/twig-bridge": "*",
     "twig/twig": "*"
+  },
+  "require-dev": {
+    "symfony/messenger": "*"
   },
   "autoload": {
     "psr-4": {"": "entities"}
