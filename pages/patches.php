@@ -97,7 +97,7 @@ foreach ($groups as $group) {
       'Submitter' => $patch->getSubmitterName(),
       'Authors'   => implode(', ', $authors),
       //'Video'     => get_video_html($patch->video_url),
-      //'_large_table' => true,
+      '_large_table' => true,
     ];
   }
 }
