@@ -63,7 +63,8 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
     }
   }
   elseif ($user->role == ROLE_STUDENT &&
-      ($patch->status == PATCH_REVIEWED || $patch->status == PATCH_NOTMERGED)) {
+          in_array($patch->status,
+                   [PATCH_REVIEWED, PATCH_NOTMERGED, PATCH_NOTMERGED_ILLEGAL])) {
     $patch->set_status(PATCH_WAITING_REVIEW);
   }
 
@@ -76,20 +77,25 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
 
   $pic1link = link_patch($patch);
 
+  if ($user->role == ROLE_STUDENT) {
+    $name = $user->shortName();
+    email_ta($patch->group, 'PIC1: new patch comment',
+             "$name ($user) added a new comment:\n" .
+             "\n$new_comment\n\n$pic1link");
+
   // notify students of the patch review
-  if ($new_status != $prev_status) {
-    $subject = null;
+  } elseif ($new_status != $prev_status) {
     if ($patch->status == PATCH_APPROVED) {
       $subject = 'PIC1: Patch approved';
       $line = 'Congratulations! Your patch was approved. You can now open a PR.';
-    } else if ($patch->status == PATCH_REVIEWED) {
+    } else {
+      assert($patch->status == PATCH_REVIEWED);
       $subject = 'PIC1: Patch reviewed';
       $line = 'Your patch was reviewed, but it needs further changes.';
     }
 
-    if ($subject) {
-      $patchurl = $patch->getPatchURL();
-      email_group($patch->group, $subject, <<<EOF
+    $patchurl = $patch->getPatchURL();
+    email_group($patch->group, $subject, <<<EOF
 $line
 
 $new_comment
@@ -97,12 +103,6 @@ $new_comment
 Patch: $patchurl
 $pic1link
 EOF);
-    }
-  } elseif ($user->role == ROLE_STUDENT) {
-    $name = $user->shortName();
-    email_ta($patch->group, 'PIC1: new patch comment',
-             "$name ($user) added a new comment:\n" .
-             "\n$new_comment\n\n$pic1link");
   } else {
     email_group($patch->group, 'PIC1: new patch comment',
                 "$new_comment\n\n$pic1link");
