@@ -102,10 +102,7 @@ function github_remove_etag() {
 }
 
 function github_parse_date($date) {
-  // FIXME: 'p' is PHP 8 only
-  //if ($ret = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sp', $date))
-  if ($ret = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s\Z', $date,
-                                                  new \DateTimeZone('Z')))
+  if ($ret = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:sp', $date))
     return $ret;
   throw new Exception("Couldn't parse github date: $date");
 }
