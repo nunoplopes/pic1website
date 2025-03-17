@@ -14,6 +14,7 @@ $page = $_REQUEST['page'] ?? '';
 
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Forms;
+use Symfony\Component\HttpClient\Exception\TimeoutException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 $formFactory = Forms::createFormFactoryBuilder()
@@ -83,6 +84,8 @@ try {
   terminate('Failed to validate all fields: ' . $ex->getMessage());
 } catch (DateMalformedStringException $ex) {
   terminate('Failed to parse date: ' . $ex->getMessage());
+} catch (TimeoutException $ex) {
+  terminate('Operation timed out: ' . $ex->getMessage());
 }
 
 function terminate($error_message = null, $template = 'main.html.twig',
