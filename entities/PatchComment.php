@@ -2,31 +2,27 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\JoinColumn;
-use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class PatchComment
 {
-  /** @Id @Column @GeneratedValue */
+  #[ORM\Id]
+  #[ORM\Column]
+  #[ORM\GeneratedValue]
   public int $id;
 
-  /** @ManyToOne(inversedBy="comments")
-   *  @JoinColumn(nullable=false)
-   */
+  #[ORM\ManyToOne(inversedBy: 'comments')]
+  #[ORM\JoinColumn(nullable: false)]
   public Patch $patch;
 
-  /** @Column(length=4096) */
+  #[ORM\Column(length: 4096)]
   public string $text;
 
-  /** @ManyToOne */
+  #[ORM\ManyToOne]
   public ?User $user;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $time;
 
   public function __construct(Patch $patch, string $text, ?User $user = null) {

@@ -2,43 +2,37 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\PrePersist;
-use Doctrine\ORM\Mapping\PreUpdate;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity
- *  @HasLifecycleCallbacks
-*/
+#[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
 class Grade
 {
-  /** @Id @ManyToOne */
+  #[ORM\Id]
+  #[ORM\ManyToOne]
   public User $user;
 
-  /** @Id @ManyToOne */
+  #[ORM\Id]
+  #[ORM\ManyToOne]
   public Milestone $milestone;
 
-  /** @Column(nullable=true) */
+  #[ORM\Column(nullable: true)]
   public ?int $field1;
 
-  /** @Column(nullable=true) */
+  #[ORM\Column(nullable: true)]
   public ?int $field2;
 
-  /** @Column(nullable=true) */
+  #[ORM\Column(nullable: true)]
   public ?int $field3;
 
-  /** @Column(nullable=true) */
+  #[ORM\Column(nullable: true)]
   public ?int $field4;
 
-  /** @Column */
+  #[ORM\Column]
   public int $late_days = 0;
 
-  /** @PrePersist
-   *  @PreUpdate
-   */
+  #[ORM\PrePersist]
+  #[ORM\PreUpdate]
   public function validateFields() {
     for ($i = 1; $i <= 4; ++$i) {
       if ($this->milestone->{"field$i"} !== '') {

@@ -2,29 +2,28 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class Deadline
 {
-  /** @Id @Column */
+  #[ORM\Id]
+  #[ORM\Column]
   public int $year;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $proj_proposal;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $bug_selection;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $feature_selection;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $patch_submission;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $final_report;
 
   public function __construct($year) {

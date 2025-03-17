@@ -1,7 +1,6 @@
 {
   "require": {
     "doctrine/orm": "*",
-    "doctrine/annotations": "*",
     "knplabs/github-api": "*",
     "mpratt/embera": "*",
     "nyholm/psr7": "*",
@@ -24,7 +23,7 @@
   "config": {
     "optimize-autoloader": true,
     "platform": {
-      "php": "7.4"
+      "php": "8.2"
     },
     "allow-plugins": {
       "php-http/discovery": true

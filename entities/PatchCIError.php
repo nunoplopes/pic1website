@@ -2,31 +2,28 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\JoinColumn;
-use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class PatchCIError
 {
-  /** @Id
-   *  @ManyToOne(inversedBy="ci_failures")
-   *  @JoinColumn(nullable=false)
-   */
+  #[ORM\Id]
+  #[ORM\ManyToOne(inversedBy: "ci_failures")]
+  #[ORM\JoinColumn(nullable: false)]
   public Patch $patch;
 
-  /** @Id @Column(length=64) */
+  #[ORM\Id]
+  #[ORM\Column(length: 64)]
   public string $hash;
 
-  /** @Id @Column */
+  #[ORM\Id]
+  #[ORM\Column]
   public string $name;
 
-  /** @Column */
+  #[ORM\Column]
   public string $url;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $time;
 
   public function __construct(Patch $patch, string $hash, string $name,

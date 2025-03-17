@@ -2,29 +2,26 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class Shift
 {
-  /** @Id @Column @GeneratedValue */
+  #[ORM\Id]
+  #[ORM\Column]
+  #[ORM\GeneratedValue]
   public int $id;
 
-  /** @Column */
+  #[ORM\Column]
   public string $name;
 
-  /** @Column */
+  #[ORM\Column]
   public int $year;
 
-  /** @ManyToOne */
+  #[ORM\ManyToOne]
   public ?User $prof;
 
-  /** @OneToMany(targetEntity="ProjGroup", mappedBy="shift") */
+  #[ORM\OneToMany(targetEntity: "ProjGroup", mappedBy: "shift")]
   public $groups;
 
   public function __construct($name, $year) {

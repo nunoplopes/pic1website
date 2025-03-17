@@ -5,14 +5,16 @@
 require_once 'include.php';
 
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\EntityManager;
 
-$config = ORMSetup::createAnnotationMetadataConfiguration(
-  [__DIR__ . '/entities'], /*isDevMode:*/ !IN_PRODUCTION, /*proxyDir:*/ '.proxies');
+$config = ORMSetup::createAttributeMetadataConfiguration(
+  [__DIR__ . '/entities'], /*isDevMode:*/ !IN_PRODUCTION,
+  /*proxyDir:*/ '.proxies');
 $config->setAutoGenerateProxyClasses(!IN_PRODUCTION);
 
-if (!IN_PRODUCTION) {
+if (0 && !IN_PRODUCTION) {
   class SQLLoogger implements Doctrine\DBAL\Logging\SQLLogger {
     public function startQuery($sql, ?array $params = null,
                                ?array $types = null) {
@@ -24,7 +26,8 @@ if (!IN_PRODUCTION) {
   $config->setSQLLogger(new SQLLoogger);
 }
 
-$connection = DriverManager::getConnection(['url' => DB_DSN], $config);
+$params = (new DsnParser())->parse(DB_DSN);
+$connection = DriverManager::getConnection($params, $config);
 $entityManager = new EntityManager($connection, $config);
 
 function db_flush() {

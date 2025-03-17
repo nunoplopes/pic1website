@@ -2,7 +2,6 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -51,7 +50,6 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
   $form = $formFactory->createBuilder(FormType::class);
 
   $class = new ReflectionClass($obj);
-  $docReader = new AnnotationReader();
 
   $not_all_readonly = false;
 
@@ -65,15 +63,11 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         ($only_fields && !in_array($name, $only_fields)))
       continue;
 
-    $annotations
-      = $docReader->getPropertyAnnotations($class->getProperty($name));
-
+    $property = $class->getProperty($name);
+    $attributes = $property->getAttributes(Doctrine\ORM\Mapping\Column::class);
     $column = null;
-    foreach ($annotations as $t) {
-      if (get_class($t) === 'Doctrine\ORM\Mapping\Column') {
-        $column = $t;
-        break;
-      }
+    if (!empty($attributes)) {
+      $column = $attributes[0]->newInstance();
     }
 
     $print_name = strtr($name, '_', ' ');

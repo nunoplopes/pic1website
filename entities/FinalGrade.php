@@ -2,16 +2,15 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class FinalGrade
 {
-  /** @column @Id */
+  #[ORM\Id]
+  #[ORM\Column]
   public int $year;
 
-  /** @Column */
+  #[ORM\Column]
   public string $formula;
 }

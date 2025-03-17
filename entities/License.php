@@ -2,17 +2,16 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class License
 {
-  /** @Id @Column(length=48) */
+  #[ORM\Id]
+  #[ORM\Column(length: 48)]
   public string $id;
 
-  /** @Column */
+  #[ORM\Column]
   public string $name;
 
   public function __construct($id, $name) {

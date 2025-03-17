@@ -2,20 +2,7 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\DiscriminatorColumn;
-use Doctrine\ORM\Mapping\DiscriminatorMap;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\InheritanceType;
-use Doctrine\ORM\Mapping\JoinColumn;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\ManyToMany;
-use Doctrine\ORM\Mapping\OneToMany;
-use Doctrine\ORM\Mapping\OrderBy;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\UniqueConstraint;
+use Doctrine\ORM\Mapping as ORM;
 
 define('PATCH_WAITING_REVIEW', 0);
 define('PATCH_REVIEWED', 1);
@@ -35,58 +22,52 @@ define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
 ]);
 
 
-/** @Entity
- *  @Table(name="Patch",
- *    uniqueConstraints={
- *      @UniqueConstraint(name="unique_branch_per_group", columns={"group_id", "repo_branch"}),
- *    }
- *  )
- *  @InheritanceType("SINGLE_TABLE")
- *  @DiscriminatorColumn(name="platform", type="string")
- *  @DiscriminatorMap({"github" = "GitHub\GitHubPatch"})
- */
+#[ORM\Entity]
+#[ORM\UniqueConstraint(name: 'unique_branch_per_group', columns: ['group_id', 'repo_branch'])]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'platform', type: 'string')]
+#[ORM\DiscriminatorMap(['github' => 'GitHub\GitHubPatch'])]
 abstract class Patch
 {
-  /** @Id @Column @GeneratedValue */
+  #[ORM\Id]
+  #[ORM\Column]
+  #[ORM\GeneratedValue]
   public int $id;
 
-  /** @ManyToOne(inversedBy="patches")
-   *  @JoinColumn(nullable=false)
-   */
+  #[ORM\ManyToOne(targetEntity: "ProjGroup", inversedBy: "patches")]
+  #[ORM\JoinColumn(nullable: false)]
   public ProjGroup $group;
 
-  /** @Column */
+  #[ORM\Column]
   public int $status = PATCH_WAITING_REVIEW;
 
-  /** @Column */
+  #[ORM\Column]
   public int $type;
 
-  /** @OneToMany(targetEntity="PatchComment", mappedBy="patch", cascade={"persist", "remove"})
-   *  @OrderBy({"id" = "ASC"})
-   */
+  #[ORM\OneToMany(targetEntity: "PatchComment", mappedBy: "patch", cascade: ["persist", "remove"])]
+  #[ORM\OrderBy(["id" => "ASC"])]
   public $comments;
 
-  /** @OneToMany(targetEntity="PatchCIError", mappedBy="patch", cascade={"persist", "remove"})
-   *  @OrderBy({"time" = "ASC"})
-   */
+  #[ORM\OneToMany(targetEntity: "PatchCIError", mappedBy: "patch", cascade: ["persist", "remove"])]
+  #[ORM\OrderBy(["time" => "ASC"])]
   public $ci_failures;
 
-  /** @ManyToMany(targetEntity="User") */
+  #[ORM\ManyToMany(targetEntity: "User")]
   public $students;
 
-  /** @Column(length=64) */
+  #[ORM\Column(length: 64)]
   public string $hash = '';
 
-  /** @Column */
+  #[ORM\Column]
   public string $video_url = '';
 
-  /** @Column */
+  #[ORM\Column]
   public int $lines_added;
 
-  /** @Column */
+  #[ORM\Column]
   public int $lines_deleted;
 
-  /** @Column */
+  #[ORM\Column]
   public int $files_modified;
 
   static function factory(ProjGroup $group, string $url, $type,

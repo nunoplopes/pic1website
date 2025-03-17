@@ -2,21 +2,19 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class Session
 {
-  /** @Id @Column(length=32) */
+  #[ORM\Id]
+  #[ORM\Column(length: 32)]
   public string $id;
 
-  /** @ManyToOne */
+  #[ORM\ManyToOne]
   public User $user;
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $expires;
 
   public function __construct($user) {

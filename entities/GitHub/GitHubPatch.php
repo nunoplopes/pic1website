@@ -4,16 +4,15 @@
 
 namespace GitHub;
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class GitHubPatch extends \Patch
 {
-  /** @Column */
+  #[ORM\Column]
   public string $repo_branch;
 
-  /** @Column */
+  #[ORM\Column]
   public int $pr_number = 0;
 
   static function construct($url, \Repository $repository) {

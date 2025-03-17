@@ -2,35 +2,27 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\UniqueConstraint;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity
- *  @Table(name="SelectedBug",
- *    uniqueConstraints={
- *      @UniqueConstraint(name="unique_bug_issue", columns={"year", "issue_url"}),
- *    }
- *  )
- */
+#[ORM\Entity]
+#[ORM\UniqueConstraint(name: 'unique_bug_issue', columns: ['year', 'issue_url'])]
 class SelectedBug
 {
-  /** @Id @ManyToOne */
+  #[ORM\Id]
+  #[ORM\ManyToOne]
   public User $user;
 
-  /** @Id @Column */
+  #[ORM\Id]
+  #[ORM\Column]
   public int $year;
 
-  /** @Column */
+  #[ORM\Column]
   public string $issue_url = '';
 
-  /** @Column */
+  #[ORM\Column]
   public string $repro_url = '';
 
-  /** @Column(length=4096) */
+  #[ORM\Column(length: 4096)]
   public string $description;
 
   static function factory(ProjGroup $group, User $user, string $description,

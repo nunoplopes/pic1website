@@ -2,93 +2,89 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToMany;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class ProjGroup
 {
-  /** @Id @Column @GeneratedValue */
+  #[ORM\Id]
+  #[ORM\Column]
+  #[ORM\GeneratedValue]
   public int $id;
 
-  /** @Column */
+  #[ORM\Column]
   public int $group_number;
 
-  /** @Column */
+  #[ORM\Column]
   public int $year;
 
-  /** @ManyToOne(inversedBy="groups") */
+  #[ORM\ManyToOne(inversedBy: 'groups')]
   public Shift $shift;
 
-  /** @ManyToMany(targetEntity="User", inversedBy="groups", cascade={"persist"}) */
+  #[ORM\ManyToMany(targetEntity: 'User', inversedBy: 'groups', cascade: ['persist'])]
   public $students;
 
-  /** @OneToMany(targetEntity="Patch", mappedBy="group") */
+  #[ORM\OneToMany(mappedBy: 'group', targetEntity: 'Patch')]
   public $patches;
 
-  /** @Column */
+  #[ORM\Column]
   public string $project_name = '';
 
-  /** @Column(length=2000) */
+  #[ORM\Column(length: 2000)]
   public string $project_description = '';
 
-  /** @Column */
+  #[ORM\Column]
   public string $project_website = 'https://example.org';
 
-  /** @Column(length=150) */
+  #[ORM\Column(length: 150)]
   public string $repository = '';
 
-  /** @Column */
+  #[ORM\Column]
   public bool $cla = false;
 
-  /** @Column */
+  #[ORM\Column]
   public bool $dco = false;
 
-  /** @Column */
+  #[ORM\Column]
   public string $major_users = '';
 
-  /** @Column */
+  #[ORM\Column]
   public int $lines_of_code = 0;
 
-  /** @Column */
+  #[ORM\Column]
   public string $coding_style = 'https://example.org';
 
-  /** @Column */
+  #[ORM\Column]
   public string $bugs_for_beginners = 'https://example.org';
 
-  /** @Column */
+  #[ORM\Column]
   public string $project_ideas = 'https://example.org';
 
-  /** @Column(length=1000) */
+  #[ORM\Column(length: 1000)]
   public string $student_programs = '';
 
-  /** @Column */
+  #[ORM\Column]
   public string $getting_started_manual = 'https://example.org';
 
-  /** @Column */
+  #[ORM\Column]
   public string $developers_manual = 'https://example.org';
 
-  /** @Column */
+  #[ORM\Column]
   public string $testing_manual = 'https://example.org';
 
-  /** @Column */
+  #[ORM\Column]
   public string $developers_mailing_list = 'https://example.org';
 
-  /** @Column */
+  #[ORM\Column]
   public string $patch_submission = 'https://example.org';
 
-  /** @Column(length=40) */
+  #[ORM\Column(length: 40)]
   public string $hash_proposal_file = '';
 
-  /** @Column */
+  #[ORM\Column]
   public string $url_proposal = '';
 
-  /** @Column */
+  #[ORM\Column]
   public DateTimeImmutable $allow_modifications_date;
 
   public function __construct($number, $year, Shift $shift) {

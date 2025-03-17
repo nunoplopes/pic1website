@@ -2,43 +2,39 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToMany;
-use Doctrine\ORM\Mapping\OrderBy;
+use Doctrine\ORM\Mapping as ORM;
 
-/** @Entity */
+#[ORM\Entity]
 class User
 {
-  /** @Id @Column(length=16) */
+  #[ORM\Id]
+  #[ORM\Column(length: 16)]
   public string $id;
 
-  /** @Column */
+  #[ORM\Column]
   public string $name;
 
-  /** @Column */
+  #[ORM\Column]
   public string $email;
 
-  /** @Column(type="text") */
+  #[ORM\Column(type: 'text')]
   public string $photo;
 
-  /** @Column */
+  #[ORM\Column]
   // TODO: switch to enum with PHP 8
   public int $role;
 
-  /** @ManyToMany(targetEntity="ProjGroup", mappedBy="students", cascade={"persist"})
-   *  @OrderBy({"year" = "DESC"})
-  */
+  #[ORM\ManyToMany(mappedBy: 'students', targetEntity: 'ProjGroup', cascade: ['persist'])]
+  #[ORM\OrderBy(['year' => 'DESC'])]
   public $groups;
 
-  /** @Column */
+  #[ORM\Column]
   public string $repository_user = '';
 
-  /** @Column */
+  #[ORM\Column]
   public string $repository_etag = '';
 
-  /** @Column(type="bigint") */
+  #[ORM\Column(type: 'bigint')]
   public string $repository_last_processed_id = '0';
 
   public function __construct($username, $name, $email, $photo, $role, $dummy) {
