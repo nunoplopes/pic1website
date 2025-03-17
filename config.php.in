@@ -19,7 +19,7 @@ define('FENIX_COURSES', ['PLic2', 'PLic23', 'PLic23-2']);
 // When does the new academic year starts? (integer)
 define('MONTH_NEW_YEAR', 9);
 
-define('DB_DSN', 'pdo-sqlite://' . __DIR__ . '/db.sqlite');
+define('DB_DSN', 'pdo-sqlite:///' . __DIR__ . '/db.sqlite');
 
 define('FENIX_APP_ID', '');
 define('FENIX_CLIENT_SECRET', '');
