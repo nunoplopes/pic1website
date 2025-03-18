@@ -167,7 +167,7 @@ abstract class Patch
         if (!$issue_url)
           throw new ValidationException('Patch does not have a bug associated');
 
-        if (preg_match('/\d/', $issue_url)) {
+        if (!$url_exception && preg_match('/\d/', $issue_url)) {
           if (!preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m))
             throw new ValidationException(
               "Commit message doesn't reference the fixed issue properly:\n" .
