@@ -88,6 +88,9 @@ abstract class Patch
       throw new ValidationException('Patch not found');
     }
 
+    if (!$p->isValid())
+      throw new ValidationException('Patch not found');
+
     $description = trim($description);
     $p->comments->add(
       new PatchComment($p, "Patch submitted; hash: {$p->hash}\n\n$description",
@@ -209,7 +212,8 @@ abstract class Patch
   abstract public function getPR() : ?PullRequest;
 
   public function updateStats() {
-    $this->hash = $this->computeBranchHash();
+    $isvalid = $this->isValid();
+    $this->hash = $isvalid ? $this->computeBranchHash() : '';
 
     if ($pr = $this->getPR()) {
       $legal = $this->status == PATCH_PR_OPEN;
@@ -229,7 +233,7 @@ abstract class Patch
     }
 
     // check if branch was deleted in the meantime
-    if (!$this->isValid()) {
+    if (!$isvalid) {
       if ($this->status == PATCH_PR_OPEN_ILLEGAL) {
         $this->status = PATCH_NOTMERGED_ILLEGAL;
       } else if ($this->status <= PATCH_PR_OPEN) {
