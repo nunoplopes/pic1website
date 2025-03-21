@@ -86,6 +86,8 @@ try {
   terminate('Failed to parse date: ' . $ex->getMessage());
 } catch (TimeoutException $ex) {
   terminate('Operation timed out: ' . $ex->getMessage());
+} catch (\Github\Exception\RuntimeException $ex) {
+  terminate('Failed to access GitHub: ' . $ex->getMessage());
 }
 
 function terminate($error_message = null, $template = 'main.html.twig',
