@@ -337,6 +337,10 @@ foreach ($run_tasks as $task) {
     $task();
   } catch (CheckPointException $ex) {
     throw $ex;
+  } catch (\Symfony\Component\HttpClient\Exception\TimeoutException $ex) {
+    throw $ex;
+  } catch (\Github\Exception\RuntimeException $ex) {
+    throw $ex;
   } catch (Throwable $ex) {
     error_profs("PIC1: Cron job failed",
                 "Cron had an exception when running $task:\n$ex");
