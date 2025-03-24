@@ -16,7 +16,7 @@ class GitHubPatch extends \Patch
   public int $pr_number = 0;
 
   static function construct($url, \Repository $repository) {
-    if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^.]+)\.\.\.([^:]+):([^:]+):(.+)$@', $url, $m)) {
+    if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/(.+)\.\.\.([^:]+):([^:]+):(.+)$@', $url, $m)) {
       $src_repo   = $m[1]; // user/repo
       $src_branch = $m[2];
       $org        = $m[3];
