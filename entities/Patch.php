@@ -18,6 +18,7 @@ define('PATCH_BUGFIX', 0);
 define('PATCH_FEATURE', 1);
 
 define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
+  'github:ArduPilot/ardupilot' => 'https://ardupilot.org/dev/docs/submitting-patches-back-to-master.html#preparing-commits',
   'github:oppia/oppia' => 'https://github.com/oppia/oppia/wiki/Make-a-pull-request#step-2-make-commits-locally-to-your-feature-branch',
 ]);
 
