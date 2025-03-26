@@ -30,21 +30,22 @@ $total = [];
 
 foreach (db_get_patch_stats() as $data) {
   switch ($data['status']) {
-    case PATCH_WAITING_REVIEW:
-    case PATCH_REVIEWED:
-    case PATCH_APPROVED:
+    case PatchStatus::WaitingReview:
+    case PatchStatus::Reviewed:
+    case PatchStatus::Approved:
+    case PatchStatus::Closed:
       break;
 
-    case PATCH_MERGED:
-    case PATCH_MERGED_ILLEGAL:
-      @$merged[$data['year']][$data['type']] += $data['count'];
+    case PatchStatus::Merged:
+    case PatchStatus::MergedIllegal:
+      @$merged[$data['year']][$data['type']->value] += $data['count'];
       // fallthrough
 
-    case PATCH_PR_OPEN:
-    case PATCH_PR_OPEN_ILLEGAL:
-    case PATCH_NOTMERGED:
-    case PATCH_NOTMERGED_ILLEGAL:
-      @$total[$data['year']][$data['type']] += $data['count'];
+    case PatchStatus::PROpen:
+    case PatchStatus::PROpenIllegal:
+    case PatchStatus::NotMerged:
+    case PatchStatus::NotMergedIllegal:
+      @$total[$data['year']][$data['type']->value] += $data['count'];
       break;
 
     default:
@@ -60,8 +61,8 @@ foreach ($total as $year => $data) {
     $pcmerged_y[$type][] = round(@$merged[$year][$type] / $n, 2);
   }
 }
-$fields['pcmerged_bug']  = @$pcmerged_y[PATCH_BUGFIX];
-$fields['pcmerged_feat'] = @$pcmerged_y[PATCH_FEATURE];
+$fields['pcmerged_bug']  = @$pcmerged_y[PatchType::BugFix->value];
+$fields['pcmerged_feat'] = @$pcmerged_y[PatchType::Feature->value];
 
 
 // 3rd plot: stats of projects selected this year
@@ -82,9 +83,9 @@ foreach (db_fetch_groups($selected_year) as $group) {
 
 foreach (db_get_pr_stats($selected_year) as $data) {
   $repo   = (new Repository($data['repository']))->name();
-  $merged = $data['status'] == PATCH_MERGED ||
-            $data['status'] == PATCH_MERGED_ILLEGAL;
-  @$prs_per_project[$repo][$data['type']][$merged] += $data['count'];
+  $merged = in_array($data['status'],
+                     [PatchStatus::Merged, PatchStatus::MergedIllegal]);
+  @$prs_per_project[$repo][$data['type']->value][$merged] += $data['count'];
 }
 
 if (sizeof($projs) > 10) {
@@ -108,10 +109,10 @@ $fields['proj_y'] = $projs;
 // Now a table with all projects
 $id = 0;
 foreach ($prs_per_project as $name => $stats) {
-  $total_bugs = array_sum($stats[PATCH_BUGFIX] ?? array());
-  $total_feat = array_sum($stats[PATCH_FEATURE] ?? array());
-  $bugs       = $stats[PATCH_BUGFIX][1] ?? 0;
-  $feat       = $stats[PATCH_FEATURE][1] ?? 0;
+  $total_bugs = array_sum($stats[PatchType::BugFix->value] ?? array());
+  $total_feat = array_sum($stats[PatchType::Feature->value] ?? array());
+  $bugs       = $stats[PatchType::BugFix->value][1] ?? 0;
+  $feat       = $stats[PatchType::Feature->value][1] ?? 0;
   $fields['all_projects'][] = [
     'id'         => $id++,
     'name'       => $name,

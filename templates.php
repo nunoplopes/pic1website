@@ -5,6 +5,7 @@
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -117,19 +118,14 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         'required' => $required,
       ]);
     }
-    elseif (method_exists($obj, "get_$name"."_options")) {
-      $vals = [];
-      $method_name = "get_$name"."_options";
-      foreach ($obj->$method_name() as $id => $str) {
-        $vals[$str] = $id;
-      }
-      assert(in_array($orig_value, $vals));
-      $form->add($name, ChoiceType::class, [
-        'label'    => $print_name,
-        'choices'  => $vals,
-        'data'     => $orig_value,
-        'disabled' => $disabled,
-        'required' => $required,
+    elseif ($orig_value instanceof UnitEnum) {
+      $form->add($name, EnumType::class, [
+        'class'        => get_class($orig_value),
+        'choice_label' => fn ($v) => $v->label(),
+        'label'        => $print_name,
+        'data'         => $orig_value,
+        'disabled'     => $disabled,
+        'required'     => $required,
       ]);
     }
     else {

@@ -278,12 +278,12 @@ function run_repository() {
         }
 
         if (!$processed) {
-          $patch = Patch::factory($group, $pr->branchURL(), PATCH_BUGFIX,
+          $patch = Patch::factory($group, $pr->branchURL(), PatchType::BugFix,
             "This patch entry was automatically generated.\n".
             "The PR was opened without permission!",
             $user, '', /*ignore_errors=*/true);
           $patch->setPR($pr);
-          $patch->status = PATCH_PR_OPEN_ILLEGAL;
+          $patch->status = PatchStatus::PROpenIllegal;
           $group->patches->add($patch);
           db_save($patch);
 
@@ -334,10 +334,11 @@ db_flush();
 
 function handle_new_pr($patch, $group, $pr) {
   if (in_array($patch->status,
-               [PATCH_APPROVED, PATCH_PR_OPEN, PATCH_NOTMERGED])) {
-    $patch->status = PATCH_PR_OPEN;
+               [PatchStatus::Approved, PatchStatus::PROpen,
+                PatchStatus::NotMerged])) {
+    $patch->status = PatchStatus::PROpen;
   } else {
-    $patch->status = PATCH_PR_OPEN_ILLEGAL;
+    $patch->status = PatchStatus::PROpenIllegal;
     $patch->comments->add(
       new PatchComment($patch, "PR opened without approval"));
     error_group($group,

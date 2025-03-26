@@ -40,7 +40,8 @@ $comments_form = $formFactory->createNamedBuilder('comments', FormType::class)
   ]);
 
 // Add approve/reject buttons to simplify the life of TAs
-if ($patch->status <= PATCH_REVIEWED && auth_at_least(ROLE_TA)) {
+if ($patch->status->value <= PatchStatus::Reviewed->value &&
+    auth_at_least(ROLE_TA)) {
   $comments_form->add('approve', SubmitType::class, [
     'label' => 'Approve',
   ]);
@@ -56,16 +57,17 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
   if (auth_at_least(ROLE_TA)) {
     if ($comments_form->has('approve') &&
         $comments_form->get('approve')->isClicked()) {
-      $patch->set_status(PATCH_APPROVED);
+      $patch->status = PatchStatus::Approved;
     } elseif ($comments_form->has('reject') &&
               $comments_form->get('reject')->isClicked()) {
-      $patch->set_status(PATCH_REVIEWED);
+      $patch->status = PatchStatus::Reviewed;
     }
   }
   elseif ($user->role == ROLE_STUDENT &&
           in_array($patch->status,
-                   [PATCH_REVIEWED, PATCH_NOTMERGED, PATCH_NOTMERGED_ILLEGAL])) {
-    $patch->set_status(PATCH_WAITING_REVIEW);
+                   [PatchStatus::Reviewed, PatchStatus::NotMerged,
+                    PatchStatus::NotMergedIllegal])) {
+    $patch->status = PatchStatus::WaitingReview;
   }
 
   $new_status  = $patch->getStatus();
@@ -85,11 +87,11 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
 
   // notify students of the patch review
   } elseif ($new_status != $prev_status) {
-    if ($patch->status == PATCH_APPROVED) {
+    if ($patch->status == PatchStatus::Approved) {
       $subject = 'PIC1: Patch approved';
       $line = 'Congratulations! Your patch was approved. You can now open a PR.';
     } else {
-      assert($patch->status == PATCH_REVIEWED);
+      assert($patch->status == PatchStatus::Reviewed);
       $subject = 'PIC1: Patch reviewed';
       $line = 'Your patch was reviewed, but it needs further changes.';
     }

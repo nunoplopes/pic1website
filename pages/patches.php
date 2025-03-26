@@ -4,7 +4,7 @@
 
 require_once 'email.php';
 
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -18,8 +18,9 @@ $deadline = $deadlines->patch_submission;
 if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
   $form = $formFactory->createBuilder(FormType::class)
     ->add('url', UrlType::class, ['label' => 'URL'])
-    ->add('type', ChoiceType::class, [
-      'choices' => ['Bug fix' => PATCH_BUGFIX, 'Feature' => PATCH_FEATURE],
+    ->add('type', EnumType::class, [
+      'class'        => PatchType::class,
+      'choice_label' => fn (PatchType $type) => $type->label(),
     ])
     ->add('video_url', UrlType::class, [
       'label' => 'URL of video demonstrating the bug fix/feature',
@@ -67,10 +68,10 @@ $table = [];
 foreach ($groups as $group) {
   foreach ($group->patches as $patch) {
     if (auth_at_least(ROLE_TA)) {
-      if ($only_needs_review && $patch->status != PATCH_WAITING_REVIEW)
+      if ($only_needs_review && $patch->status != PatchStatus::WaitingReview)
         continue;
 
-      if ($only_open_patches && $patch->status >= PATCH_MERGED)
+      if ($only_open_patches && $patch->status->value >= PatchStatus::Merged)
         continue;
     }
 

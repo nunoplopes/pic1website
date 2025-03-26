@@ -269,8 +269,9 @@ function db_get_merged_patch_stats() {
   global $entityManager;
   return $entityManager->createQueryBuilder()
                        ->from('Patch', 'p')
-                       ->where('p.status = ' . PATCH_MERGED . ' OR '.
-                               'p.status = ' . PATCH_MERGED_ILLEGAL)
+                       ->where('p.status = ' . PatchStatus::Merged->value .
+                               ' OR '.
+                               'p.status = ' . PatchStatus::MergedIllegal->value)
                        ->select(['g.year',
                                  'COUNT(p.id) AS patches',
                                  'SUM(p.lines_added) AS lines_added',

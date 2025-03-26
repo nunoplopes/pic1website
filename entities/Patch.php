@@ -4,18 +4,45 @@
 
 use Doctrine\ORM\Mapping as ORM;
 
-define('PATCH_WAITING_REVIEW', 0);
-define('PATCH_REVIEWED', 1);
-define('PATCH_APPROVED', 2);
-define('PATCH_PR_OPEN', 3);
-define('PATCH_PR_OPEN_ILLEGAL', 4);
-define('PATCH_MERGED', 5);
-define('PATCH_MERGED_ILLEGAL', 6);
-define('PATCH_NOTMERGED', 7);
-define('PATCH_NOTMERGED_ILLEGAL', 8);
+enum PatchStatus : int {
+  case WaitingReview = 0;
+  case Reviewed = 1;
+  case Approved = 2;
+  case PROpen = 3;
+  case PROpenIllegal = 4;
+  case Merged = 5;
+  case MergedIllegal = 6;
+  case NotMerged = 7;
+  case NotMergedIllegal = 8;
+  case Closed = 9;
 
-define('PATCH_BUGFIX', 0);
-define('PATCH_FEATURE', 1);
+  public function label(): string {
+    return match ($this) {
+      self::WaitingReview    => 'waiting review',
+      self::Reviewed         => 'reviewed',
+      self::Approved         => 'approved',
+      self::PROpen           => 'PR open',
+      self::PROpenIllegal    => 'PR open wo/ approval',
+      self::Merged           => 'merged',
+      self::MergedIllegal    => 'merged wo/ approval',
+      self::NotMerged        => 'closed, not merged',
+      self::NotMergedIllegal => 'closed, not merged wo/ approval',
+      self::Closed           => 'closed',
+    };
+  }
+}
+
+enum PatchType : int {
+  case BugFix = 0;
+  case Feature = 1;
+
+  public function label(): string {
+    return match ($this) {
+      self::BugFix  => 'bug fix',
+      self::Feature => 'feature',
+    };
+  }
+}
 
 define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
   'github:ArduPilot/ardupilot' => 'https://ardupilot.org/dev/docs/submitting-patches-back-to-master.html#preparing-commits',
@@ -40,10 +67,10 @@ abstract class Patch
   public ProjGroup $group;
 
   #[ORM\Column]
-  public int $status = PATCH_WAITING_REVIEW;
+  public PatchStatus $status = PatchStatus::WaitingReview;
 
   #[ORM\Column]
-  public int $type;
+  public PatchType $type;
 
   #[ORM\OneToMany(targetEntity: "PatchComment", mappedBy: "patch", cascade: ["persist", "remove"])]
   #[ORM\OrderBy(["id" => "ASC"])]
@@ -71,7 +98,7 @@ abstract class Patch
   #[ORM\Column]
   public int $files_modified;
 
-  static function factory(ProjGroup $group, string $url, $type,
+  static function factory(ProjGroup $group, string $url, PatchType $type,
                           string $description, User $submitter,
                           string $video_url= '',
                           bool $ignore_errors = false) : Patch {
@@ -81,7 +108,7 @@ abstract class Patch
 
     $p        = GitHub\GitHubPatch::construct($url, $repo);
     $p->group = $group;
-    $p->type  = (int)$type;
+    $p->type  = $type;
 
     try {
       $p->updateStats();
@@ -105,9 +132,6 @@ abstract class Patch
 
       if (empty($p->students))
         throw new ValidationException("Patch has no recognized authors");
-
-      if ($p->type < PATCH_BUGFIX || $p->type > PATCH_FEATURE)
-        throw new ValidationException('Unknown patch type');
 
       if (in_array($p->branch(), ['main', 'master', 'develop']))
         throw new ValidationException('Invalid branch name: ' . $p->branch().
@@ -163,7 +187,7 @@ abstract class Patch
         }
       }
 
-      if ($p->type == PATCH_BUGFIX) {
+      if ($p->type == PatchType::BugFix) {
         if (count($commits) != 1)
           throw new ValidationException('Only 1 commit allowed');
 
@@ -218,11 +242,14 @@ abstract class Patch
     $this->hash = $isvalid ? $this->computeBranchHash() : '';
 
     if ($pr = $this->getPR()) {
-      $legal = in_array($this->status, [PATCH_PR_OPEN, PATCH_APPROVED]);
+      $legal = in_array($this->status,
+                        [PatchStatus::PROpen, PatchStatus::Approved]);
       if ($pr->wasMerged()) {
-        $this->status = $legal ? PATCH_MERGED : PATCH_MERGED_ILLEGAL;
+        $this->status
+          = $legal ? PatchStatus::Merged : PatchStatus::MergedIllegal;
       } else if ($pr->isClosed()) {
-        $this->status = $legal ? PATCH_NOTMERGED : PATCH_NOTMERGED_ILLEGAL;
+        $this->status
+          = $legal ? PatchStatus::NotMerged : PatchStatus::NotMergedIllegal;
       }
       $this->lines_added    = $pr->linesAdded();
       $this->lines_deleted  = $pr->linesDeleted();
@@ -236,10 +263,10 @@ abstract class Patch
 
     // check if branch was deleted in the meantime
     if (!$isvalid) {
-      if ($this->status == PATCH_PR_OPEN_ILLEGAL) {
-        $this->status = PATCH_NOTMERGED_ILLEGAL;
-      } else if ($this->status <= PATCH_PR_OPEN) {
-        $this->status = PATCH_NOTMERGED;
+      if ($this->status == PatchStatus::PROpenIllegal) {
+        $this->status = PatchStatus::NotMergedIllegal;
+      } else if ($this->status <= PatchStatus::PROpen) {
+        $this->status = PatchStatus::NotMerged;
       }
       $this->lines_added    = 0;
       $this->lines_deleted  = 0;
@@ -278,7 +305,7 @@ abstract class Patch
   }
 
   public function getIssueURL() : ?string {
-    if ($this->type != PATCH_BUGFIX)
+    if ($this->type != PatchType::BugFix)
       return null;
 
     $bug = db_fetch_bug_user($this->group->year, $this->getSubmitter());
@@ -295,42 +322,21 @@ abstract class Patch
     return array_unique($authors, SORT_REGULAR);
   }
 
-  static function get_status_options() {
-    return [
-      PATCH_WAITING_REVIEW    => 'waiting review',
-      PATCH_REVIEWED          => 'reviewed',
-      PATCH_APPROVED          => 'approved',
-      PATCH_PR_OPEN           => 'PR open',
-      PATCH_PR_OPEN_ILLEGAL   => 'PR open wo/ approval',
-      PATCH_MERGED            => 'merged',
-      PATCH_MERGED_ILLEGAL    => 'merged wo/ approval',
-      PATCH_NOTMERGED         => 'closed, not merged',
-      PATCH_NOTMERGED_ILLEGAL => 'closed, not merged wo/ approval',
-    ];
-  }
-
   public function getStatus() {
-    return self::get_status_options()[$this->status];
-  }
-
-  static function get_type_options() {
-    return [
-      PATCH_BUGFIX  => 'bug fix',
-      PATCH_FEATURE => 'feature',
-    ];
+    return $this->status->label();
   }
 
   public function getType() {
-    return self::get_type_options()[$this->type];
+    return $this->type->label();
   }
 
   public function isStillOpen() {
-    return $this->status < PATCH_MERGED;
+    return $this->status->value < PatchStatus::Merged->value;
   }
 
   public function wasMerged() {
-    return $this->status == PATCH_MERGED ||
-           $this->status == PATCH_MERGED_ILLEGAL;
+    return $this->status == PatchStatus::Merged ||
+           $this->status == PatchStatus::MergedIllegal;
   }
 
   public function getSubmitter() : User {
@@ -357,20 +363,6 @@ abstract class Patch
         return;
     }
     $this->ci_failures->add(new PatchCIError($this, $hash, $name, $url, $time));
-  }
-
-  public function set_status($status) {
-    $status = (int)$status;
-    if (!isset(self::get_status_options()[$status]))
-      throw new ValidationException('invalid status');
-    $this->status = $status;
-  }
-
-  public function set_type($type) {
-    $type = (int)$type;
-    if (!isset(self::get_type_options()[$type]))
-      throw new ValidationException('invalid type');
-    $this->type = $type;
   }
 
   function set_video_url(string $url) {
