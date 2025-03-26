@@ -71,7 +71,8 @@ foreach ($groups as $group) {
       if ($only_needs_review && $patch->status != PatchStatus::WaitingReview)
         continue;
 
-      if ($only_open_patches && $patch->status->value >= PatchStatus::Merged)
+      if ($only_open_patches &&
+          $patch->status->value >= PatchStatus::Merged->value)
         continue;
     }
 

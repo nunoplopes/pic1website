@@ -265,8 +265,10 @@ abstract class Patch
     if (!$isvalid) {
       if ($this->status == PatchStatus::PROpenIllegal) {
         $this->status = PatchStatus::NotMergedIllegal;
-      } else if ($this->status <= PatchStatus::PROpen) {
+      } elseif ($this->status == PatchStatus::PROpen) {
         $this->status = PatchStatus::NotMerged;
+      } elseif ($this->status->value < PatchStatus::Approved->value) {
+        $this->status = PatchStatus::Closed;
       }
       $this->lines_added    = 0;
       $this->lines_deleted  = 0;
