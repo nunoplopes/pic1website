@@ -156,6 +156,19 @@ class GitHubPatch extends \Patch
     $this->pr_number = $pr->getNumber();
   }
 
+  public function findAndSetPR() : bool {
+    $origin = explode(':', $this->repo_branch);
+    $prs = $GLOBALS['github_client']->api('repo')->commits()
+             ->pulls($origin[0], $origin[1], $this->hash);
+    if ($prs) {
+      foreach ($prs as $pr) {
+        $this->pr_number = max($this->pr_number, $pr['number']);
+      }
+      return true;
+    }
+    return false;
+  }
+
   public function getPR() : ?\PullRequest {
     if ($this->pr_number == 0)
       return null;

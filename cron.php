@@ -204,6 +204,10 @@ function run_patch_stats() {
           echo "Patch $patch->id changed hash from $oldhash to $newhash\n";
         }
 
+        if (!$patch->getPR() && $patch->findAndSetPR()) {
+          handle_new_pr($patch, $group, $patch->getPR());
+        }
+
         if ($pr = $patch->getPR()) {
           foreach ($patch->getHashes() as $hash) {
             $failed = $pr->failedCIjobs($hash);
@@ -268,26 +272,7 @@ function run_repository() {
             continue;
 
           $patch->setPR($pr);
-
-          if ($patch->status == PATCH_APPROVED ||
-              $patch->status == PATCH_PR_OPEN ||
-              $patch->status == PATCH_NOTMERGED) {
-            $patch->status = PATCH_PR_OPEN;
-            /*
-            email_ta($group,
-                     "PIC1: PR opened for approved patch $patch->id",
-                     "PR $pr of group $group was opened for ".
-                     "approved patch $patch->id.\n\n" . link_patch($patch));
-            */
-          } else {
-            $patch->status = PATCH_PR_OPEN_ILLEGAL;
-            $patch->comments->add(
-              new PatchComment($patch, "PR opened without approval"));
-            error_group($group,
-                        "PIC1: PR opened without approval",
-                        "PR $pr of group $group was opened ".
-                        "without prior approval.\n\n" . link_patch($patch));
-          }
+          handle_new_pr($patch, $group, $pr);
           $processed = true;
           break;
         }
@@ -345,3 +330,19 @@ foreach ($run_tasks as $task) {
 }
 
 db_flush();
+
+
+function handle_new_pr($patch, $group, $pr) {
+  if (in_array($patch->status,
+               [PATCH_APPROVED, PATCH_PR_OPEN, PATCH_NOTMERGED])) {
+    $patch->status = PATCH_PR_OPEN;
+  } else {
+    $patch->status = PATCH_PR_OPEN_ILLEGAL;
+    $patch->comments->add(
+      new PatchComment($patch, "PR opened without approval"));
+    error_group($group,
+                "PIC1: PR opened without approval",
+                "PR $pr of group $group was opened ".
+                "without prior approval.\n\n" . link_patch($patch));
+  }
+}

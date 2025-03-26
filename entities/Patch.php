@@ -209,6 +209,7 @@ abstract class Patch
   abstract public function getPatchURL() : string;
   abstract public function getCommitURL(string $hash) : string;
   abstract public function setPR(PullRequest $pr);
+  abstract public function findAndSetPR() : bool;
   abstract public function getPR() : ?PullRequest;
 
   public function updateStats() {
@@ -216,7 +217,7 @@ abstract class Patch
     $this->hash = $isvalid ? $this->computeBranchHash() : '';
 
     if ($pr = $this->getPR()) {
-      $legal = $this->status == PATCH_PR_OPEN;
+      $legal = in_array($this->status, [PATCH_PR_OPEN, PATCH_APPROVED]);
       if ($pr->wasMerged()) {
         $this->status = $legal ? PATCH_MERGED : PATCH_MERGED_ILLEGAL;
       } else if ($pr->isClosed()) {
