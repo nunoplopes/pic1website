@@ -4,13 +4,11 @@
     "knplabs/github-api": "*",
     "mpratt/embera": "*",
     "nyholm/psr7": "*",
-    "symfony/cache": "*",
     "symfony/expression-language": "*",
     "symfony/form": "*",
     "symfony/http-client": "*",
     "symfony/http-foundation": "*",
     "symfony/mailer": "*",
-    "symfony/translation": "*",
     "symfony/twig-bridge": "*",
     "twig/twig": "*"
   },
