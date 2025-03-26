@@ -158,8 +158,13 @@ class GitHubPatch extends \Patch
 
   public function findAndSetPR() : bool {
     $origin = explode(':', $this->repo_branch);
-    $prs = $GLOBALS['github_client']->api('repo')->commits()
-             ->pulls($origin[0], $origin[1], $this->hash);
+    try {
+      $prs = $GLOBALS['github_client']->api('repo')->commits()
+               ->pulls($origin[0], $origin[1], $this->hash);
+    } catch (\Github\Exception\RuntimeException) {
+      // ignore temporary errors or deleted commit
+      return false;
+    }
     if ($prs) {
       foreach ($prs as $pr) {
         $this->pr_number = max($this->pr_number, $pr['number']);
