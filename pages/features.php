@@ -81,14 +81,10 @@ if (auth_at_least(ROLE_TA)) {
     ];
   }
   if (sizeof($groups) === 1) {
-    $group = $groups[0];
+    mk_eval_box($group->year, 'feature', null, $groups[0]);
   }
 }
 
 if ($group && $group->hash_proposal_file) {
   $embed_file = dourl('features', ['download' => $group->id]);
-}
-
-if ($group) {
-  mk_eval_box($group->year, 'feature', null, $group);
 }
