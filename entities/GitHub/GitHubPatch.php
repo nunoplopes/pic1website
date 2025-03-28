@@ -165,13 +165,16 @@ class GitHubPatch extends \Patch
       // ignore temporary errors or deleted commit
       return false;
     }
-    if ($prs) {
-      foreach ($prs as $pr) {
-        $this->pr_number = max($this->pr_number, $pr['number']);
+    $changed = false;
+    foreach ($prs as $pr) {
+      preg_match('@https://github.com/(.+)/pull/\d+@', $pr['html_url'], $m);
+      if ($m[1] === $this->group->getRepository()->name() &&
+          $pr['number'] > $this->pr_number) {
+        $this->pr_number = $pr['number'];
+        $changed = true;
       }
-      return true;
     }
-    return false;
+    return $changed;
   }
 
   public function getPR() : ?\PullRequest {
