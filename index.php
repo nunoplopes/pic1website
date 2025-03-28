@@ -15,6 +15,7 @@ $page = $_REQUEST['page'] ?? '';
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 $formFactory = Forms::createFormFactoryBuilder()
@@ -86,6 +87,8 @@ try {
   terminate('Failed to parse date: ' . $ex->getMessage());
 } catch (TimeoutException $ex) {
   terminate('Operation timed out: ' . $ex->getMessage());
+} catch (TransportException $ex) {
+  terminate('Network error: ' . $ex->getMessage());
 } catch (\Github\Exception\RuntimeException $ex) {
   terminate('Failed to access GitHub: ' . $ex->getMessage());
 }
