@@ -165,10 +165,13 @@ class GitHubPatch extends \Patch
       // ignore temporary errors or deleted commit
       return false;
     }
+
+    $username = $this->getSubmitter()->getRepoUser()?->username();
     $changed = false;
     foreach ($prs as $pr) {
       preg_match('@https://github.com/(.+)/pull/\d+@', $pr['html_url'], $m);
       if ($m[1] === $this->group->getRepository()->name() &&
+          $pr['user']['login'] === $username &&
           $pr['number'] > $this->pr_number) {
         $this->pr_number = $pr['number'];
         $changed = true;
