@@ -80,11 +80,13 @@ if (auth_at_least(ROLE_TA)) {
                  ? dolink('features', 'link', ['download' => $group->id]) : '',
     ];
   }
-  if (sizeof($groups) === 1) {
-    mk_eval_box($group->year, 'feature', null, $groups[0]);
-  }
+  $group = sizeof($groups) === 1 ? $groups[0] : null;
 }
 
 if ($group && $group->hash_proposal_file) {
   $embed_file = dourl('features', ['download' => $group->id]);
+}
+
+if ($group) {
+  mk_eval_box($group->year, 'feature', null, $groups[0]);
 }
