@@ -103,3 +103,5 @@ foreach ($groups as $group) {
     ];
   }
 }
+
+usort($table, function($a, $b) { return $a['id'] <=> $b['id']; });
