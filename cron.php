@@ -323,6 +323,9 @@ foreach ($run_tasks as $task) {
   } catch (CheckPointException $ex) {
     throw $ex;
   } catch (Throwable $ex) {
+    if (isset($throw_exceptions)) {
+      throw $ex;
+    }
     error_profs("PIC1: Cron job failed",
                 "Cron had an exception when running $task:\n$ex");
     return;

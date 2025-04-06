@@ -12,6 +12,7 @@ require 'video.php';
 
 $page = $_REQUEST['page'] ?? '';
 
+use Doctrine\ORM\Exception\EntityManagerClosed;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
@@ -91,6 +92,8 @@ try {
   terminate('Network error: ' . $ex->getMessage());
 } catch (\Github\Exception\RuntimeException $ex) {
   terminate('Failed to access GitHub: ' . $ex->getMessage());
+} catch (EntityManagerClosed $ex) {
+  terminate('Database connection closed: ' . $ex->getMessage());
 }
 
 function terminate($error_message = null, $template = 'main.html.twig',
