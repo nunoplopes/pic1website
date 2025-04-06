@@ -4,7 +4,7 @@
 
 $argv = [];
 $max_exec_time = 9;
-$checkpoint_start = (int)$_GET['checkpoint'] ?? 0;
+$checkpoint_start = (int)@$_GET['checkpoint'];
 
 if ($checkpoint_start)
   $info_message = "Continuing with offset $checkpoint_start...";
