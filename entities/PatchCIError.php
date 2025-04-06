@@ -20,7 +20,7 @@ class PatchCIError
   #[ORM\Column]
   public string $name;
 
-  #[ORM\Column]
+  #[ORM\Column(length: 512)]
   public string $url;
 
   #[ORM\Column]
