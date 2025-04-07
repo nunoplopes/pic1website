@@ -156,6 +156,10 @@ abstract class Patch
         if (str_starts_with($msg, 'Merge branch '))
           throw new ValidationException('Merge commits are not allowed');
 
+        if ($group->dco && !preg_match('/^Signed-off-by: .* <[^>]+>$/mS', $msg))
+          throw new ValidationException(
+            "Missing signature in a project with DCO.");
+
         if (empty($commit['co-authored']) &&
             preg_match('/Co[- ]*authored[- ]*by\s*:.*/Si', $msg, $m))
           throw new ValidationException("Invalid Co-authored-by line:\n$m[0]");

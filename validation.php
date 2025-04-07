@@ -61,7 +61,8 @@ function check_reasonable_name($name, $group) {
 }
 
 function check_wrapped_commit_text($text, $width) {
-  if (preg_match('/^(?!Co-authored-by: ).{'.($width+1).'}/Sum', $text))
+  if (preg_match('/^(?!(?:Co-authored|Signed-off)-by: ).{'.($width+1).'}/Sum',
+                 $text))
     throw new ValidationException(
       "Text is not wrapped to $width characters:\n$text");
 }
