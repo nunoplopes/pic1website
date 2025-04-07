@@ -113,6 +113,31 @@ if (auth_at_least(ROLE_PROF) && $table !== null) {
       $plots["Group $loc"] = $hist;
     }
   }
+
+  $bottom_links = [];
+  foreach ($hist_groups as $loc => $hist) {
+    $bottom_links[] = dolink('grades', "Download grades of group $loc",
+                             ['download' => $loc, 'all_shifts' => 1]);
+  }
+
+  if (!empty($_GET['download'])) {
+    $group = (int)$_GET['download'];
+    header('Content-Type: text/plain');
+    header('Content-Disposition: attachment; filename="grades_' . $group .
+           '.txt"');
+    foreach ($table as $row) {
+      $loc = (int)(db_fetch_user($row['id'])->getGroup()->group_number / 1000);
+      if ($loc === $group) {
+        $id = $row['id'];
+        $grade = $row['Final'];
+        if ($grade < 10) {
+          $grade = 'NA';
+        }
+        echo "$id\t$grade\n";
+      }
+    }
+    exit();
+  }
 }
 
 function compute_grade($grade, $num) {
