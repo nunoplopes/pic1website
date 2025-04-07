@@ -88,5 +88,5 @@ if ($group && $group->hash_proposal_file) {
 }
 
 if ($group) {
-  mk_eval_box($group->year, 'feature', null, $groups[0]);
+  mk_eval_box($group->year, 'feature', null, $group);
 }
