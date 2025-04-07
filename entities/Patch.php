@@ -165,12 +165,27 @@ abstract class Patch
           foreach (explode("\n", trim($msg)) as $line) {
             if (str_starts_with($line, 'Co-authored-by:')) {
               $coauthor = true;
-            } else if ($coauthor) {
+            } elseif ($coauthor) {
               throw new ValidationException("Co-authored-by lines must be at ".
                                             "the end\n$msg");
             }
           }
         }
+
+        if (strlen($msg) < 32)
+          throw new ValidationException("Commit message is too short");
+
+        $small_lines = 0;
+        $total_lines = 0;
+        foreach (explode("\n", $msg) as $line) {
+          if (strlen($line) < 32)
+            ++$small_lines;
+          ++$total_lines;
+        }
+        if ($small_lines / $total_lines > 0.5)
+          throw new ValidationException(
+            "Most lines of the commit message are too short. ".
+            "The limit is 72 characters per line.");
 
         check_reasonable_name($commit['name'], $group);
         check_wrapped_commit_text($msg, 72);
