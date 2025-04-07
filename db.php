@@ -265,6 +265,19 @@ function db_fetch_bugs_group(ProjGroup $group) : array {
   return $bugs;
 }
 
+function db_fetch_feature_issue(int $year, string $issue_url) : ?ProjGroup {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('ProjGroup', 'g')
+                       ->select('g')
+                       ->where('g.year = :year')
+                       ->andWhere('g.url_proposal = :url')
+                       ->setParameter('year', $year)
+                       ->setParameter('url', $issue_url)
+                       ->getQuery()
+                       ->getOneOrNullResult();
+}
+
 function db_get_merged_patch_stats() {
   global $entityManager;
   return $entityManager->createQueryBuilder()

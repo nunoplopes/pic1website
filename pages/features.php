@@ -30,7 +30,10 @@ if (!empty($_GET['download'])) {
   }
 }
 
-if ($user->role === ROLE_STUDENT && $deadlines->isFeatureSelectionActive()) {
+if ($user->role === ROLE_STUDENT && is_deadline_current($deadline)) {
+  $info_message = "You can submit this form multiple times until the deadline.".
+                  " Only the last submission will be considered.";
+
   $form = $formFactory->createBuilder(FormType::class)
     ->add('url', UrlType::class, [
       'label'    => 'Issue URL (if applicable)',
@@ -63,7 +66,12 @@ if ($user->role === ROLE_STUDENT && $deadlines->isFeatureSelectionActive()) {
       $success_message = "File uploaded successfully!";
 
       $group->hash_proposal_file = $hash;
-      $group->url_proposal = check_url($form->get('url')->getData());
+    }
+
+    if ($group->url_proposal = check_url($form->get('url')->getData())) {
+      if (db_fetch_feature_issue($group->year, $group->url_proposal) !== null) {
+        terminate('This feature has been selected by another group already');
+      }
     }
   }
 }
