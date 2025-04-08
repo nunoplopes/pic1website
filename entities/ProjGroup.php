@@ -84,6 +84,9 @@ class ProjGroup
   #[ORM\Column]
   public string $url_proposal = '';
 
+  #[ORM\Column(length: 40)]
+  public string $hash_final_report = '';
+
   #[ORM\Column]
   public DateTimeImmutable $allow_modifications_date;
 

@@ -55,6 +55,7 @@ $all_pages = [
   'bugs'         => ['Bugs', ROLE_STUDENT],
   'features'     => ['Features', ROLE_STUDENT],
   'patches'      => ['Patches', ROLE_STUDENT],
+  'report'       => ['Final Report', ROLE_STUDENT],
   'shifts'       => ['Shifts', ROLE_PROF],
   'deadlines'    => ['Deadlines', ROLE_PROF],
   'grading'      => ['Grading System', ROLE_PROF],
