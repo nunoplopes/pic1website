@@ -60,6 +60,10 @@ class RepositoryUser
     assert(false);
   }
 
+  public function isValid() : bool {
+    return $this->get('isValid');
+  }
+
   public function profileURL() : string {
     return $this->get('profileURL');
   }

@@ -6,6 +6,9 @@ $user = get_user();
 handle_form($user, [], [], ['repository_user']);
 
 if ($u = $user->getRepoUser()) {
+  if (!$u->isValid()) {
+    terminate('User not found');
+  }
   $info_box['title'] = 'User data';
   $info_box['rows'] = [
     "Username" => dolink_ext($u->profileURL(), $u->username()),

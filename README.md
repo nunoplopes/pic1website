@@ -29,8 +29,9 @@ npx encore production
 ```
 
 ## Development
-Spawn a web server:
+Spawn MySQL and a web server:
 ```shell
+sudo service mysql start
 php -S localhost:8080 &
 ```
 

@@ -4,6 +4,7 @@
 
 interface RepositoryUserInterface
 {
+  static function isValid(RepositoryUser $user) : bool;
   static function profileURL(RepositoryUser $user) : string;
   static function name(RepositoryUser $user) : ?string;
   static function email(RepositoryUser $user) : ?string;

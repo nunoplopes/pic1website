@@ -14,6 +14,15 @@ class GitHubUser implements \RepositoryUserInterface
     }
   }
 
+  static function isValid(\RepositoryUser $user) : bool {
+    try {
+      $GLOBALS['github_client']->api('user')->show($user->username());
+      return true;
+    } catch (\Github\Exception\RuntimeException $e) {
+      return $e->getMessage() == 'Not Found' ? false : true;
+    }
+  }
+
   static function profileURL(\RepositoryUser $user) : string {
     return 'https://github.com/' . $user->username();
   }

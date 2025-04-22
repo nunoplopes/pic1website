@@ -18,9 +18,13 @@ foreach ($group->students as $s) {
     $data[] = ['type' => 'email', 'data' => $s->email];
   }
   if ($repou = $s->getRepoUser()) {
-    $data[] = dolink_ext($repou->profileURL(),
+    if ($repou->isValid()) {
+      $data[] = dolink_ext($repou->profileURL(),
                          $repou->platform().':'.$repou->username());
-    $data[] = $repou->description();
+      $data[] = $repou->description();
+    } else {
+      $data[] = 'Invalid Repository User';
+    }
   }
   $top_box['Students'][] = $data;
 }
