@@ -85,14 +85,14 @@ if (auth_at_least(ROLE_TA)) {
       'Issue URL' => $group->url_proposal
                        ? dolink_ext($group->url_proposal, 'link') : '',
       'PDF' => $group->hash_proposal_file
-                 ? dolink('features', 'link', ['download' => $group->id]) : '',
+                 ? dolink('feature', 'link', ['download' => $group->id]) : '',
     ];
   }
   $group = sizeof($groups) === 1 ? $groups[0] : null;
 }
 
 if ($group && $group->hash_proposal_file) {
-  $embed_file = dourl('features', ['download' => $group->id]);
+  $embed_file = dourl('feature', ['download' => $group->id]);
 }
 
 if ($group) {

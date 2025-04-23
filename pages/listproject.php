@@ -81,7 +81,7 @@ if (auth_at_least(ROLE_TA)) {
   $bottom_links = [
     dolink('patches', 'Patches', ['group' => $group->id, 'all_shifts' => 1]),
     dolink('bugs', 'Bugs', ['group' => $group->id, 'all_shifts' => 1]),
-    dolink('features', 'Feature', ['group' => $group->id, 'all_shifts' => 1]),
+    dolink('feature', 'Feature', ['group' => $group->id, 'all_shifts' => 1]),
   ];
 }
 
