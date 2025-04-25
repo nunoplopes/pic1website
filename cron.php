@@ -336,11 +336,16 @@ db_flush();
 
 
 function handle_new_pr($patch, $group, $pr) {
-  if (in_array($patch->status,
-               [PatchStatus::Approved, PatchStatus::PROpen,
-                PatchStatus::NotMerged])) {
+  switch ($patch->status) {
+  case PatchStatus::Merged:
+  case PatchStatus::MergedIllegal:
+    break;
+  case PatchStatus::Approved:
+  case PatchStatus::PROpen:
+  case PatchStatus::NotMerged:
     $patch->status = PatchStatus::PROpen;
-  } else {
+    break;
+  default:
     $patch->status = PatchStatus::PROpenIllegal;
     $patch->comments->add(
       new PatchComment($patch, "PR opened without approval"));
@@ -348,5 +353,6 @@ function handle_new_pr($patch, $group, $pr) {
                 "PIC1: PR opened without approval",
                 "PR $pr of group $group was opened ".
                 "without prior approval.\n\n" . link_patch($patch));
+    break;
   }
 }
