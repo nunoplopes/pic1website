@@ -38,7 +38,8 @@ if ($prof = $group->shift->prof) {
 }
 
 $readonly = ['group_number', 'year', 'shift'];
-$hidden   = ['id', 'students', 'patches', 'hash_proposal_file', 'url_proposal'];
+$hidden   = ['id', 'students', 'patches', 'hash_proposal_file', 'url_proposal',
+             'hash_final_report'];
 if (get_user()->role == ROLE_STUDENT) {
   $hidden[] = 'allow_modifications_date';
 }
