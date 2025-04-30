@@ -17,6 +17,7 @@ use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
 use Symfony\Component\HttpClient\Exception\TransportException;
+use Symfony\Component\HttpClient\Psr18NetworkException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 $formFactory = Forms::createFormFactoryBuilder()
@@ -74,9 +75,9 @@ try {
       die('Invalid page');
     }
     auth_require_at_least($all_pages[$page][1]);
-    $file = "pages/$page.php";
-    require $file;
+    require "pages/$page.php";
   }
+  terminate();
 } catch (PDOException $e) {
   if (IN_PRODUCTION) {
     terminate('Error while accessing the DB');
@@ -90,6 +91,8 @@ try {
 } catch (TimeoutException $ex) {
   terminate('Operation timed out: ' . $ex->getMessage());
 } catch (TransportException $ex) {
+  terminate('Network error: ' . $ex->getMessage());
+} catch (Psr18NetworkException $ex) {
   terminate('Network error: ' . $ex->getMessage());
 } catch (\Github\Exception\RuntimeException $ex) {
   terminate('Failed to access GitHub: ' . $ex->getMessage());
@@ -204,5 +207,3 @@ function get_webpack_deps() {
   }
   return $html;
 }
-
-terminate();
