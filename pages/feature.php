@@ -69,7 +69,8 @@ if ($user->role === ROLE_STUDENT && is_deadline_current($deadline)) {
     }
 
     if ($group->url_proposal = check_url($form->get('url')->getData())) {
-      if (db_fetch_feature_issue($group->year, $group->url_proposal) !== null) {
+      $group2 = db_fetch_feature_issue($group->year, $group->url_proposal);
+      if ($group2 !== null && $group !== $group2) {
         terminate('This feature has been selected by another group already');
       }
     }
