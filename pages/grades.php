@@ -87,8 +87,7 @@ foreach ($groups as $group) {
         $data[$milestone]['tooltip'] .= "\nLate days: $days";
       }
     }
-    $data['Final']
-      = max((int)round($lang->evaluate($final_grade, $values), 0), 0);
+    $data['Final'] = max((int)round($lang->evaluate($final_grade, $values)), 0);
     $table[] = $data;
   }
 }

@@ -79,18 +79,21 @@ if ($user->role === ROLE_STUDENT && is_deadline_current($deadline)) {
 
 if (auth_at_least(ROLE_TA)) {
   $groups = filter_by(['group', 'year', 'shift', 'own_shifts']);
-
-  foreach ($groups as $group) {
-    $table[] = [
-      'Group'     => $group->group_number,
-      'Issue URL' => $group->url_proposal
-                       ? dolink_ext($group->url_proposal, 'link') : '',
-      'PDF' => $group->hash_proposal_file
-                 ? dolink('feature', 'link', ['download' => $group->id]) : '',
-    ];
-  }
-  $group = sizeof($groups) === 1 ? $groups[0] : null;
+} else {
+  $groups = [$group];
 }
+
+foreach ($groups as $group) {
+  $table[] = [
+    'Group'     => $group->group_number,
+    'Issue URL' => $group->url_proposal
+                     ? dolink_ext($group->url_proposal, 'link') : '',
+    'PDF' => $group->hash_proposal_file
+               ? dolink('feature', 'link', ['download' => $group->id]) : '',
+  ];
+}
+
+$group = sizeof($groups) === 1 ? $groups[0] : null;
 
 if ($group && $group->hash_proposal_file) {
   $embed_file = dourl('feature', ['download' => $group->id]);
