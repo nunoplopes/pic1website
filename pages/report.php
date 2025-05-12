@@ -12,6 +12,10 @@ $group = $user->getGroup();
 $deadlines = db_fetch_deadline($user->getYear() ?? get_current_year());
 $deadline = $deadlines->final_report;
 
+if ($group !== null)
+  $deadline = $deadline > $group->allow_modifications_date
+                ? $deadline : $group->allow_modifications_date;
+
 if (!$group && $user->role === ROLE_STUDENT) {
   terminate('Student is not in a group');
 }
