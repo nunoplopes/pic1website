@@ -182,7 +182,8 @@ abstract class Patch
         $small_lines = 0;
         $total_lines = 0;
         foreach (explode("\n", $msg) as $line) {
-          if (strlen($line) < 32)
+          $len = strlen($line);
+          if ($len > 1 && $len < 32)
             ++$small_lines;
           ++$total_lines;
         }
