@@ -327,8 +327,8 @@ abstract class Patch
   }
 
   public function getIssueURL() : ?string {
-    if ($this->type != PatchType::BugFix)
-      return null;
+    if ($this->type == PatchType::Feature)
+      return $this->group->url_proposal;
 
     $bug = db_fetch_bug_user($this->group->year, $this->getSubmitter());
     return $bug === null ? null : $bug->issue_url;
