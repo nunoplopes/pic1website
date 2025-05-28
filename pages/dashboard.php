@@ -23,10 +23,13 @@ $fields['merged_prs_lines_added']    = $lines_added;
 $fields['merged_prs_lines_deleted']  = $lines_deleted;
 $fields['merged_prs_files_modified'] = $files_modified;
 
+$fields['total_lines_code'] = format_big_number(array_sum($lines_added));
+
 
 // 2nd plot: % of merged patches
 $merged = [];
 $total = [];
+$total_merged_prs = 0;
 
 foreach (db_get_patch_stats() as $data) {
   switch ($data['status']) {
@@ -38,6 +41,7 @@ foreach (db_get_patch_stats() as $data) {
 
     case PatchStatus::Merged:
     case PatchStatus::MergedIllegal:
+      $total_merged_prs += $data['count'];
       @$merged[$data['year']][$data['type']->value] += $data['count'];
       // fallthrough
 
@@ -53,6 +57,8 @@ foreach (db_get_patch_stats() as $data) {
   }
 }
 ksort($total);
+
+$fields['total_merged_prs'] = format_big_number($total_merged_prs);
 
 $pcmerged_y = [];
 foreach ($total as $year => $data) {
@@ -127,3 +133,12 @@ foreach ($prs_per_project as $name => $stats) {
 }
 
 terminate(null, 'dashboard.html.twig', $fields);
+
+
+function format_big_number($n) {
+  if ($n < 1000)
+    return $n;
+  if ($n < 1000000)
+    return round($n / 1000) . 'k';
+  return round($n / 1000000, 1) . 'M';
+}

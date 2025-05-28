@@ -2,14 +2,20 @@
   "name": "pic",
   "version": "1.0.0",
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^7.0.2",
-    "@symfony/webpack-encore": "^5.0.1",
-    "postcss-loader": "^8.1.1"
+    "@fullhuman/postcss-purgecss": "*",
+    "@symfony/webpack-encore": "*",
+    "postcss-loader": "*",
+    "postcss-preset-env": "*"
   },
   "dependencies": {
-    "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
-    "plotly.js-dist": "^3.0.1",
-    "tabulator-tables": "^6.3.1"
-  }
+    "bootstrap": "*",
+    "bootstrap-icons": "*",
+    "plotly.js-dist": "*",
+    "tabulator-tables": "*"
+  },
+  "browserslist": [
+    "last 1 year",
+    "not dead",
+    "not op_mini all"
+  ]
 }

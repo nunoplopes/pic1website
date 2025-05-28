@@ -3,6 +3,33 @@
 </div>
 <div class="col-md-12">
 
+<div class="container py-5">
+  <div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+      <div class="card shadow rounded-4 border-0 bg-gradient bg-success text-white">
+        <div class="card-body text-center p-4">
+          <div class="mb-3">
+            <i class="bi bi-git merge fs-1"></i>
+          </div>
+          <h1 class="display-3 fw-bold">{{ total_merged_prs }}</h1>
+          <p class="fs-5 mb-0">Merged Pull Requests</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="card shadow rounded-4 border-0 bg-gradient bg-primary text-white">
+        <div class="card-body text-center p-4">
+          <div class="mb-3">
+            <i class="bi bi-file-earmark-code fs-1"></i>
+          </div>
+          <h1 class="display-3 fw-bold">{{ total_lines_code }}</h1>
+          <p class="fs-5 mb-0">Lines of Code</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <form method="GET">
   <div class="card mb-3">
     <div class="card-body">
