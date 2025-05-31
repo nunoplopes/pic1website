@@ -3,7 +3,7 @@
 // Distributed under the MIT license that can be found in the LICENSE file.
 
 $argv = [];
-$max_exec_time = 9;
+$max_exec_time = 15;
 $checkpoint_start = (int)@$_GET['checkpoint'];
 
 if ($checkpoint_start)
