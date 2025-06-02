@@ -82,7 +82,7 @@ if ($user->role === ROLE_STUDENT && is_deadline_current($deadline)) {
 }
 
 if (auth_at_least(ROLE_TA)) {
-  $groups = filter_by(['group', 'year', 'shift', 'own_shifts']);
+  $groups = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo']);
 } else {
   $groups = [$group];
 }
