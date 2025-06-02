@@ -191,7 +191,11 @@ function terminate($error_message = null, $template = 'main.html.twig',
 }
 
 function terminate_redirect() {
-  db_flush();
+  try {
+    db_flush();
+  } catch (PDOException $e) {
+    terminate('Error while accessing the DB');
+  }
   (new RedirectResponse($_SERVER['REQUEST_URI']))->send();
   exit();
 }
