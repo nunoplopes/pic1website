@@ -10,7 +10,7 @@
   "dependencies": {
     "bootstrap": "*",
     "bootstrap-icons": "*",
-    "plotly.js-dist": "*",
+    "plotly.js": "*",
     "tabulator-tables": "*"
   },
   "browserslist": [

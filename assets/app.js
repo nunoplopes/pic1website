@@ -1,19 +1,24 @@
-import Plotly from 'plotly.js-dist';
-import { TabulatorFull as Tabulator } from 'tabulator-tables';
-import { createPopper } from '@popperjs/core';
-import * as bootstrap from 'bootstrap';
+import Plotly from 'plotly.js/lib/core';
+import { Tabulator, FormatModule, SortModule } from 'tabulator-tables';
+import { Tooltip } from 'bootstrap';
 import './styles/app.css';
+
+import Bar from 'plotly.js/lib/bar';
+import Scatter from 'plotly.js/lib/scatter';
+Plotly.register([Bar, Scatter]);
+window.Plotly = Plotly;
+
+Tabulator.registerModule([FormatModule, SortModule]);
+window.Tabulator = Tabulator;
 
 // Initialize tooltips
 document.addEventListener('DOMContentLoaded', function () {
   var tooltipTriggerList = [].slice.call(
     document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
+    return new Tooltip(tooltipTriggerEl);
   });
 });
-
-window.Tabulator = Tabulator;
 
 function toggleVideo(button) {
   let videoContainer = button.nextElementSibling;
