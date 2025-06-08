@@ -339,6 +339,7 @@ function handle_new_pr($patch, $group, $pr) {
   switch ($patch->status) {
   case PatchStatus::Merged:
   case PatchStatus::MergedIllegal:
+  case PatchStatus::PROpenIllegal:
     break;
   case PatchStatus::Approved:
   case PatchStatus::PROpen:
