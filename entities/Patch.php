@@ -19,7 +19,7 @@ enum PatchStatus : int {
   public function label(): string {
     return match ($this) {
       self::WaitingReview    => 'waiting review',
-      self::Reviewed         => 'reviewed',
+      self::Reviewed         => 'reviewed (not approved)',
       self::Approved         => 'approved',
       self::PROpen           => 'PR open',
       self::PROpenIllegal    => 'PR open wo/ approval',
