@@ -75,13 +75,18 @@ $table = [];
 foreach ($groups as $group) {
   foreach (db_fetch_bugs_group($group) as $bug) {
     $repo = $group->getRepository();
+    try {
+      $video = get_video_html($bug->repro_url);
+    } catch (ValidationException $e) {
+      $video = null;
+    }
     $table[] = [
       'Group'        => dolink_group($group, $group),
       'Project'      => $repo ? dolink_ext($repo, $repo->name()) : '',
       'Student'      => $bug->user->shortName(),
       'Issue'        => dolink_ext($bug->issue_url, 'link'),
       'Description'  => ['longdata' => $bug->description],
-      'Video'        => get_video_html($bug->repro_url),
+      'Video'        => $video,
       '_large_table' => true,
     ];
   }
