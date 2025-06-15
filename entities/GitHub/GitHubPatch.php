@@ -170,7 +170,7 @@ class GitHubPatch extends \Patch
       $usernames = [$this->getSubmitter()];
     } else {
       assert($this->type == \PatchType::Feature);
-      $usernames = $this->group->students;
+      $usernames = $this->group->students->toArray();
     }
     $usernames
       = array_map(fn($u) => $u->getRepoUser()?->username(), $usernames);
