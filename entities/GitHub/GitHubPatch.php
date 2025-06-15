@@ -166,12 +166,20 @@ class GitHubPatch extends \Patch
       return false;
     }
 
-    $username = $this->getSubmitter()->getRepoUser()?->username();
+    if ($this->type == \PatchType::BugFix) {
+      $usernames = [$this->getSubmitter()];
+    } else {
+      assert($this->type == \PatchType::Feature);
+      $usernames = $this->group->students;
+    }
+    $usernames
+      = array_map(fn($u) => $u->getRepoUser()?->username(), $usernames);
+
     $changed = false;
     foreach ($prs as $pr) {
       preg_match('@https://github.com/(.+)/pull/\d+@', $pr['html_url'], $m);
       if ($m[1] === $this->group->getRepository()->name() &&
-          $pr['user']['login'] === $username &&
+          in_array($pr['user']['login'], $usernames, true) &&
           $pr['number'] > $this->pr_number) {
         $this->pr_number = $pr['number'];
         $changed = true;
