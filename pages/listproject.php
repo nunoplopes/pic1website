@@ -79,10 +79,13 @@ if ($repo = $group->getRepository()) {
 }
 
 if (auth_at_least(ROLE_TA)) {
+  $data = ['group' => $group->id, 'year' => $group->year, 'all_shifts' => 1];
   $bottom_links = [
-    dolink('patches', 'Patches', ['group' => $group->id, 'all_shifts' => 1]),
-    dolink('bugs', 'Bugs', ['group' => $group->id, 'all_shifts' => 1]),
-    dolink('feature', 'Feature', ['group' => $group->id, 'all_shifts' => 1]),
+    dolink('grades', 'Grades', $data),
+    dolink('patches', 'Patches', $data),
+    dolink('bugs', 'Bugs', $data),
+    dolink('feature', 'Feature', $data),
+    dolink('report', 'Final Report', $data),
   ];
 }
 
