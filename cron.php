@@ -15,9 +15,10 @@ $tasks = [
   'prune_cache' => 'Prune cache',
   'groups'      => "Update student's group information from fenix",
   'professors'  => 'Update list of professors/TAs from fenix',
-  'gc_sessions' => 'Prune old sessions',
+  'gc_stuff'    => 'Prune old stuff',
   'patch_stats' => 'Update patch statistics',
   'repository'  => 'Update repository information',
+  'update_old'  => 'Update old patches',
   'licenses'    => 'Update list of licenses',
 ];
 
@@ -160,7 +161,7 @@ function run_professors() {
 
 
 // Delete old sessions
-function run_gc_sessions() {
+function run_gc_stuff() {
   foreach (db_get_all_sessions() as $session) {
     if (!$session->isFresh())
       db_delete($session);
@@ -294,6 +295,27 @@ function run_repository() {
                       "Created a patch entry automatically: ".
                       link_patch($patch));
         }
+      }
+    }
+  }
+}
+
+
+// Update old patches
+function run_update_old() {
+  foreach (db_get_group_years() as $year) {
+    if ($year == get_current_year())
+      continue;
+
+    foreach (db_fetch_groups($year) as $group) {
+      if (checkpoint())
+        continue;
+
+      echo "Updating old patches for group $group\n";
+
+      foreach ($group->patches as $patch) {
+        if ($patch->isStillOpen() && $patch->getPR())
+          $patch->updateStats();
       }
     }
   }
