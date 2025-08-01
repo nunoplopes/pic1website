@@ -304,6 +304,7 @@ function run_repository() {
 // Update old patches
 function run_update_old() {
   foreach (db_get_group_years() as $year) {
+    $year = $year['year'];
     if ($year == get_current_year())
       continue;
 
@@ -311,7 +312,7 @@ function run_update_old() {
       if (checkpoint())
         continue;
 
-      echo "Updating old patches for group $group\n";
+      echo "Updating old patches for group $group ($year)\n";
 
       foreach ($group->patches as $patch) {
         if ($patch->isStillOpen() && $patch->getPR())
