@@ -92,23 +92,34 @@ class GitHubPatch extends \Patch
   public function commits() : array {
     $commits = [];
     foreach ($this->stats()['commits'] as $commit) {
-      $commit['username'] = $commit['author']['login'] ?? '';
-      $commit['name']     = $commit['commit']['author']['name'];
-      $commit['email']    = $commit['commit']['author']['email'];
-      $commit['message']  = $commit['commit']['message'];
-      $commit['hash']     = $commit['sha'];
+      $c['username'] = $commit['author']['login'] ?? '';
+      $c['name']     = $commit['commit']['author']['name'];
+      $c['email']    = $commit['commit']['author']['email'];
+      $c['message']  = $commit['commit']['message'];
+      $c['hash']     = $commit['sha'];
 
       $authors = [];
-      preg_match_all('/^Co-authored-by: ([^<]+) <([^>]+)>$/Sm',
-                     $commit['message'], $m, PREG_SET_ORDER);
+      preg_match_all('/^Co-authored-by: ([^<]+) <([^>]+)>$/Sm', $c['message'],
+                     $m, PREG_SET_ORDER);
       foreach ($m as $author) {
         $authors[] = ['', $author[1], $author[2]];
       }
-      $commit['co-authored'] = array_unique($authors, SORT_REGULAR);
+      $c['co-authored'] = array_unique($authors, SORT_REGULAR);
 
-      $commits[] = $commit;
+      $commits[] = $c;
     }
     return $commits;
+  }
+
+  public function diff() : array {
+    $diff = [];
+    foreach ($this->stats()['files'] as $f) {
+      $diff[] = [
+        'filename' => $f['filename'],
+        'patch'    => $f['patch']
+      ];
+    }
+    return $diff;
   }
 
   protected function computeBranchHash() : string {

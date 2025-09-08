@@ -147,6 +147,18 @@ abstract class Patch
           throw new ValidationException('Duplicated patch');
       }
 
+      foreach ($p->diff() as $diff) {
+        if (preg_match('/^\+(.*)\s+\n$/Sm', $diff['patch'], $m)) {
+          throw new ValidationException('File ' . $diff['filename'] .
+                                        ' has trailing whitespace: ' . $m[0]);
+        }
+
+        if (str_ends_with($diff['patch'], "\n\\ No newline at end of file")) {
+          throw new ValidationException('File ' . $diff['filename'] .
+                                        ' is missing a newline at the end');
+        }
+      }
+
       foreach ($commits as $commit) {
         if (!check_email($commit['email']))
           throw new ValidationException(
@@ -247,6 +259,7 @@ abstract class Patch
   abstract public function branch() : string;
   abstract public function origin() : string;
   abstract public function commits() : array;
+  abstract public function diff() : array;
   abstract protected function computeBranchHash() : string;
   abstract protected function computeLinesAdded() : int;
   abstract protected function computeLinesDeleted() : int;
