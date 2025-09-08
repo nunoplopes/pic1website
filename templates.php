@@ -45,6 +45,14 @@ function dolink($page, $txt, $args = []) {
   return dolink_ext(dourl($page, $args), $txt);
 }
 
+function format_big_number($n) {
+  if ($n < 1000)
+    return $n;
+  if ($n < 1000000)
+    return round($n / 1000) . "\u{202F}k";
+  return round($n / 1000000, 1) . "\u{202F}M";
+}
+
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
                      $in_required = null) {
   global $form, $formFactory, $request, $success_message;

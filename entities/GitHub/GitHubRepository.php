@@ -56,6 +56,17 @@ class GitHubRepository implements \RepositoryInterface
     return self::stats($name)['topics'];
   }
 
+  static function linesOfCode($name) : int {
+    [$org, $repo] = self::getRepo($name);
+    $data = $GLOBALS['github_client']->api('repo')->languages($org, $repo);
+    $loc = 0;
+    // Data is given in bytes; let's estimate 40 bytes per line of code.
+    foreach ($data as $v) {
+      $loc += $v;
+    }
+    return (int)($loc / 40.0);
+  }
+
   static function commitsLastMonth($name) : int {
     [$org, $repo] = self::getRepo($name);
     $data = $GLOBALS['github_client']->api('repo')->participation($org, $repo);

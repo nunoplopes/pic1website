@@ -62,13 +62,15 @@ handle_form($group, $hidden, $readonly, null, ['repository']);
 if ($repo = $group->getRepository()) {
   $info_box['title'] = 'Repository data';
   if ($repo->isValid()) {
+    $lines   = $repo->linesOfCode();
     $commits = $repo->commitsLastMonth();
     $stars   = $repo->stars();
     $info_box['rows'] = [
       'Main language' => $repo->language() ?? 'Unknown',
+      'Lines of Code' => check_min(format_big_number($lines), $lines, 100000),
       'Num of commits in the past month' =>
-        check_min(number_format($commits), $commits, 50),
-      'Stars'         => check_min(number_format($stars), $stars, 200),
+        check_min(format_big_number($commits), $commits, 50),
+      'Stars'         => check_min(format_big_number($stars), $stars, 200),
       'License'       => $repo->license() ?? 'Unknown',
     ];
     if ($repo->topics())

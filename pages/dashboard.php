@@ -133,12 +133,3 @@ foreach ($prs_per_project as $name => $stats) {
 }
 
 terminate(null, 'dashboard.html.twig', $fields);
-
-
-function format_big_number($n) {
-  if ($n < 1000)
-    return $n;
-  if ($n < 1000000)
-    return round($n / 1000) . 'k';
-  return round($n / 1000000, 1) . 'M';
-}

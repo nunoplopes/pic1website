@@ -10,6 +10,7 @@ interface RepositoryInterface {
   static function license($name) : ?License;
   static function stars($name) : int;
   static function topics($name) : array;
+  static function linesOfCode($name) : int;
   static function commitsLastMonth($name) : int;
   static function toString($name) : string;
 }

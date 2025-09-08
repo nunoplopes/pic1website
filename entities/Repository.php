@@ -54,6 +54,10 @@ class Repository
     return $this->get('topics');
   }
 
+  public function linesOfCode() : int {
+    return $this->get('linesOfCode');
+  }
+
   public function commitsLastMonth() : int {
     return $this->get('commitsLastMonth');
   }

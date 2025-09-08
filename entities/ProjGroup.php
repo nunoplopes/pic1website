@@ -49,9 +49,6 @@ class ProjGroup
   public string $major_users = '';
 
   #[ORM\Column]
-  public int $lines_of_code = 0;
-
-  #[ORM\Column]
   public string $coding_style = 'https://example.org';
 
   #[ORM\Column]
