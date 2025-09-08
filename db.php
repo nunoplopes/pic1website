@@ -190,6 +190,11 @@ function db_fetch_shifts($year) {
                        ->findByYear($year, ['name' => 'ASC']);
 }
 
+function db_get_all_shifts() {
+  global $entityManager;
+  return $entityManager->getRepository('Shift')->findAll();
+}
+
 function db_fetch_group_id($id) : ?ProjGroup {
   global $entityManager;
   return $entityManager->find('ProjGroup', $id);
@@ -369,6 +374,23 @@ function db_get_milestone(int $year, ?string $page) {
     $cond['page'] = $page;
   }
   return $entityManager->getRepository('Milestone')->findBy($cond);
+}
+
+function db_get_all_file_hashes() {
+  global $entityManager;
+  $rows = $entityManager->createQueryBuilder()
+                        ->from('ProjGroup', 'g')
+                        ->select('g.hash_proposal_file', 'g.hash_final_report')
+                        ->getQuery()
+                        ->getArrayResult();
+  $hashes = [];
+  foreach ($rows as $row) {
+    if ($row['hash_proposal_file'])
+      $hashes[$row['hash_proposal_file']] = $row['hash_proposal_file'];
+    if ($row['hash_final_report'])
+      $hashes[$row['hash_final_report']] = $row['hash_final_report'];
+  }
+  return $hashes;
 }
 
 function db_delete_cache() {

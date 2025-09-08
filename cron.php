@@ -160,12 +160,28 @@ function run_professors() {
 }
 
 
-// Delete old sessions
+// Delete old stuff
 function run_gc_stuff() {
   foreach (db_get_all_sessions() as $session) {
     if (!$session->isFresh())
       db_delete($session);
   }
+  echo "Deleted old sessions\n";
+
+  foreach (db_get_all_shifts() as $shift) {
+    if ($shift->groups->isEmpty())
+      db_delete($shift);
+  }
+  echo "Deleted empty shifts\n";
+
+  $hashes = db_get_all_file_hashes();
+  foreach (glob('uploads/*') as $f) {
+    if (is_file($f) && empty($hashes[basename($f)])) {
+      echo "Deleting orphan file $f\n";
+      unlink($f);
+    }
+  }
+  echo "Deleted orphan uploaded files\n";
 }
 
 // Update patch statistics
