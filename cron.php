@@ -168,6 +168,14 @@ function run_gc_stuff() {
   }
   echo "Deleted old sessions\n";
 
+  foreach (db_get_all_groups() as $group) {
+    if ($group->students->isEmpty() && $group->patches->isEmpty()) {
+      echo "Deleting empty group $group\n";
+      db_delete($group);
+    }
+  }
+  echo "Deleted empty groups\n";
+
   foreach (db_get_all_shifts() as $shift) {
     if ($shift->groups->isEmpty())
       db_delete($shift);
