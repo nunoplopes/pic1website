@@ -122,7 +122,11 @@ if ($patch->video_url != $old_video_url) {
 }
 
 if ($patch->video_url) {
-  $large_video = get_video_html($patch->video_url, false);
+  try {
+    $large_video = get_video_html($patch->video_url, false);
+  } catch (ValidationException $e) {
+    $info_message = 'Video no longer available';
+  }
 }
 
 foreach ($patch->comments as $comment) {
