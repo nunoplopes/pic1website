@@ -79,7 +79,7 @@
 
 {% if embed_file %}
   <div class="card my-3">
-    <div class="card-header">
+    <div class="card-header bg-primary text-white">
       <h5 class="mb-0">File Preview</h5>
     </div>
     <div class="card-body">
@@ -199,12 +199,12 @@
 {% endif %}
 
 {% if large_video %}
-  <div class="container my-5">
-    <div class="card border-primary shadow">
-      <div class="card-header bg-primary text-white">Demo</div>
-      <div class="card-body">
-        {{ large_video|raw }}
-      </div>
+  <div class="card my-3">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Demo</h5>
+    </div>
+    <div class="card-body">
+      {{ large_video|raw }}
     </div>
   </div>
 {% endif %}

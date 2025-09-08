@@ -173,6 +173,13 @@ if ($issue = $patch->getIssueURL()) {
   $info_box['rows']['Issue'] = dolink_ext($issue, 'link');
 }
 
+$type = $patch->getType();
+$is_feature = $type == 'feature';
+
+if ($is_feature && $patch->group->hash_proposal_file) {
+  $embed_file = dourl('feature', ['download' => $patch->group->id]);
+}
+
 function gen_authors($list) {
   $data = [];
   $invalid = false;
@@ -188,6 +195,5 @@ function gen_authors($list) {
   return $invalid ? ["warn" => true, "data" => $data] : $data;
 }
 
-$type = $patch->getType();
 mk_eval_box($patch->group->year, 'patch-' . $type, $patch->getSubmitter(),
-            $type == 'feature' ? $patch->group : null);
+            $is_feature ? $patch->group : null);
