@@ -36,6 +36,9 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
     if (!$group)
       terminate("Student is not in a group");
 
+    if (!$user->getRepoUser()?->isValid())
+      terminate("Student does not have an associated repository user");
+
     $url = $form->get('url')->getData();
     $type = $form->get('type')->getData();
     $description = $form->get('description')->getData();
