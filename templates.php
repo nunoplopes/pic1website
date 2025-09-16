@@ -395,7 +395,7 @@ function mk_eval_form($milestone, $student, $name, $id) {
     'label' => 'Late Days',
     'data'  => $grade ? $grade->late_days : 0,
   ]);
-  $form->add('submit', SubmitType::class, ['label' => 'Save']);
+  $form->add('save', SubmitType::class);
   $form = $form->getForm();
   $eval_forms[] = ['title' => $milestone->description, 'fields' => $form];
   $form->handleRequest($request);
