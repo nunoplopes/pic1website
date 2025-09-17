@@ -205,20 +205,6 @@ function db_fetch_group_id($id) : ?ProjGroup {
   return $entityManager->find('ProjGroup', $id);
 }
 
-function db_fetch_license($id) : ?License {
-  global $entityManager;
-  return $id ? $entityManager->find('License', $id) : null;
-}
-
-function db_update_license($id, $name) {
-  global $entityManager;
-  $license = $entityManager->find('License', $id);
-  if ($license)
-    $license->name = $name;
-  else
-    db_save(new License($id, $name));
-}
-
 function db_fetch_deadline($year) : Deadline {
   global $entityManager;
   $deadline = $entityManager->find('Deadline', $year);

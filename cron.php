@@ -19,7 +19,6 @@ $tasks = [
   'patch_stats' => 'Update patch statistics',
   'repository'  => 'Update repository information',
   'update_old'  => 'Update old patches',
-  'licenses'    => 'Update list of licenses',
 ];
 
 for ($i = 1; $i < sizeof($argv); ++$i) {
@@ -343,16 +342,6 @@ function run_update_old() {
           $patch->updateStats();
       }
     }
-  }
-}
-
-
-// Load licenses from SPDX
-function run_licenses() {
-  $url = 'https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json';
-  $data = json_decode(file_get_contents($url));
-  foreach ($data->licenses as $license) {
-    db_update_license($license->licenseId, $license->name);
   }
 }
 
