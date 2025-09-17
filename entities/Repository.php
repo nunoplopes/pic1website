@@ -42,7 +42,7 @@ class Repository
     return $this->get('language');
   }
 
-  public function license() : ?License {
+  public function license() : ?string {
     return $this->get('license');
   }
 

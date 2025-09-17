@@ -43,9 +43,9 @@ class GitHubRepository implements \RepositoryInterface
     return self::stats($name)['language'];
   }
 
-  static function license($name) : ?\License {
+  static function license($name) : ?string {
     $license = self::stats($name)['license'];
-    return $license ? db_fetch_license($license['spdx_id']) : null;
+    return $license ? $license['name'] : null;
   }
 
   static function stars($name) : int {
