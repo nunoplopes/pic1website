@@ -2,6 +2,7 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+use Doctrine\ORM\Mapping\Column;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -73,7 +74,7 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
       continue;
 
     $property = $class->getProperty($name);
-    $attributes = $property->getAttributes(Doctrine\ORM\Mapping\Column::class);
+    $attributes = $property->getAttributes(Column::class);
     $column = null;
     if (!empty($attributes)) {
       $column = $attributes[0]->newInstance();
@@ -150,11 +151,15 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
         if ($class->getProperty($name)->getType()->getName() === 'int') {
           $field_class = IntegerType::class;
           $extra_attrs['empty_data'] = 0;
-        } else if ($column && $column->length > 200) {
+        } else if ($column?->length > 200) {
           $field_class = TextareaType::class;
           $extra_attrs['attr'] = ['rows' => 5];
+          if (!$disabled)
+            $extra_attrs['attr']['maxlength'] = $column->length;
          } else {
           $field_class = TextType::class;
+          if (!$disabled)
+            $extra_attrs['attr'] = ['maxlength' => $column?->length ?? 255];
         }
       }
       $form->add($name, $field_class, [
@@ -189,6 +194,14 @@ function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
           $obj->$set($newval);
         } else {
           $obj->$name = $newval;
+        }
+
+        if ($class->getProperty($name)->getType()->getName() === 'string') {
+          $property = $class->getProperty($name);
+          $attributes = $property->getAttributes(Column::class);
+          $column = $attributes[0]->newInstance();
+          if (strlen($obj->$name) > ($column?->length ?? 255))
+            throw new ValidationException('Text is too long');
         }
       } catch (ValidationException $ex) {
         $errors[$name] = $ex;
