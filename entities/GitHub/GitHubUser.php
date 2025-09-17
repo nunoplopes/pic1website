@@ -6,6 +6,12 @@ namespace GitHub;
 
 class GitHubUser implements \RepositoryUserInterface
 {
+  static function parse(string $user) : ?string {
+    if (preg_match('@^https://github.com/([^/]+)/?$@', $user, $m))
+      return 'github:' . $m[1];
+    return null;
+  }
+
   static function stats(\RepositoryUser $user) {
     try {
       return $GLOBALS['github_client']->api('user')->show($user->username());

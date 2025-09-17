@@ -93,8 +93,8 @@ class User
   }
 
   public function set_repository_user($id) {
-    $this->repository_user = $id;
     try {
+      $this->repository_user = RepositoryUser::parse($id);
       RepositoryUser::check($this);
 
       if (($group = $this->getGroup()) &&

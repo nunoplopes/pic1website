@@ -4,6 +4,7 @@
 
 interface RepositoryUserInterface
 {
+  static function parse(string $user) : ?string;
   static function isValid(RepositoryUser $user) : bool;
   static function profileURL(RepositoryUser $user) : string;
   static function name(RepositoryUser $user) : ?string;

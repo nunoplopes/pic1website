@@ -26,7 +26,16 @@ class RepositoryUser
     return $this->user->repository_user;
   }
 
-  static function check($user) {
+  static function parse(string $user) : string {
+    if (str_starts_with($user, 'http')) {
+      if ($id = GitHub\GitHubUser::parse($user))
+        return $id;
+      throw new ValidationException('Unsupported URL');
+    }
+    return $user;
+  }
+
+  static function check(User $user) {
     $r = new RepositoryUser($user);
 
     $ps = explode(':', $r->id());
