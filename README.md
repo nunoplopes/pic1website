@@ -26,6 +26,8 @@ php doctrine.php orm:generate-proxies
 ```shell
 npm update
 npx encore production
+# during development use the following instead:
+npx encore dev
 ```
 
 ## Development

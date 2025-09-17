@@ -288,6 +288,20 @@ function db_fetch_feature_issue(int $year, string $issue_url) : ?ProjGroup {
                        ->getOneOrNullResult();
 }
 
+function db_get_patch_stats_per_project(string $repository) {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('Patch', 'p')
+                       ->select(['p.status',
+                                 'COUNT(p.id) AS patches'])
+                       ->where('g.repository = :repo')
+                       ->join('p.group', 'g')
+                       ->groupBy('p.status')
+                       ->setParameter('repo', $repository)
+                       ->getQuery()
+                       ->getArrayResult();
+}
+
 function db_get_merged_patch_stats() {
   global $entityManager;
   return $entityManager->createQueryBuilder()

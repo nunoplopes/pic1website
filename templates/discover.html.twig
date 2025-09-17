@@ -1,0 +1,84 @@
+{% include 'header.html.twig' %}
+
+</div>
+<div class="col-md-12">
+
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h1 class="fw-bold">Discover Open-Source Projects</h1>
+    <p class="text-muted">Find projects by language and keywords</p>
+  </div>
+
+  {{ form_start(form, {'attr': {'class': 'row g-3 align-items-center'}}) }}
+    {{ form_row(form.page ) }}
+    <div class="col-auto d-flex align-items-center">
+      {{ form_label(form.language, null, {'label_attr': {'class': 'me-2 mb-0'}}) }}
+      {{ form_widget(form.language, {'attr': {'class': 'form-select'}}) }}
+    </div>
+    <div class="col-md-4 d-flex align-items-center">
+      {{ form_label(form.keywords, null, {'label_attr': {'class': 'me-2 mb-0'}}) }}
+      {{ form_widget(form.keywords, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-md-4 d-flex align-items-center">
+      <div class="form-check">
+        {{ form_widget(form.newbies, {'attr': {'class': 'form-check-input'}}) }}
+        {{ form_label(form.newbies, null, {'label_attr': {'class': 'form-check-label mb-0'}}) }}
+      </div>
+    </div>
+  <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Search</button>
+  </div>
+  {{ form_end(form, {'render_rest': false}) }}
+
+  {% if projects is defined %}
+    <div class="projects-carousel-wrapper py-4 px-3 mt-3">
+      <h3 class="mb-3">Matching Projects</h3>
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          {% for project in projects %}
+            <div class="swiper-slide" style="width: 350px">
+              <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title"><a href="{{ project.url }}">{{ project.name }}</a></h5>
+                  <p class="card-text">{{ project.description }}</p>
+                  <ul class="list-group list-group-flush mt-auto">
+                    <li class="list-group-item">Language: {{ project.language }}</li>
+                    <li class="list-group-item">Lines of code: {{ project.loc }}</li>
+                    <li class="list-group-item">Stars: {{ project.stars }}</li>
+                    <li class="list-group-item">Open issues: {{ project.open_issues }}</li>
+                    <li class="list-group-item">Last commit: {{ project.last_push|time_diff }}</li>
+                    <li class="list-group-item">Student PRs submitted: {{ project.patches }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted mt-3">No projects found.</p>
+  {% endif %}
+
+  {% if topics is defined %}
+    <h3 class="mt-3 mb-3">Related Topics</h3>
+    <div class="row g-3">
+      {% for topic in topics %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card shadow-sm">
+            <div class="card-body text-center">
+              <a href="/index.php?page=discover&amp;keywords={{ topic|url_encode }}&amp;language={{ language|url_encode }}"
+                class="stretched-link text-decoration-none">
+                <span class="fw-semibold">{{ topic }}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{% include 'footer.html.twig' %}

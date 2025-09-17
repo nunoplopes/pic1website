@@ -58,7 +58,7 @@ class GitHubRepository implements \RepositoryInterface
 
   static function linesOfCode($name) : int {
     [$org, $repo] = self::getRepo($name);
-    $data = $GLOBALS['github_client']->api('repo')->languages($org, $repo);
+    $data = $GLOBALS['github_client_cached']->api('repo')->languages($org, $repo);
     $loc = 0;
     // Data is given in bytes; let's estimate 40 bytes per line of code.
     foreach ($data as $v) {
@@ -69,7 +69,7 @@ class GitHubRepository implements \RepositoryInterface
 
   static function commitsLastMonth($name) : int {
     [$org, $repo] = self::getRepo($name);
-    $data = $GLOBALS['github_client']->api('repo')->participation($org, $repo);
+    $data = $GLOBALS['github_client_cached']->api('repo')->participation($org, $repo);
     return array_sum(array_slice($data['all'], -4));
   }
 

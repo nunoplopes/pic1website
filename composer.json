@@ -2,6 +2,7 @@
   "require": {
     "doctrine/orm": "*",
     "knplabs/github-api": "*",
+    "knplabs/knp-time-bundle": "*",
     "mpratt/embera": "*",
     "nyholm/psr7": "*",
     "symfony/expression-language": "*",

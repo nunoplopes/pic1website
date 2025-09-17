@@ -28,7 +28,11 @@ Encore
               'vendor/symfony/twig-bridge/Resources/views/Form/*.html.twig',
               'templates/**/*.html.twig',
               'assets/**/*.js',
-            ]
+            ],
+            safelist: [
+              'swiper-horizontal',
+              'swiper-free-mode',
+            ],
           }),
           require('postcss-preset-env')({
             stage: 3,

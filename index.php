@@ -50,6 +50,7 @@ $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
 $all_pages = [
   'dashboard'    => ['Statistics', ROLE_STUDENT],
+  'discover'     => ['Discover Projects', ROLE_STUDENT],
   'grades'       => ['Grades', ROLE_STUDENT],
   'profile'      => ['Edit profile', ROLE_STUDENT],
   'listprojects' => ['Projects', ROLE_STUDENT],
@@ -123,11 +124,18 @@ function terminate($error_message = null, $template = 'main.html.twig',
     ['bootstrap_5_layout.html.twig'], $twig);
   $twig->addRuntimeLoader(new \Twig\RuntimeLoader\FactoryRuntimeLoader([
     Symfony\Component\Form\FormRenderer::class => function () use ($formEngine) {
-        return new \Symfony\Component\Form\FormRenderer($formEngine);
-    }
+      return new \Symfony\Component\Form\FormRenderer($formEngine);
+    },
+    Knp\Bundle\TimeBundle\DateTimeFormatter::class => function () {
+      $translator = new Symfony\Component\Translation\Translator('en');
+      $translator->addLoader('xliff', new Symfony\Component\Translation\Loader\XliffFileLoader());
+      $translator->addResource('xliff', __DIR__ . '/vendor/knplabs/knp-time-bundle/translations/time.en.xliff', 'en', 'time');
+      return new Knp\Bundle\TimeBundle\DateTimeFormatter($translator);
+    },
   ]));
   $twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension());
   $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension());
+  $twig->addExtension(new \Knp\Bundle\TimeBundle\Twig\Extension\TimeExtension());
 
   $navbar = [];
   $title = 'Welcome';
