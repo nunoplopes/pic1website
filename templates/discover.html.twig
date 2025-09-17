@@ -42,12 +42,12 @@
                   <h5 class="card-title"><a href="{{ project.url }}">{{ project.name }}</a></h5>
                   <p class="card-text">{{ project.description }}</p>
                   <ul class="list-group list-group-flush mt-auto">
-                    <li class="list-group-item">Language: {{ project.language }}</li>
-                    <li class="list-group-item">Lines of code: {{ project.loc }}</li>
-                    <li class="list-group-item">Stars: {{ project.stars }}</li>
-                    <li class="list-group-item">Open issues: {{ project.open_issues }}</li>
-                    <li class="list-group-item">Last commit: {{ project.last_push|time_diff }}</li>
-                    <li class="list-group-item">Student PRs submitted: {{ project.patches }}</li>
+                    <li class="list-group-item"><span class="fw-semibold">Language:</span> {{ project.language }}</li>
+                    <li class="list-group-item"><span class="fw-semibold">Lines of code:</span> {{ project.loc }}</li>
+                    <li class="list-group-item"><span class="fw-semibold">Stars:</span> {{ project.stars }}</li>
+                    <li class="list-group-item"><span class="fw-semibold">Open issues:</span> {{ project.open_issues }}</li>
+                    <li class="list-group-item"><span class="fw-semibold">Last commit:</span> {{ project.last_push|time_diff }}</li>
+                    <li class="list-group-item"><span class="fw-semibold">Student PRs submitted:</span> {{ project.patches }}</li>
                   </ul>
                 </div>
               </div>
