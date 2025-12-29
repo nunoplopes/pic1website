@@ -77,13 +77,8 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
   }
   $patch->comments->add(new PatchComment($patch, $new_comment, $user));
 
-  $pic1link = link_patch($patch);
-
   if ($user->role == ROLE_STUDENT) {
-    $name = $user->shortName();
-    email_ta($patch->group, 'PIC1: new patch comment',
-             "$name ($user) added a new comment:\n" .
-             "\n$new_comment\n\n$pic1link");
+    email_ta($patch->group, 'PIC1: new patch comment', compose_email(), true);
 
   // notify students of the patch review
   } elseif ($new_status != $prev_status) {
@@ -97,17 +92,9 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
     }
 
     $patchurl = $patch->getPatchURL();
-    email_group($patch->group, $subject, <<<EOF
-$line
-
-$new_comment
-
-Patch: $patchurl
-$pic1link
-EOF);
+    email_group($patch->group, $subject, compose_email($line), true);
   } else {
-    email_group($patch->group, 'PIC1: new patch comment',
-                "$new_comment\n\n$pic1link");
+    email_group($patch->group, 'PIC1: new patch comment', compose_email(), true);
   }
   terminate_redirect();
 }
@@ -197,3 +184,35 @@ function gen_authors($list) {
 
 mk_eval_box($patch->group->year, 'patch-' . $type, $patch->getSubmitter(),
             $is_feature ? $patch->group : null);
+
+
+function compose_email($headline = '') {
+  global $patch;
+  $markdown = '';
+  if ($headline) {
+    $markdown .= "# $headline\n\n";
+  }
+  $patchurl = $patch->getPatchURL();
+  $pic1link = link_patch($patch);
+  $markdown .= <<<TXT
+Patch: $patchurl
+
+$pic1link
+
+Comment history:
+
+TXT;
+
+  foreach (array_reverse($patch->comments->toArray()) as $comment) {
+    if ($comment->user) {
+      $markdown .= '**' . $comment->user->shortName() .
+                   ' ('.$comment->user->id.')' . '**';
+    } else {
+      $markdown .= '**Bot**';
+    }
+    $markdown .= ' at _' . $comment->time->format('d/m/Y H:i') . "_:\n\n";
+    $markdown .= $comment->text . "\n\n";
+    $markdown .= "---\n\n";
+  }
+  return markdown_to_html($markdown);
+}

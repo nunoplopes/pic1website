@@ -138,16 +138,8 @@ function terminate($error_message = null, $template = 'main.html.twig',
   $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension());
   $twig->addExtension(new \Knp\Bundle\TimeBundle\Twig\Extension\TimeExtension());
 
-  $config = [
-    'html_input'         => 'escape',
-    'allow_unsafe_links' => false,
-    'max_nesting_level'  => 10,
-  ];
-  $converter = new \League\CommonMark\CommonMarkConverter($config);
-  $twig->addFilter(new \Twig\TwigFilter('markdown',
-    function (string $value) use ($converter) {
-      return $converter->convert($value)->getContent();
-    }, ['is_safe' => ['html']]));
+  $twig->addFilter(new \Twig\TwigFilter(
+    'markdown', 'markdown_to_html', ['is_safe' => ['html']]));
 
   $navbar = [];
   $title = 'Welcome';

@@ -11,7 +11,7 @@
     "bootstrap": "*",
     "bootstrap-icons": "*",
     "plotly.js": "*",
-    "swiper": "^12.0.1",
+    "swiper": "*",
     "tabulator-tables": "*"
   },
   "browserslist": [

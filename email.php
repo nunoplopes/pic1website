@@ -23,11 +23,12 @@ class MailLoggerSubscriber implements EventSubscriberInterface
     error_log(
       "Sent email to: " . implode(', ', $to) .
       "\nSubject: " . $message->getSubject() .
-      "\n\n" . $message->getTextBody());
+      "\n\n" . $message->getTextBody() .
+      "\n\n" . $message->getHtmlBody());
   }
 }
 
-function send_email($dsts, $subject, $msg) {
+function send_email($dsts, $subject, $msg, $html = false) {
   $email = (new Email())
     ->from(new Address(EMAIL_FROM_ADDR, 'PIC1'))
     ->subject($subject);
@@ -35,16 +36,17 @@ function send_email($dsts, $subject, $msg) {
   if (!is_array($dsts))
     $dsts = [$dsts];
 
-  $has_email = false;
   foreach ($dsts as $dst) {
-    if ($dst) {
+    if ($dst)
       $email->addTo($dst);
-      $has_email = true;
-    }
   }
-  if (!$has_email)
+  if (count($email->getTo()) === 0)
     return;
-  $email->text($msg);
+
+  if ($html)
+    $email->html($msg);
+  else
+    $email->text($msg);
 
   if (IN_PRODUCTION) {
     $dispatcher = null;
@@ -68,19 +70,19 @@ function get_prof_emails() {
   return $emails;
 }
 
-function email_profs($subject, $msg) {
-  send_email(get_prof_emails(), $subject, $msg);
+function email_profs($subject, $msg, $html = false) {
+  send_email(get_prof_emails(), $subject, $msg, $html);
 }
 
-function email_ta($group, $subject, $msg) {
+function email_ta($group, $subject, $msg, $html = false) {
   if ($ta = $group->shift->prof) {
-    send_email($ta->email, $subject, $msg);
+    send_email($ta->email, $subject, $msg, $html);
   } else {
-    email_profs($subject, $msg);
+    email_profs($subject, $msg, $html);
   }
 }
 
-function email_group($group, $subject, $msg) {
+function email_group($group, $subject, $msg, $html = false) {
   if ($ta = $group->shift->prof) {
     $emails = [$ta->email];
   } else {
@@ -89,5 +91,5 @@ function email_group($group, $subject, $msg) {
   foreach ($group->students as $user) {
     $emails[] = $user->email;
   }
-  send_email($emails, $subject, $msg);
+  send_email($emails, $subject, $msg, $html);
 }

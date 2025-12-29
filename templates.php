@@ -54,6 +54,19 @@ function format_big_number($n) {
   return round($n / 1000000, 1) . "\u{202F}M";
 }
 
+function markdown_to_html($text) {
+  static $converter = null;
+  if ($converter === null) {
+    $config = [
+      'html_input'         => 'escape',
+      'allow_unsafe_links' => false,
+      'max_nesting_level'  => 10,
+    ];
+    $converter = new \League\CommonMark\CommonMarkConverter($config);
+  }
+  return $converter->convert($text)->getContent();
+}
+
 function handle_form(&$obj, $hide_fields, $readonly, $only_fields = null,
                      $in_required = null) {
   global $form, $formFactory, $request, $success_message;
