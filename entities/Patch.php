@@ -221,11 +221,12 @@ abstract class Patch
         }
       }
 
+      $issue_url = $p->getIssueURL();
+
       if ($p->type == PatchType::BugFix) {
         if (count($commits) != 1)
           throw new ValidationException('Only 1 commit allowed');
 
-        $issue_url = $p->getIssueURL();
         if (!$issue_url)
           throw new ValidationException('Patch does not have a bug associated');
 
@@ -240,6 +241,18 @@ abstract class Patch
               "Referenced issue #$m[1] doesn't match the specified issue URL: ".
               $issue_url);
         }
+      } elseif ($issue_url) {
+        $found_ref = false;
+        foreach ($commits as $commit) {
+          if (preg_match('/#(\d+)/', $commit['message'], $m) &&
+              str_contains($issue_url, $m[1])) {
+            $found_ref = true;
+            break;
+          }
+        }
+        if (!$found_ref)
+          throw new ValidationException(
+            'No commit message references the issue #id');
       }
     } catch (ValidationException $ex) {
       if (!$ignore_errors)
@@ -253,7 +266,7 @@ abstract class Patch
       $issue_description = $issue->getTitle() . "\n" . $issue->getDescription();
     }
     $review = review_patch($group->project_name, $p->type == PatchType::BugFix,
-                           $p->patch(), $description, $p->getIssueURL(),
+                           $p->patch(), $description, $issue_url,
                            $issue_description, $group->coding_style);
     $p->comments->add(
       new PatchComment($p,
