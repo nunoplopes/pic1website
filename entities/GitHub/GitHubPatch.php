@@ -122,6 +122,14 @@ class GitHubPatch extends \Patch
     return $diff;
   }
 
+  public function patch() : string {
+    $r = $this->group->getRepository();
+    [$org, $repo] = GitHubRepository::getRepo($r->name());
+    $c = $GLOBALS['github_client']->api('repo')->commits();
+    return $c->compare($org, $repo, $r->defaultBranch(),
+                       $this->repo_branch, 'application/vnd.github.patch');
+  }
+
   protected function computeBranchHash() : string {
     $hash = '';
     foreach ($this->stats()['commits'] as $commit) {

@@ -237,14 +237,14 @@
     <div class="list-group">
       {% for comment in comments %}
         <div class="list-group-item d-flex align-items-start">
-          <div class="d-flex flex-column align-items-center me-4">
+          <div class="d-flex flex-column align-items-center me-4" style="width: 120px;">
             <img src="{{ comment.photo }}" alt="Photo" class="rounded-circle mb-2"
                  style="width: 100px; height: 100px; object-fit: cover; border: 4px solid #ddd">
             <span class="font-weight-bold">{{ comment.author }}</span>
             <small class="text-muted">{{ comment.date|date('d/m/Y H:i:s') }}</small>
           </div>
           <div class="flex-grow-1 text-break">
-            <p class="mb-0">{{ comment.text|nl2br }}</p>
+            <p class="mb-0">{{ comment.text|markdown }}</p>
           </div>
         </div>
       {% endfor %}

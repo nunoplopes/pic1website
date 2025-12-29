@@ -3,6 +3,8 @@
     "doctrine/orm": "*",
     "knplabs/github-api": "*",
     "knplabs/knp-time-bundle": "*",
+    "league/commonmark": "*",
+    "league/html-to-markdown": "*",
     "mpratt/embera": "*",
     "nyholm/psr7": "*",
     "symfony/expression-language": "*",

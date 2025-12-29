@@ -16,7 +16,7 @@ class PatchComment
   #[ORM\JoinColumn(nullable: false)]
   public Patch $patch;
 
-  #[ORM\Column(length: 4096)]
+  #[ORM\Column(type: "text", length: 250000)]
   public string $text;
 
   #[ORM\ManyToOne]

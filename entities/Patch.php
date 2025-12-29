@@ -2,6 +2,8 @@
 // Copyright (c) 2022-present Instituto Superior Técnico.
 // Distributed under the MIT license that can be found in the LICENSE file.
 
+require 'review.php';
+
 use Doctrine\ORM\Mapping as ORM;
 
 enum PatchStatus : int {
@@ -246,6 +248,17 @@ abstract class Patch
         new PatchComment($p, "Failed validation:\n" . $ex->getMessage()));
     }
 
+    $issue_description = '';
+    if ($issue = $p->getIssue()) {
+      $issue_description = $issue->getTitle() . "\n" . $issue->getDescription();
+    }
+    $review = review_patch($group->project_name, $p->type == PatchType::BugFix,
+                           $p->patch(), $description, $p->getIssueURL(),
+                           $issue_description, $group->coding_style);
+    $p->comments->add(
+      new PatchComment($p,
+                       "🤖 AI-generated feedback — please review carefully:\n\n".
+                          $review));
     return $p;
   }
 
@@ -260,6 +273,7 @@ abstract class Patch
   abstract public function origin() : string;
   abstract public function commits() : array;
   abstract public function diff() : array;
+  abstract public function patch() : string;
   abstract protected function computeBranchHash() : string;
   abstract protected function computeLinesAdded() : int;
   abstract protected function computeLinesDeleted() : int;
@@ -345,6 +359,11 @@ abstract class Patch
 
     $bug = db_fetch_bug_user($this->group->year, $this->getSubmitter());
     return $bug === null ? null : $bug->issue_url;
+  }
+
+  public function getIssue() : ?Issue {
+    $url = $this->getIssueURL();
+    return $url ? Issue::factory($url) : null;
   }
 
   /// returns (login, name, email)*

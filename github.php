@@ -6,6 +6,7 @@ use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\HttpMethodsClientInterface;
 use Http\Client\Common\Plugin;
 use Http\Client\Common\PluginClientFactory;
+use Http\Client\Common\Plugin\Cache\Generator\HeaderCacheKeyGenerator;
 use Http\Client\Common\Plugin\HeaderSetPlugin;
 use Http\Client\Common\Plugin\HistoryPlugin;
 use Http\Discovery\Psr17FactoryDiscovery;
@@ -68,7 +69,11 @@ class MyHttpBuilder extends Github\HttpClient\Builder {
       //$pool = new PdoAdapter(DB_DSN, 'cache', $this->timeout);
       $pool = new FilesystemAdapter('github', $this->timeout, '.cache');
       $config = ['respect_response_cache_directives' => [],
-                 'default_ttl' => $this->timeout];
+                 'default_ttl' => $this->timeout,
+                 'cache_key_generator' => new HeaderCacheKeyGenerator([
+                   'Accept',
+                 ]),
+                ];
       $plugins = $this->plugins;
       $plugins[] = Plugin\CachePlugin::serverCache($pool, $stream, $config);
       $plugins[] = new HeaderSetPlugin(['User-Agent' => USERAGENT]);
