@@ -230,7 +230,13 @@ function filter_by($filters, $extra_filters = []) {
 
   $all_years = db_get_group_years();
 
-  $selected_year   = $request->query->get('year', $all_years[0]['year']);
+  $latest_year = $all_years[0]['year'];
+  $current_year = get_current_year();
+  if ($latest_year != $current_year) {
+    $latest_year = $current_year;
+  }
+
+  $selected_year   = $request->query->get('year', $latest_year);
   $selected_shift  = $request->query->get('shift', null);
   $all_shifts      = $request->query->get('all_shifts', false) ? true : false;
   $selected_group  = $request->query->get('group', 'all');
@@ -251,6 +257,9 @@ function filter_by($filters, $extra_filters = []) {
 
   if (in_array('year', $filters)) {
     $years = [];
+    if ($all_years[0]['year'] != $latest_year) {
+      $years[$latest_year] = $latest_year;
+    }
     foreach ($all_years as $year) {
       $years[$year['year']] = $year['year'];
     }

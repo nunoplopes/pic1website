@@ -103,9 +103,13 @@ function db_get_all_profs($include_tas = false) {
   return array_filter($users, function($u) { return !$u->isDummy(); });
 }
 
-function db_save($obj) {
+function db_bulk_save($obj) {
   global $entityManager;
   $entityManager->persist($obj);
+}
+
+function db_save($obj) {
+  db_bulk_save($obj);
   db_flush();
 }
 
@@ -359,6 +363,16 @@ function db_get_grade(Milestone $m, User $u) : ?Grade {
   global $entityManager;
   return $entityManager->getRepository('Grade')
                        ->findOneBy(['milestone' => $m->id, 'user' => $u->id]);
+}
+
+function db_get_milestones_years() {
+  global $entityManager;
+  return $entityManager->createQueryBuilder()
+                       ->from('Milestone', 'm')
+                       ->select('m.year')->distinct()
+                       ->orderBy('m.year', 'DESC')
+                       ->getQuery()
+                       ->getArrayResult();
 }
 
 function db_get_all_milestones($year) {

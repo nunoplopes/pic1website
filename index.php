@@ -28,6 +28,7 @@ $form = null;
 $select_form = null;
 $comments_form = null;
 $eval_forms = [];
+$copy_form = null;
 $embed_file = null;
 $info_message = null;
 $success_message = null;
@@ -64,7 +65,7 @@ $all_pages = [
   'changerole'   => ['Change Role', ROLE_PROF],
   'impersonate'  => ['Impersonate', ROLE_SUDO],
   'cron'         => ['Cron', ROLE_PROF],
-  'phpinfo'      => ['PHP Info', ROLE_PROF],
+  'phpinfo'      => ['PHP Info', ROLE_SUDO],
   'editpatch'    => ['Patch', ROLE_STUDENT, true],
   'listproject' =>  ['Project Detail', ROLE_STUDENT, true],
   'rmpatch'      => ['Delete Patch', ROLE_PROF, true],
@@ -107,7 +108,7 @@ function terminate($error_message = null, $template = 'main.html.twig',
   global $embed_file, $info_message, $success_message, $monospace, $refresh_url;
   global $bottom_links, $top_box, $confirm, $comments, $display_formula;
   global $large_video, $comments_form, $ci_failures, $all_pages, $eval_forms;
-  global $plots;
+  global $plots, $copy_form;
 
   $appvar = new \ReflectionClass('\Symfony\Bridge\Twig\AppVariable');
   $loader = new \Twig\Loader\FilesystemLoader([
@@ -188,6 +189,7 @@ function terminate($error_message = null, $template = 'main.html.twig',
         $f['fields'] = $f['fields']->createView();
         return $f;
       }, $eval_forms),
+    'copy_form'       => $copy_form === null ? null : $copy_form->createView(),
     'dependencies'    => get_webpack_deps(),
   ];
 

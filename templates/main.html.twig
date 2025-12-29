@@ -24,6 +24,28 @@
   <div class="col-md-7">
 {% endif %}
 
+{% if copy_form is defined and copy_form %}
+  <div class="card mb-3">
+    <div class="card-body">
+      {{ form_start(copy_form) }}
+      <div class="row align-items-end">
+        <div class="col-auto">
+          <label class="form-label mb-0">
+            Copy grading from year:
+          </label>
+        </div>
+        <div class="col">
+          {{ form_widget(copy_form.source_year, {attr: {'class': 'form-select'}}) }}
+        </div>
+        <div class="col-auto">
+          {{ form_widget(copy_form.copy, {attr: {'class': 'btn btn-primary btn-sm'}}) }}
+        </div>
+      </div>
+      {{ form_end(copy_form) }}
+    </div>
+  </div>
+{% endif %}
+
 {% if display_formula %}
   <div class="card my-3">
     <div class="card-header">
