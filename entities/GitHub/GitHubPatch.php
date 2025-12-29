@@ -57,7 +57,7 @@ class GitHubPatch extends \Patch
       }
       $p = new GitHubPatch;
       $p->repo_branch = $m[1] . ':' . $m[2] . ':' . $data['name'];
-      $p->src_branch  = $src_branch ?? $repository->defaultBranch();
+      $p->src_branch  = $src_branch ?? '';
       return $p;
     } catch (\Github\Exception\RuntimeException $ex) {
       throw new \ValidationException("Non-existent patch");
@@ -82,11 +82,17 @@ class GitHubPatch extends \Patch
     return $this->repo_branch;
   }
 
+  public function srcBranch() : string {
+    return empty($this->src_branch)
+             ? $this->group->getRepository()->defaultBranch()
+             : $this->src_branch;
+  }
+
   private function stats() {
     $r = $this->group->getRepository();
     [$org, $repo] = GitHubRepository::getRepo($r->name());
     $c = $GLOBALS['github_client']->api('repo')->commits();
-    return $c->compare($org, $repo, $this->src_branch, $this->repo_branch);
+    return $c->compare($org, $repo, $this->srcBranch(), $this->repo_branch);
   }
 
   public function commits() : array {
@@ -126,7 +132,7 @@ class GitHubPatch extends \Patch
     $r = $this->group->getRepository();
     [$org, $repo] = GitHubRepository::getRepo($r->name());
     $c = $GLOBALS['github_client']->api('repo')->commits();
-    return $c->compare($org, $repo, $this->src_branch, $this->repo_branch,
+    return $c->compare($org, $repo, $this->srcBranch(), $this->repo_branch,
                        'application/vnd.github.patch');
   }
 
