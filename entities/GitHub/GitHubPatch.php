@@ -13,6 +13,9 @@ class GitHubPatch extends \Patch
   public string $repo_branch;
 
   #[ORM\Column]
+  public string $src_branch;
+
+  #[ORM\Column]
   public int $pr_number = 0;
 
   static function construct($url, \Repository $repository) {
@@ -25,9 +28,6 @@ class GitHubPatch extends \Patch
 
       if ($src_repo != $repository->name())
         throw new \ValidationException("Patch is not for Project's repository");
-
-      if ($src_branch != $repository->defaultBranch())
-        throw new \ValidationException("Patch is not against default branch");
     }
     elseif (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/([^:]+):([^:]+):(.+)$@', $url, $m)) {
       $src_repo   = $m[1]; // user/repo
@@ -57,6 +57,7 @@ class GitHubPatch extends \Patch
       }
       $p = new GitHubPatch;
       $p->repo_branch = $m[1] . ':' . $m[2] . ':' . $data['name'];
+      $p->src_branch  = $src_branch ?? $repository->defaultBranch();
       return $p;
     } catch (\Github\Exception\RuntimeException $ex) {
       throw new \ValidationException("Non-existent patch");
@@ -85,8 +86,7 @@ class GitHubPatch extends \Patch
     $r = $this->group->getRepository();
     [$org, $repo] = GitHubRepository::getRepo($r->name());
     $c = $GLOBALS['github_client']->api('repo')->commits();
-    return $c->compare($org, $repo, $r->defaultBranch(),
-                       $this->repo_branch);
+    return $c->compare($org, $repo, $this->src_branch, $this->repo_branch);
   }
 
   public function commits() : array {
@@ -116,7 +116,7 @@ class GitHubPatch extends \Patch
     foreach ($this->stats()['files'] as $f) {
       $diff[] = [
         'filename' => $f['filename'],
-        'patch'    => $f['patch']
+        'patch'    => $f['patch'] ?? '',
       ];
     }
     return $diff;
@@ -126,8 +126,8 @@ class GitHubPatch extends \Patch
     $r = $this->group->getRepository();
     [$org, $repo] = GitHubRepository::getRepo($r->name());
     $c = $GLOBALS['github_client']->api('repo')->commits();
-    return $c->compare($org, $repo, $r->defaultBranch(),
-                       $this->repo_branch, 'application/vnd.github.patch');
+    return $c->compare($org, $repo, $this->src_branch, $this->repo_branch,
+                       'application/vnd.github.patch');
   }
 
   protected function computeBranchHash() : string {
@@ -163,6 +163,8 @@ class GitHubPatch extends \Patch
     return "https://github.com/" .
             $repo->name() .
             "/compare/" .
+            (empty($this->src_branch)
+              ? '' : (urlencode($this->src_branch) . '...')) .
             urlencode($this->repo_branch);
   }
 

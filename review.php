@@ -78,6 +78,9 @@ $patch
 $coding_standard
 TXT;
 
+  // current service crashes if given a large input
+  $message = substr($message, 0, 300 * 1024);
+
   $postFields = [
     'channel_id'  => AI_CHANNEL_ID,
     'thread_id'   => bin2hex(random_bytes(16)),
@@ -100,7 +103,7 @@ TXT;
   $response = curl_exec($ch);
 
   if ($response === false) {
-    throw new Exception('cURL error when contacting AI service');
+    throw new ValidationException('Error when contacting AI service');
   } else {
     foreach (explode("\n", $response) as $line) {
       if (str_contains($line, ', "type": "message",')) {
@@ -109,7 +112,7 @@ TXT;
       }
     }
   }
-  throw new Exception('No valid response from AI service');
+  throw new ValidationException('No valid response from AI service');
 }
 
 
