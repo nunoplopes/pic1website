@@ -1,3 +1,44 @@
 @import "~bootstrap/dist/css/bootstrap.min.css";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "~tabulator-tables/dist/css/tabulator.min.css";
+
+.comment-body {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.comment-body h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.comment-body h2 {
+  font-size: 1rem;
+}
+
+.comment-body h3 {
+  font-size: 0.95rem;
+}
+
+.comment-body h4 {
+  font-size: 0.8rem;
+}
+
+.comment-body p,
+.comment-body li {
+  margin-bottom: 0.5rem;
+}
+
+.comment-body p:last-child,
+.comment-body ul:last-child,
+.comment-body ol:last-child {
+  margin-bottom: 0;
+}
+
+.comment-body ul,
+.comment-body ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
