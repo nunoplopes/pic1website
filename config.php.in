@@ -12,6 +12,11 @@ define('USERAGENT', 'bot');
 // github token
 define('GH_TOKEN', 'username:token');
 
+// AI API KEYS
+define('AI_ENDPOINT', '');
+define('AI_APIKEY', '');
+define('AI_CHANNEL_ID', '');
+
 // degrees & courses that we care about
 define('FENIX_DEGREES', ['LEIC-A', 'LEIC-T', 'LERC']);
 define('FENIX_COURSES', ['PLic2', 'PLic23', 'PLic23-2']);
