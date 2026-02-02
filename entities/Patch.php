@@ -260,19 +260,37 @@ abstract class Patch
       $p->comments->add(
         new PatchComment($p, "Failed validation:\n" . $ex->getMessage()));
     }
+    $p->add_patch_review_comment();
+    return $p;
+  }
 
+  function add_patch_review_comment() : ?string {
+    // check if the latest commit already has an AI review
+    foreach ($this->comments as $c) {
+      if (str_starts_with($c->text, "🤖 AI-generated feedback") &&
+          str_contains($c->text, "Commit: " . $this->hash))
+        return null;
+    }
+
+    $description = explode("\n\n", $this->comments->first()->text, 2)[1] ?? '';
     $issue_description = '';
-    if ($issue = $p->getIssue()) {
+    if ($issue = $this->getIssue()) {
       $issue_description = $issue->getTitle() . "\n" . $issue->getDescription();
     }
-    $review = review_patch($group->project_name, $p->type == PatchType::BugFix,
-                           $p->patch(), $description, $issue_url,
-                           $issue_description, $group->coding_style);
-    $p->comments->add(
-      new PatchComment($p,
-                       "🤖 AI-generated feedback — please review carefully:\n\n".
-                          $review));
-    return $p;
+    try {
+      $review = review_patch($this->group->project_name,
+                             $this->type == PatchType::BugFix,
+                             $this->patch(), $description, $this->getIssueURL(),
+                             $issue_description, $this->group->coding_style);
+      $this->comments->add(
+        new PatchComment($this,
+                         "🤖 AI-generated feedback — please review carefully\n".
+                         "Commit: " . $this->hash . "\n\n" . $review));
+      return $review;
+    } catch (ValidationException $ex) {
+      // the AI service isn't very reliable; ignore errors
+    }
+    return null;
   }
 
   public function __construct() {

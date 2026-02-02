@@ -240,6 +240,14 @@ function run_patch_stats() {
                                  $job['time']);
             }
           }
+        } elseif ($patch->isStillOpen()) {
+          if ($review = $patch->add_patch_review_comment()) {
+            email_group($group,
+                     "PIC1: 🤖 AI-generated feedback for patch $patch->id",
+                     "🤖 AI-generated feedback — please review carefully!\n\n" .
+                     "$review\n\n" .
+                     link_patch($patch));
+          }
         }
 
         echo "Updated patch $patch->id\n";
