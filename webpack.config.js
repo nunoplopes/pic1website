@@ -1,5 +1,4 @@
 const Encore = require('@symfony/webpack-encore');
-const purgecss = require('@fullhuman/postcss-purgecss');
 
 Encore
   .setOutputPath('assets/public')
@@ -23,7 +22,7 @@ Encore
     options.postcssOptions = {
       plugins: [
         ...(Encore.isProduction() ? [
-          purgecss.default({
+          require('@fullhuman/postcss-purgecss')({
             content: [
               'vendor/symfony/twig-bridge/Resources/views/Form/*.html.twig',
               'templates/**/*.html.twig',
