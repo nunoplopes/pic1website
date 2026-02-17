@@ -45,8 +45,7 @@ if (get_user()->role == ROLE_STUDENT) {
 }
 
 $deadline = db_fetch_deadline($group->year);
-$deadline = $deadline->proj_proposal > $group->allow_modifications_date
-              ? $deadline->proj_proposal : $group->allow_modifications_date;
+$deadline = max($deadline->proj_proposal, $group->allow_modifications_date);
 
 if (!is_deadline_current($deadline) && get_user()->role == ROLE_STUDENT) {
   $readonly = array_keys(get_object_vars($group));

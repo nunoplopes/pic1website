@@ -14,8 +14,7 @@ $deadlines = db_fetch_deadline($year);
 $deadline = $deadlines->bug_selection;
 
 if ($group !== null)
-  $deadline = $deadline > $group->allow_modifications_date
-                ? $deadline : $group->allow_modifications_date;
+  $deadline = max($deadline, $group->allow_modifications_date);
 
 if (auth_at_least(ROLE_TA)) {
   $groups = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo']);
