@@ -103,12 +103,14 @@ function run_prune_cache() {
 // Update student's group information
 function run_groups() {
   global $year;
+  $seen_groups = [];
   $base_number = 0;
   foreach (get_courses() as $course) {
     $base_number += 1000;
     foreach (get_groups($course) as $number => $data) {
       [$shift, $students] = $data;
       $number += $base_number;
+      $seen_groups[$number] = true;
 
       $shift = db_fetch_shift($year, $shift);
       $group = db_fetch_group($year, $number);
@@ -131,6 +133,15 @@ function run_groups() {
       foreach ($students as $id => $name) {
         $group->addStudent(
           db_fetch_or_add_user($id, $name, ROLE_STUDENT, '', '', false, false));
+      }
+    }
+  }
+  foreach (db_fetch_groups($year) as $group) {
+    if (empty($seen_groups[$group->group_number])) {
+      if ($group->patches->isEmpty()) {
+        db_delete($group);
+      } else {
+        $group->resetStudents();
       }
     }
   }
