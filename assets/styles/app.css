@@ -5,6 +5,7 @@
 .comment-body {
   font-size: 0.95rem;
   line-height: 1.5;
+  min-width: 0;
 }
 
 .comment-body h1 {
@@ -41,4 +42,18 @@
 .comment-body ol {
   padding-left: 1.25rem;
   margin-bottom: 0.5rem;
+}
+
+.comment-body pre {
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.comment-body pre code {
+  white-space: pre;
+}
+
+.comment-body img,
+.comment-body table {
+  max-width: 100%;
 }
