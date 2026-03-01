@@ -27,7 +27,9 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
       'required' => false
     ])
     ->add('description', TextareaType::class)
-    ->add('submit', SubmitType::class)
+    ->add('submit', SubmitType::class, [
+      'attr' => ['onclick' => 'this.disabled=true; this.form.submit();'],
+    ])
     ->getForm();
 
   $form->handleRequest($request);
