@@ -40,7 +40,7 @@ class GitHubRepository implements \RepositoryInterface
   }
 
   static function language($name) : string {
-    return self::stats($name)['language'];
+    return self::stats($name)['language'] ?? '';
   }
 
   static function license($name) : ?string {

@@ -22,12 +22,15 @@ class GitHubDiscoverProjects implements \DiscoverProjectsInterface {
 
     $res = [];
     foreach ($repos['items'] as $repo) {
+      $loc = GitHubRepository::linesOfCode($repo['full_name']);
+      if ($loc < 100000)
+        continue;
       $res[] = [
         'name'        => 'github:' . $repo['full_name'],
         'description' => $repo['description'],
         'url'         => $repo['html_url'],
         'stars'       => format_big_number($repo['stargazers_count']),
-        'loc'         => format_big_number($repo['size'] * 25), // rough estimate: 25 LoC per KB
+        'loc'         => format_big_number($loc),
         'open_issues' => format_big_number($repo['open_issues']),
         'language'    => $repo['language'],
         'topics'      => $repo['topics'],
