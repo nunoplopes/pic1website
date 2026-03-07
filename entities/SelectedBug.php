@@ -23,7 +23,7 @@ class SelectedBug
   public string $repro_url = '';
 
   #[ORM\Column(length: 4096)]
-  public string $description;
+  public string $description = '';
 
   static function factory(ProjGroup $group, User $user, string $description,
                           string $issue_url, string $repro_url) {
