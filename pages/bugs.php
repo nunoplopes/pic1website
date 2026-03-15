@@ -47,7 +47,9 @@ if ($user->role == ROLE_STUDENT && is_deadline_current($deadline)) {
     ->add('description', TextareaType::class, [
       'data' => $description,
     ])
-    ->add('submit', SubmitType::class)
+    ->add('submit', SubmitType::class, [
+      'attr' => ['onclick' => 'this.disabled=true; this.form.submit();'],
+    ])
     ->getForm();
 
   $form->handleRequest($request);
