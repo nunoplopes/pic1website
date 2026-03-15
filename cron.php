@@ -253,11 +253,17 @@ function run_patch_stats() {
           }
         } elseif ($patch->isStillOpen()) {
           if ($review = $patch->add_patch_review_comment()) {
+            $link = link_patch($patch);
+            $msg = <<<EOF
+🤖 AI-generated feedback — please review carefully!
+
+$review
+
+$link
+EOF;
             email_group($group,
-                     "PIC1: 🤖 AI-generated feedback for patch $patch->id",
-                     "🤖 AI-generated feedback — please review carefully!\n\n" .
-                     "$review\n\n" .
-                     link_patch($patch));
+                        "PIC1: 🤖 AI-generated feedback for patch $patch->id",
+                         markdown_to_html($msg), /*html=*/true);
           }
         }
 
