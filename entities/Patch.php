@@ -210,9 +210,11 @@ abstract class Patch
         check_wrapped_commit_text($msg, 72);
       }
 
+      $fix_issue_regex = '/(?:Fix(?:es)?|Closes?):? #(\d+)/i';
+
       if ($url_exception = DONT_WANT_ISSUE_IN_COMMIT_MSG[$repo->id] ?? '') {
         foreach ($commits as $commit) {
-          if (preg_match('/(?:Fix(?:es)?|Closes?):? #/i', $commit['message'])) {
+          if (preg_match($fix_issue_regex, $commit['message'])) {
             throw new ValidationException(
               "Commit message references an issue, but it shouldn't per the ".
               "project's guidelines:\n$url_exception\n\n" .
@@ -231,7 +233,7 @@ abstract class Patch
           throw new ValidationException('Patch does not have a bug associated');
 
         if (!$url_exception && preg_match('/\d/', $issue_url)) {
-          if (!preg_match('/Fix(?:es)? #(\d+)/i', $commits[0]['message'], $m))
+          if (!preg_match($fix_issue_regex, $commits[0]['message'], $m))
             throw new ValidationException(
               "Commit message doesn't reference the fixed issue properly:\n" .
               $commits[0]['message']);
