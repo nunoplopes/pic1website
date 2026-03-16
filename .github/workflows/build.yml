@@ -23,7 +23,7 @@ jobs:
             coverage: none
 
       - name: Install Composer
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - name: Copy config
         run: cp config.php.in config.php
