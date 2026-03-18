@@ -186,6 +186,7 @@ PROMPT;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use League\HTMLToMarkdown\HtmlConverter;
+use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 function fetch_coding_standard(string $url): string {
@@ -204,7 +205,13 @@ function fetch_coding_standard(string $url): string {
     ->createRequest('GET', $url)
     ->withHeader('User-Agent', 'USERAGENT');
 
-  $response = $client->sendRequest($request);
+  try {
+    $response = $client->sendRequest($request);
+  } catch (ClientExceptionInterface) {
+    // Network error
+    return '';
+  }
+
   $status = $response->getStatusCode();
   if ($status >= 400)
     return ''; // could be a temporary error, skip caching
