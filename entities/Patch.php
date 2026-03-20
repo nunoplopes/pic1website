@@ -136,7 +136,7 @@ abstract class Patch
       if (empty($p->students))
         throw new ValidationException("Patch has no recognized authors");
 
-      if (in_array($p->branch(), ['main', 'master', 'develop']))
+      if (in_array($p->branch(), ['main', 'master', 'develop', 'dev']))
         throw new ValidationException('Invalid branch name: ' . $p->branch().
                                       "\nPlease use a different branch name");
 
