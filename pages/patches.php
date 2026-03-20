@@ -46,6 +46,14 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
     $description = $form->get('description')->getData() ?? '';
     $video_url = $form->get('video_url')->getData() ?? '';
     $p = Patch::factory($group, $url, $type, $description, $user, $video_url);
+
+    foreach ($group->patches as $patch) {
+      if ($patch->origin() == $p->origin()) {
+        terminate(
+          "A patch with the same branch already exists. ".
+          "Please update the existing patch instead of creating a new one.");
+      }
+    }
     $group->patches->add($p);
     db_save($p);
 

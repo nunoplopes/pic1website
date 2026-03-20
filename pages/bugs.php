@@ -59,12 +59,12 @@ if ($user->role == ROLE_STUDENT && is_deadline_current($deadline)) {
       terminate("Student is not in a group");
 
     if ($bug = db_fetch_bug_user($year, $user)) {
-      $bug->description = $form->get('description')->getData();
-      $bug->set_issue_url($form->get('issue_url')->getData());
+      $bug->description = $form->get('description')->getData() ?? '';
+      $bug->set_issue_url($form->get('issue_url')->getData() ?? '');
       $bug->set_repro_url($form->get('repro_url')->getData() ?? '');
     } else {
       $bug = SelectedBug::factory(
-        $group, $user, $form->get('description')->getData(),
+        $group, $user, $form->get('description')->getData() ?? '',
         $form->get('issue_url')->getData(),
         $form->get('repro_url')->getData() ?? '');
       db_save($bug);
