@@ -247,7 +247,7 @@ function run_patch_stats() {
           foreach ($patch->getHashes() as $hash) {
             $failed = $pr->failedCIjobs($hash);
             foreach ($failed as $job) {
-              $patch->addCIError($hash, $job['name'], $job['url'],
+              $patch->addCIError($hash, $job['name'], $job['url'] ?? '',
                                  $job['time']);
             }
           }
