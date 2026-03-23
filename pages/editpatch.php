@@ -45,11 +45,9 @@ if ($patch->status->value <= PatchStatus::Reviewed->value &&
     auth_at_least(ROLE_TA)) {
   $comments_form->add('approve', SubmitType::class, [
     'label' => 'Approve',
-    'attr'  => ['onclick' => 'this.disabled=true; this.form.submit();'],
   ]);
   $comments_form->add('reject', SubmitType::class, [
     'label' => 'Reject',
-    'attr'  => ['onclick' => 'this.disabled=true; this.form.submit();'],
   ]);
 }
 
@@ -74,7 +72,10 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
   }
 
   $new_status  = $patch->getStatus();
-  $new_comment = $comments_form->get('text')->getData() ?? '';
+  $new_comment = $comments_form->get('text')->getData();
+  if (empty($new_comment)) {
+    terminate("Comment cannot be empty");
+  }
   if ($new_status != $prev_status) {
     $new_comment = "Status changed: $prev_status → $new_status\n\n$new_comment";
   }
