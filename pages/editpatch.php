@@ -37,6 +37,7 @@ $comments_form = $formFactory->createNamedBuilder('comments', FormType::class)
   ])
   ->add('submit', SubmitType::class, [
     'label' => 'Add new comment',
+    'attr'  => ['onclick' => 'this.disabled=true; this.form.submit();'],
   ]);
 
 // Add approve/reject buttons to simplify the life of TAs
@@ -44,9 +45,11 @@ if ($patch->status->value <= PatchStatus::Reviewed->value &&
     auth_at_least(ROLE_TA)) {
   $comments_form->add('approve', SubmitType::class, [
     'label' => 'Approve',
+    'attr'  => ['onclick' => 'this.disabled=true; this.form.submit();'],
   ]);
   $comments_form->add('reject', SubmitType::class, [
     'label' => 'Reject',
+    'attr'  => ['onclick' => 'this.disabled=true; this.form.submit();'],
   ]);
 }
 
