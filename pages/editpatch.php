@@ -74,7 +74,7 @@ if ($comments_form->isSubmitted() && $comments_form->isValid()) {
   }
 
   $new_status  = $patch->getStatus();
-  $new_comment = $comments_form->get('text')->getData();
+  $new_comment = $comments_form->get('text')->getData() ?? '';
   if ($new_status != $prev_status) {
     $new_comment = "Status changed: $prev_status → $new_status\n\n$new_comment";
   }
