@@ -200,13 +200,14 @@ class GitHubPatch extends \Patch
       $usernames = $this->group->students->toArray();
     }
     $usernames
-      = array_map(fn($u) => $u->getRepoUser()?->username(), $usernames);
+      = array_map(fn($u) => strtolower($u->getRepoUser()?->username()),
+                  $usernames);
 
     $changed = false;
     foreach ($prs as $pr) {
       preg_match('@https://github.com/(.+)/pull/\d+@', $pr['html_url'], $m);
       if ($m[1] === $this->group->getRepository()->name() &&
-          in_array($pr['user']['login'], $usernames, true) &&
+          in_array(strtolower($pr['user']['login']), $usernames, true) &&
           $pr['number'] > $this->pr_number) {
         $this->pr_number = $pr['number'];
         $changed = true;
