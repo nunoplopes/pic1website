@@ -211,7 +211,7 @@ abstract class Patch
         check_wrapped_commit_text($msg, 72);
       }
 
-      $fix_issue_regex = '/(?:Fix(?:es)?|Closes?):? #(\d+)/i';
+      $fix_issue_regex = '/(?:Fix(?:es)?|Closes?):? (?:#|gh-)(\d+)/';
 
       if ($url_exception = DONT_WANT_ISSUE_IN_COMMIT_MSG[$repo->id] ?? '') {
         foreach ($commits as $commit) {
