@@ -47,15 +47,14 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
     $video_url = $form->get('video_url')->getData() ?? '';
     $p = Patch::factory($group, $url, $type, $description, $user, $video_url);
 
-    foreach ($group->patches as $patch) {
-      if ($patch->origin() == $p->origin()) {
-        terminate(
-          "A patch with the same branch already exists. ".
-          "Please update the existing patch instead of creating a new one.");
-      }
-    }
     $group->patches->add($p);
-    db_save($p);
+    try {
+      db_save($p);
+    } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException) {
+      terminate(
+        "A patch with the same branch already exists. ".
+        "Please update the existing patch instead of creating a new one.");
+    }
 
     $success_message = 'Patch submitted successfully!';
     $patch_accepted = true;
