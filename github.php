@@ -72,6 +72,7 @@ class MyHttpBuilder extends Github\HttpClient\Builder {
                  'default_ttl' => $this->timeout,
                  'cache_key_generator' => new HeaderCacheKeyGenerator([
                    'Accept',
+                   'If-None-Match',
                  ]),
                 ];
       $plugins = $this->plugins;
