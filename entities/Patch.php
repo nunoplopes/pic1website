@@ -50,6 +50,7 @@ define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
   'github:ArduPilot/ardupilot' => 'https://ardupilot.org/dev/docs/submitting-patches-back-to-master.html#preparing-commits',
   'github:godotengine/godot' => 'https://github.com/godotengine/godot/blob/master/CONTRIBUTING.md#format-your-commit-messages-with-readability-in-mind',
   'github:oppia/oppia' => 'https://github.com/oppia/oppia/wiki/Make-a-pull-request#step-2-make-commits-locally-to-your-feature-branch',
+  'github:rust-lang/rust' => 'https://rustc-dev-guide.rust-lang.org/contributing.html',
 ]);
 
 
