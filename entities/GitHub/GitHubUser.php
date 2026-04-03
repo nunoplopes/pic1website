@@ -81,7 +81,8 @@ class GitHubUser implements \RepositoryUserInterface
 
     // ask github for events we haven't seen yet
     $user = $r->user;
-    github_set_etag($user->repository_etag);
+    // FIXME: disabled because github is missing events
+    //github_set_etag($user->repository_etag);
 
     try {
       $api       = $github_client->user('user');
