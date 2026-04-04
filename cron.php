@@ -320,8 +320,10 @@ function run_repository() {
           if ($patch->origin() != $pr->origin())
             continue;
 
-          $patch->setPR($pr);
-          handle_new_pr($patch, $group, $pr);
+          if ($patch->getPR() != $pr) {
+            $patch->setPR($pr);
+            handle_new_pr($patch, $group, $pr);
+          }
           $processed = true;
           break;
         }
