@@ -209,6 +209,11 @@ class GitHubPatch extends \Patch
       if ($m[1] === $this->group->getRepository()->name() &&
           in_array(strtolower($pr['user']['login']), $usernames, true) &&
           $pr['number'] > $this->pr_number) {
+        if ($this->pr_number != 0) {
+          $this->comments->add(
+            new \PatchComment($this,
+              "PR updated: {$this->pr_number} → {$pr['number']}"));
+        }
         $this->pr_number = $pr['number'];
         $changed = true;
       }
