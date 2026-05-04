@@ -245,7 +245,7 @@ abstract class Patch
               "Referenced issue #$m[1] doesn't match the specified issue URL: ".
               $issue_url);
         }
-      } elseif ($issue_url) {
+      } elseif (!$url_exception && $issue_url) {
         $found_ref = false;
         foreach ($commits as $commit) {
           if (preg_match('/#(\d+)/', $commit['message'], $m) &&
