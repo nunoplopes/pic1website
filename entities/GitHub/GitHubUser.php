@@ -51,9 +51,10 @@ class GitHubUser implements \RepositoryUserInterface
 
   static function processEvents(&$events, $user, $data) {
     foreach ($data as $event) {
-      $id = (int)$event['id'];
-      if ($id <= $user->repository_last_processed_id)
-        return false;
+      // FIXME: disabled because github is missing events
+      //$id = (int)$event['id'];
+      //if ($id <= $user->repository_last_processed_id)
+      //  return false;
 
       $date = github_parse_date($event['created_at']);
 
@@ -81,7 +82,8 @@ class GitHubUser implements \RepositoryUserInterface
 
     // ask github for events we haven't seen yet
     $user = $r->user;
-    github_set_etag($user->repository_etag);
+    // FIXME: disabled because github is missing events
+    //github_set_etag($user->repository_etag);
 
     try {
       $api       = $github_client->user('user');

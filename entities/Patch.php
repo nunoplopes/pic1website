@@ -50,6 +50,7 @@ define('DONT_WANT_ISSUE_IN_COMMIT_MSG', [
   'github:ArduPilot/ardupilot' => 'https://ardupilot.org/dev/docs/submitting-patches-back-to-master.html#preparing-commits',
   'github:godotengine/godot' => 'https://github.com/godotengine/godot/blob/master/CONTRIBUTING.md#format-your-commit-messages-with-readability-in-mind',
   'github:oppia/oppia' => 'https://github.com/oppia/oppia/wiki/Make-a-pull-request#step-2-make-commits-locally-to-your-feature-branch',
+  'github:rust-lang/rust' => 'https://rustc-dev-guide.rust-lang.org/contributing.html',
 ]);
 
 
@@ -211,7 +212,7 @@ abstract class Patch
         check_wrapped_commit_text($msg, 72);
       }
 
-      $fix_issue_regex = '/(?:Fix(?:es)?|Closes?):? #(\d+)/i';
+      $fix_issue_regex = '/(?:Fix(?:es)?|Closes?):? (?:#|gh-)(\d+)/';
 
       if ($url_exception = DONT_WANT_ISSUE_IN_COMMIT_MSG[$repo->id] ?? '') {
         foreach ($commits as $commit) {
@@ -244,7 +245,7 @@ abstract class Patch
               "Referenced issue #$m[1] doesn't match the specified issue URL: ".
               $issue_url);
         }
-      } elseif ($issue_url) {
+      } elseif (!$url_exception && $issue_url) {
         $found_ref = false;
         foreach ($commits as $commit) {
           if (preg_match('/#(\d+)/', $commit['message'], $m) &&

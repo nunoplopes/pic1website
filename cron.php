@@ -320,8 +320,15 @@ function run_repository() {
           if ($patch->origin() != $pr->origin())
             continue;
 
-          $patch->setPR($pr);
-          handle_new_pr($patch, $group, $pr);
+          $oldpr = $patch->getPR();
+          if ($oldpr?->getNumber() < $pr->getNumber()) {
+            if ($oldpr !== null) {
+              $patch->comments->add(
+                new PatchComment($patch, "PR updated: $oldpr → " . $pr));
+            }
+            $patch->setPR($pr);
+            handle_new_pr($patch, $group, $pr);
+          }
           $processed = true;
           break;
         }

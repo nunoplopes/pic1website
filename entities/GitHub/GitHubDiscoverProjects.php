@@ -25,16 +25,22 @@ class GitHubDiscoverProjects implements \DiscoverProjectsInterface {
       $loc = GitHubRepository::linesOfCode($repo['full_name']);
       if ($loc < 100000)
         continue;
+      
+      $commits_last_month = GitHubRepository::commitsLastMonth($repo['full_name']);
+      if ($commits_last_month < 25)
+        continue;
+      
       $res[] = [
-        'name'        => 'github:' . $repo['full_name'],
-        'description' => $repo['description'],
-        'url'         => $repo['html_url'],
-        'stars'       => format_big_number($repo['stargazers_count']),
-        'loc'         => format_big_number($loc),
-        'open_issues' => format_big_number($repo['open_issues']),
-        'language'    => $repo['language'],
-        'topics'      => $repo['topics'],
-        'last_push'   => github_parse_date($repo['pushed_at']),
+        'name'               => 'github:' . $repo['full_name'],
+        'description'        => $repo['description'],
+        'url'                => $repo['html_url'],
+        'stars'              => format_big_number($repo['stargazers_count']),
+        'loc'                => format_big_number($loc),
+        'open_issues'        => format_big_number($repo['open_issues']),
+        'language'           => $repo['language'],
+        'topics'             => $repo['topics'],
+        'last_push'          => github_parse_date($repo['pushed_at']),
+        'commits_last_month' => format_big_number($commits_last_month),
       ];
     }
 
