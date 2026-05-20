@@ -18,7 +18,8 @@ class GitHubPatch extends \Patch
   #[ORM\Column]
   public int $pr_number = 0;
 
-  static function construct($url, \Repository $repository) {
+  static function construct(string $url, \Repository $repository,
+                            bool $ignore_errors = false) : GitHubPatch {
     if (preg_match('@^https://github.com/([^/]+/[^/]+)/compare/(.+)\.\.\.([^:]+):([^:]+):(.+)$@', $url, $m)) {
       $src_repo   = $m[1]; // user/repo
       $src_branch = $m[2];
@@ -59,7 +60,13 @@ class GitHubPatch extends \Patch
       $p->repo_branch = $m[1] . ':' . $m[2] . ':' . $data['name'];
       $p->src_branch  = $src_branch ?? '';
       return $p;
-    } catch (\Github\Exception\RuntimeException $ex) {
+    } catch (\Github\Exception\RuntimeException) {
+      if ($ignore_errors) {
+        $p = new GitHubPatch;
+        $p->repo_branch = "$org:$repo:$branch";
+        $p->src_branch  = $src_branch ?? '';
+        return $p;
+      }
       throw new \ValidationException("Non-existent patch");
     }
   }

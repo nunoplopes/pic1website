@@ -94,13 +94,13 @@ abstract class Patch
   public string $video_url = '';
 
   #[ORM\Column]
-  public int $lines_added;
+  public int $lines_added = 0;
 
   #[ORM\Column]
-  public int $lines_deleted;
+  public int $lines_deleted = 0;
 
   #[ORM\Column]
-  public int $files_modified;
+  public int $files_modified = 0;
 
   static function factory(ProjGroup $group, string $url, PatchType $type,
                           string $description, User $submitter,
@@ -110,18 +110,9 @@ abstract class Patch
     if (!$repo)
       throw new ValidationException('Group has no repository yet');
 
-    $p        = GitHub\GitHubPatch::construct($url, $repo);
+    $p        = GitHub\GitHubPatch::construct($url, $repo, $ignore_errors);
     $p->group = $group;
     $p->type  = $type;
-
-    try {
-      $p->updateStats();
-    } catch (Exception $ex) {
-      throw new ValidationException('Patch not found');
-    }
-
-    if (!$p->isValid())
-      throw new ValidationException('Patch not found');
 
     $description = trim($description);
     $p->comments->add(
@@ -130,6 +121,11 @@ abstract class Patch
 
     try {
       $p->set_video_url($video_url);
+
+      if (!$p->isValid())
+        throw new ValidationException('Patch not found');
+
+      $p->updateStats();
 
       if (!$description)
         throw new ValidationException("Empty description");
@@ -258,13 +254,13 @@ abstract class Patch
           throw new ValidationException(
             'No commit message references the issue #id');
       }
+      $p->add_patch_review_comment();
     } catch (ValidationException $ex) {
       if (!$ignore_errors)
         throw $ex;
       $p->comments->add(
         new PatchComment($p, "Failed validation:\n" . $ex->getMessage()));
     }
-    $p->add_patch_review_comment();
     return $p;
   }
 
