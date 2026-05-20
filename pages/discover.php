@@ -59,12 +59,16 @@ $fields = [
   'form' => $form->createView(),
 ];
 
+$keywords = $form->get('keywords')->getData() ?? '';
+$language = $form->get('language')->getData() ?? '';
+$have_issues_for_newbies = $form->get('newbies')->getData();
+
 if ($form->isSubmitted() && $form->isValid() &&
-    (strlen($keywords = $form->get('keywords')->getData() ?? '') |
-     strlen($language = $form->get('language')->getData() ?? ''))) {
+    (strlen($keywords) > 0 || strlen($language) > 0 ||
+     $have_issues_for_newbies)) {
   try {
     $projs = DiscoverProjects::searchByKeyword($keywords, $language,
-      $form->get('newbies')->getData());
+      $have_issues_for_newbies);
   } catch (Exception $ex) {
     terminate($ex->getMessage(), 'discover.html.twig', $fields);
   }
