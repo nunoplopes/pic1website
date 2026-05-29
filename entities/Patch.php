@@ -199,7 +199,7 @@ abstract class Patch
             ++$small_lines;
           ++$total_lines;
         }
-        if ($small_lines / $total_lines > 0.5)
+        if ($small_lines / $total_lines > 0.6)
           throw new ValidationException(
             "Most lines of the commit message are too short. ".
             "The limit is 72 characters per line.");
