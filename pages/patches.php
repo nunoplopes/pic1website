@@ -66,14 +66,26 @@ if ($user->role === ROLE_STUDENT && $deadlines->isPatchSubmissionActive()) {
 }
 
 if (auth_at_least(ROLE_TA)) {
-  [$groups, $only_needs_review, $only_open_patches]
+  [$groups, $only_needs_review, $only_ungraded_prs]
     = filter_by(['group', 'year', 'shift', 'own_shifts', 'repo'],
                 [
                   'needs_review' => 'Show only patches that need review',
-                  'open_patches' => 'Show only non-merged patches',
+                  'ungraded_prs' => 'Show only ungraded PRs',
                 ]);
 } else {
   $groups = $user->groups;
+}
+
+function all_graded(Patch $patch): bool {
+  $milestones
+    = db_get_milestone($patch->group->year, 'patch-' . $patch->getType());
+  foreach ($patch->students as $student) {
+    foreach ($milestones as $milestone) {
+      if (!db_get_grade($milestone, $student))
+        return false;
+    }
+  }
+  return true;
 }
 
 $table = [];
@@ -83,8 +95,7 @@ foreach ($groups as $group) {
       if ($only_needs_review && $patch->status != PatchStatus::WaitingReview)
         continue;
 
-      if ($only_open_patches &&
-          $patch->status->value >= PatchStatus::Merged->value)
+      if ($only_ungraded_prs && (!$patch->getPR() || all_graded($patch)))
         continue;
     }
 
