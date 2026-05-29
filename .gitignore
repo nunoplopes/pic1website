@@ -10,3 +10,5 @@ vendor
 .proxies
 .cache
 uploads/*
+coverage/
+.phpunit.cache/
