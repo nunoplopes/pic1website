@@ -159,19 +159,14 @@ abstract class Patch
         }
       }
 
-      $student_emails = [];
-      foreach ($group->students as $student) {
-        $student_emails[] = strtolower($student->email);
-      }
-
       foreach ($commits as $commit) {
         if (!check_email($commit['email']))
           throw new ValidationException(
             'Invalid email used in commit: ' . $commit['email']);
 
-        if (!in_array(strtolower($commit['email']), $student_emails, true))
+        if (str_starts_with(strtolower($commit['email']), 'ist'))
           throw new ValidationException(
-            'Commit email does not match any student in the group: ' .
+            'Commit email cannot start with ist: ' .
             $commit['email']);
 
         $msg = $commit['message'];
