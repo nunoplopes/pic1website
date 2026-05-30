@@ -164,11 +164,6 @@ abstract class Patch
           throw new ValidationException(
             'Invalid email used in commit: ' . $commit['email']);
 
-        if (str_starts_with(strtolower($commit['email']), 'ist'))
-          throw new ValidationException(
-            'Commit email cannot start with ist: ' .
-            $commit['email']);
-
         $msg = $commit['message'];
         if (str_starts_with($msg, 'Merge branch '))
           throw new ValidationException('Merge commits are not allowed');

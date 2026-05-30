@@ -21,7 +21,8 @@ function check_url($url) {
 
 function check_email($email) {
   return filter_var($email, FILTER_VALIDATE_EMAIL) &&
-         str_ends_with($email, '@tecnico.ulisboa.pt');
+         str_ends_with($email, '@tecnico.ulisboa.pt') &&
+         !str_starts_with(strtolower($email), 'ist');
 }
 
 function transliterate_str($str) {
