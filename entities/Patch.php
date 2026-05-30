@@ -159,10 +159,20 @@ abstract class Patch
         }
       }
 
+      $student_emails = [];
+      foreach ($group->students as $student) {
+        $student_emails[] = strtolower($student->email);
+      }
+
       foreach ($commits as $commit) {
         if (!check_email($commit['email']))
           throw new ValidationException(
             'Invalid email used in commit: ' . $commit['email']);
+
+        if (!in_array(strtolower($commit['email']), $student_emails, true))
+          throw new ValidationException(
+            'Commit email does not match any student in the group: ' .
+            $commit['email']);
 
         $msg = $commit['message'];
         if (str_starts_with($msg, 'Merge branch '))
