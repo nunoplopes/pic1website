@@ -102,7 +102,9 @@ if (sizeof($projs) > 10) {
 }
 
 arsort($langs);
-arsort($projs);
+uksort($projs, function($a, $b) use($projs) {
+  return $projs[$b] <=> $projs[$a] ?: strnatcasecmp($a, $b);
+});
 ksort($prs_per_project, SORT_NATURAL | SORT_FLAG_CASE);
 
 $fields['lang_x'] = array_keys($langs);
