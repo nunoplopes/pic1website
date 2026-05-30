@@ -115,9 +115,6 @@ abstract class Patch
     $p->type  = $type;
 
     $description = trim($description);
-    $p->comments->add(
-      new PatchComment($p, "Patch submitted; hash: {$p->hash}\n\n$description",
-                       $submitter));
 
     try {
       $p->set_video_url($video_url);
@@ -126,6 +123,9 @@ abstract class Patch
         throw new ValidationException('Patch not found');
 
       $p->updateStats();
+      $p->comments->add(
+        new PatchComment($p, "Patch submitted; hash: {$p->hash}\n\n$description",
+                         $submitter));
 
       if (!$description)
         throw new ValidationException("Empty description");
