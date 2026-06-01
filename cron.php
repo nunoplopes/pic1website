@@ -265,6 +265,7 @@ EOF;
                         "PIC1: 🤖 AI-generated feedback for patch $patch->id",
                          markdown_to_html($msg), /*html=*/true);
           }
+          $patch->add_patch_complexity_comment();
         }
 
         echo "Updated patch $patch->id\n";

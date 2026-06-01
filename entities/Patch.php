@@ -255,6 +255,7 @@ abstract class Patch
             'No commit message references the issue #id');
       }
       $p->add_patch_review_comment();
+      $p->add_patch_complexity_comment();
     } catch (ValidationException $ex) {
       if (!$ignore_errors)
         throw $ex;
@@ -272,22 +273,51 @@ abstract class Patch
         return null;
     }
 
-    $description = explode("\n\n", $this->comments->first()->text, 2)[1] ?? '';
-    $issue_description = '';
+    $issue_description = null;
     if ($issue = $this->getIssue()) {
       $issue_description = $issue->getTitle() . "\n" . $issue->getDescription();
     }
     try {
       $review = review_patch($this->group->project_name,
                              $this->type == PatchType::BugFix,
-                             $this->patch(), $description, $this->getIssueURL(),
+                             $this->patch(false), $this->getDescription(),
                              $issue_description, $this->group->coding_style);
       $this->comments->add(
         new PatchComment($this,
                          "🤖 AI-generated feedback — please review carefully\n".
                          "Commit: " . $this->hash . "\n\n" . $review));
       return $review;
-    } catch (ValidationException $ex) {
+    } catch (ValidationException) {
+      // the AI service isn't very reliable; ignore errors
+    }
+    return null;
+  }
+
+  function add_patch_complexity_comment() : ?string {
+    if ($this->type != PatchType::Feature)
+      return null;
+
+    // check if there's already a complexity comment
+    foreach ($this->comments as $c) {
+      if (str_starts_with($c->text, "🤖 AI-generated complexity analysis"))
+        return null;
+    }
+
+    $issue_description = null;
+    if ($issue = $this->getIssue()) {
+      $issue_description = $issue->getTitle() . "\n" . $issue->getDescription();
+    }
+    try {
+      $review = review_patch_complexity($this->group->project_name,
+                                        $this->patch(true),
+                                        $this->getDescription(),
+                                        $issue_description);
+      $this->comments->add(
+        new PatchComment($this,
+                         "🤖 AI-generated complexity analysis — please review carefully\n".
+                         $review));
+      return $review;
+    } catch (ValidationException) {
       // the AI service isn't very reliable; ignore errors
     }
     return null;
@@ -304,7 +334,7 @@ abstract class Patch
   abstract public function origin() : string;
   abstract public function commits() : array;
   abstract public function diff() : array;
-  abstract public function patch() : string;
+  abstract public function patch(bool $single_diff) : string;
   abstract protected function computeBranchHash() : string;
   abstract protected function computeLinesAdded() : int;
   abstract protected function computeLinesDeleted() : int;
@@ -430,6 +460,10 @@ abstract class Patch
 
   public function getSubmitterName() : string {
     return $this->getSubmitter()->shortName();
+  }
+
+  public function getDescription() : string {
+    return explode("\n\n", $this->comments->first()->text, 2)[1] ?? '';
   }
 
   public function getHashes() {

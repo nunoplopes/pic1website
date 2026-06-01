@@ -135,12 +135,13 @@ class GitHubPatch extends \Patch
     return $diff;
   }
 
-  public function patch() : string {
+  public function patch(bool $single_diff) : string {
     $r = $this->group->getRepository();
     [$org, $repo] = GitHubRepository::getRepo($r->name());
     $c = $GLOBALS['github_client']->api('repo')->commits();
+    $type = 'application/vnd.github.' . ($single_diff ? 'diff' : 'patch');
     return $c->compare($org, $repo, $this->srcBranch(), $this->repo_branch,
-                       'application/vnd.github.patch');
+                       $type);
   }
 
   protected function computeBranchHash() : string {
