@@ -54,7 +54,7 @@ function format_big_number($n) {
   return round($n / 1000000, 1) . "\u{202F}M";
 }
 
-function markdown_to_html($text) {
+function markdown_to_html(string $text) {
   static $converter = null;
   if ($converter === null) {
     $config = [
@@ -62,7 +62,7 @@ function markdown_to_html($text) {
       'allow_unsafe_links' => false,
       'max_nesting_level'  => 10,
     ];
-    $converter = new \League\CommonMark\CommonMarkConverter($config);
+    $converter = new \League\CommonMark\GithubFlavoredMarkdownConverter($config);
   }
   return $converter->convert($text)->getContent();
 }
