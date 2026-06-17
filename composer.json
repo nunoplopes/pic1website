@@ -13,10 +13,23 @@
     "symfony/http-foundation": "*",
     "symfony/mailer": "*",
     "symfony/twig-bridge": "*",
-    "twig/twig": "*"
+    "twig/twig": "*",
+    "php": ">=8.2",
+    "ext-ctype": "*",
+    "ext-intl": "*",
+    "ext-mbstring": "*"
   },
   "require-dev": {
     "symfony/messenger": "*"
+  },
+  "replace": {
+    "symfony/polyfill-ctype": "*",
+    "symfony/polyfill-intl-grapheme": "*",
+    "symfony/polyfill-intl-icu": "*",
+    "symfony/polyfill-intl-idn": "*",
+    "symfony/polyfill-intl-normalizer": "*",
+    "symfony/polyfill-mbstring": "*",
+    "symfony/polyfill-php80": "*"
   },
   "autoload": {
     "psr-4": {"": "entities"}
