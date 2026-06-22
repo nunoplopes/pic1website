@@ -20,7 +20,9 @@
     "ext-mbstring": "*"
   },
   "require-dev": {
-    "symfony/messenger": "*"
+    "symfony/messenger": "*",
+    "phpunit/phpunit": "^11.0",
+    "phpunit/php-invoker": "^5.0"
   },
   "replace": {
     "symfony/polyfill-ctype": "*",
@@ -33,6 +35,9 @@
   },
   "autoload": {
     "psr-4": {"": "entities"}
+  },
+  "autoload-dev": {
+    "psr-4": {"Tests\\": "tests"}
   },
   "config": {
     "optimize-autoloader": true,
